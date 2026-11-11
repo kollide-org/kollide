@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["**/services/mock", "**/services/mock/**", "**/services/real", "**/services/real/**"],
+            "message": "Import services from '@/services' only. The mock and real implementations are chosen in one place."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": { "react/only-export-components": "off" }
+    },
+    {
+      "files": ["src/services/**"],
+      "rules": { "no-restricted-imports": "off" }
+    }
+  ]
+}
