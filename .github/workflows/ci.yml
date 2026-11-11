@@ -39,6 +39,9 @@ jobs:
       - name: Worker tests
         run: npm run worker:test
 
+      - name: Build (also writes the Content-Security-Policy)
+        run: npm run build
+
       - name: Start local Supabase
         # Retry once: the first start occasionally fails with a transient port-binding error.
         run: |
@@ -58,6 +61,46 @@ jobs:
         run: |
           npm run db:types
           git diff --exit-code src/types/database.ts
+
+      - name: Stop Supabase
+        if: always()
+        run: npx supabase stop --no-backup
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Mailpit stays on: the tests read the sign-in code from it.
+      - name: Start local Supabase
+        run: |
+          npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector \
+            || { npx supabase stop --no-backup; npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector; }
+
+      - name: End-to-end tests
+        run: npm run e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
 
       - name: Stop Supabase
         if: always()

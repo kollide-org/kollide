@@ -24,3 +24,10 @@ export const ROLE_HOME: Record<Role, string> = {
   host: '/app',
   admin: '/admin',
 }
+
+/** The role shown in the interface: the highest of the roles the person holds. Signed-in people are at least members. */
+export function roleFromRoles(roles: readonly string[]): Role {
+  if (roles.includes('admin')) return 'admin'
+  if (roles.includes('host')) return 'host'
+  return 'member'
+}

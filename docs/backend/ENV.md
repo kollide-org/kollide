@@ -33,17 +33,20 @@ Places a value can live:
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | secret | Presigned upload links. B3. | Wrangler; `.dev.vars` |
 | `POSTHOG_API_KEY` | secret | Server-side funnel events (EU host). B8. | Wrangler; `.dev.vars` |
 
-## Frontend (`.env.local`, built into the site by Cloudflare Pages)
+## Frontend (`.env.local`, and Cloudflare Pages environment variables for builds)
 
-These are public by design. Never put a secret here.
+These are public by design (they end up in the browser). Never put a secret here. See `.env.example`.
 
 | Name | Purpose | Where it lives |
 |---|---|---|
-| `VITE_SERVICES` | `mock` or `real` | `.env.local`; Pages env vars |
+| `VITE_SERVICES` | `mock` (default) or `real` | `.env.local`; Pages env vars |
 | `VITE_SUPABASE_URL` | Project URL | `.env.local`; Pages env vars |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public (anon) key | `.env.local`; Pages env vars |
-| `VITE_API_URL` | Worker base URL | `.env.local`; Pages env vars |
+| `VITE_SUPABASE_ANON_KEY` | Public (anon or publishable) key | `.env.local`; Pages env vars |
+| `VITE_API_URL` | Worker base URL (`https://api.<domain>`); used in the CSP | `.env.local`; Pages env vars |
+| `VITE_MEDIA_URL` | Image host (`https://img.<domain>`); used in the CSP | `.env.local`; Pages env vars |
 | `VITE_POSTHOG_KEY` | PostHog project key (B8) | `.env.local`; Pages env vars |
+
+The build writes `dist/_headers` (the Content-Security-Policy) from these values, so Pages must have `VITE_SUPABASE_URL`, `VITE_API_URL` and `VITE_MEDIA_URL` set for the CSP to name the real hosts. The build prints a warning when one is missing.
 
 ## Local Supabase (`supabase/.env`)
 
@@ -53,8 +56,7 @@ These are public by design. Never put a secret here.
 
 ## Supabase dashboard (per project, B2)
 
-- Google provider: client id and secret.
-- Custom SMTP: Resend host, port, user, SMTP key, sender `auth.<domain>`.
+Exact steps are in `AUTH_SETUP.md`: Google provider (client id and secret), URL configuration, email code settings and templates, Resend SMTP (host `smtp.resend.com`, port 465, user `resend`, API key, sender `auth@auth.<domain>`), rate limits.
 
 ## Backup workflow (disabled until you set the repo variable `BACKUP_ENABLED=true`)
 

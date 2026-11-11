@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react'
 import { Outlet, ScrollRestoration } from 'react-router'
 
-// The role switcher is only ever bundled into development builds.
+import { servicesMode } from '@/services'
+
+// The role switcher is only ever bundled into development builds, and only works with mock services.
 const RoleSwitcher = import.meta.env.DEV ? lazy(() => import('@/dev/role-switcher')) : null
 
 export function RootLayout() {
@@ -15,7 +17,7 @@ export function RootLayout() {
       </a>
       <Outlet />
       <ScrollRestoration />
-      {RoleSwitcher ? (
+      {RoleSwitcher && servicesMode === 'mock' ? (
         <Suspense fallback={null}>
           <RoleSwitcher />
         </Suspense>
