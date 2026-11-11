@@ -23,3 +23,15 @@ dist-ssr
 *.sln
 *.sw?
 .screenshots
+
+# Backend secrets and local state
+.dev.vars
+.env
+.env.*
+!.env.example
+!*.example
+supabase/.temp
+supabase/.branches
+*.dump
+workers/api/.wrangler
+workers/api/node_modules

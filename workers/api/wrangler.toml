@@ -1,0 +1,25 @@
+name = "kollide-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Local (`wrangler dev`). Secrets come from .dev.vars, never from this file.
+[vars]
+ENVIRONMENT = "local"
+KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
+SUPABASE_URL = "http://127.0.0.1:54321"
+
+[env.staging]
+name = "kollide-api-staging"
+[env.staging.vars]
+ENVIRONMENT = "staging"
+KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
+SUPABASE_URL = "https://REPLACE_STAGING_REF.supabase.co" # TODO: staging project URL
+
+[env.production]
+name = "kollide-api"
+[env.production.vars]
+ENVIRONMENT = "production"
+KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
+SUPABASE_URL = "https://REPLACE_PROD_REF.supabase.co" # TODO: production project URL
+
+# Secrets (set with `wrangler secret put <NAME> --env <env>`, never committed). See README.md.

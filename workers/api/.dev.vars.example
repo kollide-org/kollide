@@ -1,0 +1,2 @@
+# Copy to .dev.vars (git-ignored) for `wrangler dev`. Values for local Supabase come from `npx supabase status`.
+SUPABASE_SERVICE_ROLE_KEY=
