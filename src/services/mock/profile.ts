@@ -1,7 +1,9 @@
-import type { MyProfile, ProfileService, ProfileUpdate } from '../types/profile'
+import type { MyProfile, ProfileService, ProfileUpdate, VerificationState } from '../types/profile'
 import { currentMockRole, mockAuth } from './auth'
 
 let overrides: ProfileUpdate = {}
+let photoKeys: (string | undefined)[] = []
+let verification: VerificationState = 'none'
 
 export const mockProfile: ProfileService = {
   async getMyProfile() {
@@ -24,7 +26,7 @@ export const mockProfile: ProfileService = {
       onboardingCompletedAt: '2026-01-01T00:00:00Z',
       deletedAt: null,
       status: 'active',
-      photoKeys: [],
+      photos: photoKeys.flatMap((key, index) => (key ? [{ position: index + 1, key }] : [])),
       interestIds: overrides.interestIds ?? [1, 2],
       languageIds: overrides.languageIds ?? [1, 2],
       roles: role === 'admin' ? ['admin'] : role === 'host' ? ['host'] : [],
@@ -40,5 +42,18 @@ export const mockProfile: ProfileService = {
   },
   async exportMyData() {
     return { mock: true, note: 'Mock data. Switch VITE_SERVICES to real for a real export.' }
+  },
+  async setProfilePhoto(position, key) {
+    photoKeys = [...photoKeys]
+    photoKeys[position - 1] = key
+  },
+  async removeProfilePhoto(position) {
+    photoKeys = photoKeys.map((key, index) => (index === position - 1 ? undefined : key))
+  },
+  async submitSelfie() {
+    verification = 'pending'
+  },
+  async getVerificationState() {
+    return verification
   },
 }

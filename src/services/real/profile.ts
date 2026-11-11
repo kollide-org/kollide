@@ -32,7 +32,7 @@ function parseProfile(raw: Json): MyProfile {
     onboardingCompletedAt: str('onboarding_completed_at'),
     deletedAt: str('deleted_at'),
     status: str('status') as MyProfile['status'],
-    photoKeys: Array.isArray(r.photo_keys) ? (r.photo_keys as string[]) : [],
+    photos: Array.isArray(r.photos) ? (r.photos as { position: number; key: string }[]) : [],
     interestIds: nums('interest_ids'),
     languageIds: nums('language_ids'),
     roles: Array.isArray(r.roles) ? (r.roles as AppRole[]) : [],
@@ -93,5 +93,38 @@ export const realProfile: ProfileService = {
     const { data, error } = await supabase.rpc('export_my_data')
     if (error) throw toServiceError(error)
     return data
+  },
+
+  async setProfilePhoto(position, key) {
+    const supabase = await client()
+    const { error } = await supabase.rpc('set_profile_photo', { p_position: position, p_key: key })
+    if (error) throw toServiceError(error)
+  },
+
+  async removeProfilePhoto(position) {
+    const supabase = await client()
+    const { error } = await supabase.rpc('remove_profile_photo', { p_position: position })
+    if (error) throw toServiceError(error)
+  },
+
+  async submitSelfie(key) {
+    const supabase = await client()
+    const { error } = await supabase.rpc('submit_selfie', { p_key: key })
+    if (error) throw toServiceError(error)
+  },
+
+  async getVerificationState() {
+    const supabase = await client()
+    const { data: session } = await supabase.auth.getSession()
+    const userId = session.session?.user.id
+    if (!userId) return 'none'
+    const { data, error } = await supabase
+      .from('verifications')
+      .select('result')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+    if (error) throw toServiceError(error)
+    return data?.[0]?.result ?? 'none'
   },
 }

@@ -6,6 +6,7 @@ import { BootFallback } from '@/app/layouts/boot-fallback'
 import { useSession } from '@/app/providers/session-context'
 import { ChipSelect } from '@/components/shared/chip-select'
 import { NativeSelect } from '@/components/shared/native-select'
+import { PhotoSlot } from '@/components/shared/photo-slot'
 import { PromptsEditor } from '@/components/shared/prompts-editor'
 import { emptyPromptSlots, filledPrompts } from '@/lib/prompts'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAppConfig } from '@/hooks/use-app-config'
 import { useReferenceData } from '@/hooks/use-reference-data'
+import { uploadImage } from '@/lib/upload-image'
 import { errorMessage, services, type Gender } from '@/services'
 
 const STEPS = ['About you', 'Interests and languages', 'Prompts', 'Photos', 'Almost there']
@@ -29,11 +31,6 @@ function eighteenYearsAgo(): string {
   const date = new Date()
   date.setFullYear(date.getFullYear() - 18)
   return date.toISOString().slice(0, 10)
-}
-
-/** Photo upload arrives with B3. Until then each photo is a placeholder key. */
-function placeholderKeys(): string[] {
-  return [0, 1, 2].map(() => `placeholder/${crypto.randomUUID()}.webp`)
 }
 
 export function Component() {
@@ -52,7 +49,8 @@ export function Component() {
   const [interestIds, setInterestIds] = useState<number[]>([])
   const [languageIds, setLanguageIds] = useState<number[]>([])
   const [slots, setSlots] = useState(emptyPromptSlots)
-  const [photoKeys] = useState(placeholderKeys)
+  const [photoKeys, setPhotoKeys] = useState<(string | null)[]>([null, null, null])
+  const [photoBusy, setPhotoBusy] = useState<number | null>(null)
   const [acceptConduct, setAcceptConduct] = useState(false)
   const [acceptPrivacy, setAcceptPrivacy] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -78,6 +76,8 @@ export function Component() {
         return null
       case 2:
         return filled.length >= 2 ? null : 'Answer at least two prompts.'
+      case 3:
+        return photoKeys.every(Boolean) ? null : 'Please add three photos.'
       default:
         return null
     }
@@ -108,7 +108,7 @@ export function Component() {
         interestIds,
         languageIds,
         prompts: filled,
-        photoKeys,
+        photoKeys: photoKeys as string[],
         noticeVersion: config.data?.noticeVersion ?? 'v1',
         acceptConduct,
         acceptPrivacy,
@@ -120,6 +120,19 @@ export function Component() {
       setError(errorMessage(caught))
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function addPhoto(index: number, file: File) {
+    setPhotoBusy(index)
+    setError(null)
+    try {
+      const key = await uploadImage(file, 'profile_photo')
+      setPhotoKeys((keys) => keys.map((existing, i) => (i === index ? key : existing)))
+    } catch (caught) {
+      setError(errorMessage(caught))
+    } finally {
+      setPhotoBusy(null)
     }
   }
 
@@ -184,14 +197,18 @@ export function Component() {
         {step === 3 ? (
           <div className="grid gap-4">
             <p className="text-muted-foreground">
-              Photo upload is coming very soon. For now we add three placeholder photos so you can finish setting up.
-              You’ll be able to replace them with your own.
+              Add three photos of you. We shrink them and remove hidden data such as your location before they leave
+              your device.
             </p>
             <div className="grid grid-cols-3 gap-3">
               {photoKeys.map((key, index) => (
-                <div key={key} className="grid aspect-square place-items-center rounded-2xl bg-secondary text-sm text-muted-foreground">
-                  Photo {index + 1}
-                </div>
+                <PhotoSlot
+                  key={index}
+                  index={index + 1}
+                  photoKey={key}
+                  busy={photoBusy === index}
+                  onFile={(file) => void addPhoto(index, file)}
+                />
               ))}
             </div>
           </div>

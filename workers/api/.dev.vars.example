@@ -1,2 +1,6 @@
 # Copy to .dev.vars (git-ignored) for `wrangler dev`. Values for local Supabase come from `npx supabase status`.
 SUPABASE_SERVICE_ROLE_KEY=
+# Locally, uploads go to a simulated bucket, so these can stay as they are.
+R2_ACCESS_KEY_ID=local
+R2_SECRET_ACCESS_KEY=local
+JOB_SHARED_SECRET=local-job-secret

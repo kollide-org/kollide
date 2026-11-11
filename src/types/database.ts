@@ -323,6 +323,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"storage_deletions": {
+                  Row: {
+                    "bucket": string,"done_at": string | null,"id": number,"key": string,"requested_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bucket": string,"done_at"?: string | null,"id"?: never,"key": string,"requested_at"?: string
+                  }
+                  Update: {
+                    "bucket"?: string,"done_at"?: string | null,"id"?: never,"key"?: string,"requested_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"upload_keys": {
+                  Row: {
+                    "consumed_at": string | null,"created_at": string,"event_id": string | null,"key": string,"purpose": string,"size_limit": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "consumed_at"?: string | null,"created_at"?: string,"event_id"?: string | null,"key": string,"purpose": string,"size_limit": number,"user_id": string
+                  }
+                  Update: {
+                    "consumed_at"?: string | null,"created_at"?: string,"event_id"?: string | null,"key"?: string,"purpose"?: string,"size_limit"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "upload_keys_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "upload_keys_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"user_blocks": {
                   Row: {
                     "blocked_id": string,"blocker_id": string,"created_at": string
@@ -401,14 +441,14 @@ isOneToOne: false
                   ]
                 },"verifications": {
                   Row: {
-                    "created_at": string,"id": string,"result": Database["public"]['Enums']["review_status"],"reviewed_at": string | null,"reviewer_id": string | null,"selfie_key": string,"user_id": string
+                    "created_at": string,"id": string,"result": Database["public"]['Enums']["review_status"],"reviewed_at": string | null,"reviewer_id": string | null,"selfie_key": string | null,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"result"?: Database["public"]['Enums']["review_status"],"reviewed_at"?: string | null,"reviewer_id"?: string | null,"selfie_key": string,"user_id": string
+                    "created_at"?: string,"id"?: string,"result"?: Database["public"]['Enums']["review_status"],"reviewed_at"?: string | null,"reviewer_id"?: string | null,"selfie_key"?: string | null,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"result"?: Database["public"]['Enums']["review_status"],"reviewed_at"?: string | null,"reviewer_id"?: string | null,"selfie_key"?: string,"user_id"?: string
+                    "created_at"?: string,"id"?: string,"result"?: Database["public"]['Enums']["review_status"],"reviewed_at"?: string | null,"reviewer_id"?: string | null,"selfie_key"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -463,7 +503,20 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "complete_onboarding":
+            "admin_list_pending_verifications":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"first_name": string,"id": string,"user_id": string
+            }[]
+                           },
+"authorize_upload":
+{ Args: { "p_content_type": string,"p_event": string,"p_purpose": string,"p_size": number,"p_user": string }; Returns: string
+                           },
+"claim_deletions":
+{ Args: { "p_limit": number }; Returns: {
+              "bucket": string,"id": number,"key": string
+            }[]
+                           },
+"complete_onboarding":
 { Args: { "p_accept_conduct": boolean,"p_accept_privacy": boolean,"p_area_id": number,"p_date_of_birth": string,"p_first_name": string,"p_gender": Database["public"]['Enums']["gender"],"p_interest_ids": (number)[],"p_language_ids": (number)[],"p_last_name"?: string,"p_notice_version": string,"p_phone"?: string,"p_photo_keys": (string)[],"p_prompts": Json }; Returns: undefined
                            },
 "delete_my_account":
@@ -474,6 +527,30 @@ isOneToOne: false
                            },
 "get_my_profile":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"mark_deletions_done":
+{ Args: { "p_ids": (number)[] }; Returns: undefined
+                           },
+"purge_old_upload_keys":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"remove_profile_photo":
+{ Args: { "p_position": number }; Returns: undefined
+                           },
+"review_verification":
+{ Args: { "p_approved": boolean,"p_id": string }; Returns: undefined
+                           },
+"set_event_cover":
+{ Args: { "p_event_id": string,"p_key": string }; Returns: undefined
+                           },
+"set_profile_photo":
+{ Args: { "p_key": string,"p_position": number }; Returns: undefined
+                           },
+"submit_selfie":
+{ Args: { "p_key": string }; Returns: undefined
+                           },
+"unreferenced_keys":
+{ Args: { "p_bucket": string,"p_keys": (string)[] }; Returns: (string)[]
                            },
 "update_my_profile":
 { Args: { "p_area_id"?: number,"p_bio_prompts"?: Json,"p_first_name"?: string,"p_interest_ids"?: (number)[],"p_language_ids"?: (number)[],"p_last_name"?: string,"p_phone"?: string }; Returns: undefined

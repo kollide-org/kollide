@@ -81,6 +81,7 @@ export const router = createBrowserRouter([
                 lazy: async () => ({ Component: (await import('@/app/layouts/admin-layout')).AdminLayout }),
                 children: [
                   { index: true, element: <StubPage eyebrow="Admin" title="Host approvals" milestone={9} /> },
+                  { path: 'verifications', lazy: () => import('@/pages/admin/verifications') },
                   { path: 'events', element: <StubPage eyebrow="Admin" title="Events" milestone={5} /> },
                   { path: 'hubs', element: <StubPage eyebrow="Admin" title="Hubs" milestone={5} /> },
                   { path: 'reports', element: <StubPage eyebrow="Admin" title="Reports" milestone={9} /> },

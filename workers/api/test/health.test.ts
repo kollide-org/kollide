@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import app from '../src/index'
 import type { Env } from '../src/env'
 
-const env = { ENVIRONMENT: 'local', KOLLIDE_DOMAIN: 'example.invalid', SUPABASE_URL: 'http://x' } as Env
+const env = { ENVIRONMENT: 'local', KOLLIDE_DOMAIN: 'example.invalid', SUPABASE_URL: 'http://x', ALLOWED_ORIGINS: '' } as Env
 
 describe('GET /health', () => {
   it('responds ok with the environment name', async () => {

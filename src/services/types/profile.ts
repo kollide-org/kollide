@@ -22,7 +22,8 @@ export interface MyProfile {
   onboardingCompletedAt: string | null
   deletedAt: string | null
   status: UserStatus | null
-  photoKeys: string[]
+  /** In position order. Positions can have gaps after a removal. */
+  photos: { position: number; key: string }[]
   interestIds: number[]
   languageIds: number[]
   roles: AppRole[]
@@ -54,6 +55,8 @@ export interface ProfileUpdate {
   languageIds?: number[]
 }
 
+export type VerificationState = 'none' | 'pending' | 'approved' | 'rejected'
+
 export interface ProfileService {
   /** Null when nobody is signed in. */
   getMyProfile(): Promise<MyProfile | null>
@@ -62,4 +65,10 @@ export interface ProfileService {
   /** Anonymises the account and signs the person out. */
   deleteMyAccount(): Promise<void>
   exportMyData(): Promise<unknown>
+  /** Attach an uploaded photo at position 1 to 3, replacing the one there. */
+  setProfilePhoto(position: number, key: string): Promise<void>
+  removeProfilePhoto(position: number): Promise<void>
+  /** Attach an uploaded selfie for review. */
+  submitSelfie(key: string): Promise<void>
+  getVerificationState(): Promise<VerificationState>
 }

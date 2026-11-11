@@ -16,3 +16,6 @@ The full plan is in `docs/backend/BACKEND_PLAN.md`.
 
 ### Pattern for database functions called from the browser
 Put the logic in a `SECURITY DEFINER` function in the `private` schema (with `search_path = ''`, checking `auth.uid()`), and expose a thin `SECURITY INVOKER` wrapper in `public` that calls it. Revoke execute from `public` and `anon` on the wrapper. Supabase's advisors warn about definer functions in `public`, and CI fails on warnings. Errors are raised as short codes (for example `under_18`) that the frontend maps to text. When a new table stores personal data, add it to `public.export_my_data()` and to `private.delete_my_account()`.
+
+### Images
+Browsers never choose an R2 key: the Worker asks `authorize_upload` for one and the key is recorded in `upload_keys`. Attach functions (`set_profile_photo`, `submit_selfie`, ...) only accept keys issued to the caller. When you add a column that stores an image key (event cover, hub art), update `private.unreferenced_keys` too, or the nightly cleanup deletes it.
