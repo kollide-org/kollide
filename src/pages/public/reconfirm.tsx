@@ -26,8 +26,8 @@ export function Component() {
         {state.kind === 'working' ? <h1 className="text-h2">Confirming…</h1> : null}
         {state.kind === 'done' ? (
           <>
-            <h1 className="text-h2">{state.already ? 'You are already confirmed' : 'Thank you, see you there!'}</h1>
-            <p className="text-muted-foreground">Your place at <strong>{state.title}</strong> is confirmed.</p>
+            <h1 className="text-h2">Thank you, see you there!</h1>
+            <p className="text-muted-foreground">Your place at <strong>{state.title}</strong> is confirmed{state.already ? ' (you had already confirmed)' : ''}.</p>
             <p><AppLink to={`/app/events/${state.eventId}`} className="text-primary underline underline-offset-4">Open the event</AppLink></p>
           </>
         ) : null}

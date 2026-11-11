@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test'
 import { DEV_HOST_EMAIL, devMail, flushEmail, newMember, promoteToAdmin, publishedEvent, signInWithCode } from './helpers.ts'
 
 test.setTimeout(240_000)
+// The host signs in with a one-minute limit per address, so a retry of this test would be refused.
+test.describe.configure({ retries: 0 })
 
 test('request, host approves, email, address; waitlist promotion; reconfirmation by hand; notifications', async ({ browser }) => {
   const stamp = Date.now()
