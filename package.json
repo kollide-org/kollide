@@ -19,7 +19,8 @@
     "worker:dev": "npm --prefix workers/api run dev",
     "worker:test": "npm --prefix workers/api test",
     "worker:typecheck": "npm --prefix workers/api run typecheck",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "db:race": "bash scripts/test-concurrency.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

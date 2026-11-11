@@ -35,6 +35,11 @@ export function Component() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant="soft">{STATUS_LABEL[event.status]}</Badge>
+                  {event.status === 'published' ? (
+                    <Button asChild size="sm">
+                      <AppLink to={`/app/host/events/${event.id}/inbox`}>Requests</AppLink>
+                    </Button>
+                  ) : null}
                   <Button asChild variant="outline" size="sm">
                     <AppLink to={`/app/host/events/${event.id}`}>{event.status === 'draft' ? 'Edit' : 'Open'}</AppLink>
                   </Button>

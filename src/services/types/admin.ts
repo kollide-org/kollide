@@ -52,6 +52,16 @@ export interface HubInput {
   artKey?: string
 }
 
+export interface JobRun {
+  job: string
+  lastFinishedAt: string | null
+  lastStatus: 'ok' | 'warning' | 'error' | 'skipped' | null
+  lastDetail: Record<string, unknown> | null
+  lastError: string | null
+  runCount: number
+  errorCount: number
+}
+
 export interface AdminService {
   listPendingVerifications(): Promise<PendingVerification[]>
   /** A link that works for 5 minutes. */
@@ -74,4 +84,7 @@ export interface AdminService {
   saveHub(input: HubInput): Promise<string>
   setHubEvents(hubId: string, eventIds: string[]): Promise<void>
   deleteHub(id: string): Promise<void>
+
+  /** The last run of each scheduled job. */
+  jobRuns(): Promise<JobRun[]>
 }

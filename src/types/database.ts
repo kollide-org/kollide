@@ -65,6 +65,62 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"bookings": {
+                  Row: {
+                    "cancel_reason": string | null,"cancelled_at": string | null,"created_at": string,"decided_at": string | null,"decided_by": string | null,"event_id": string,"hold_expires_at": string | null,"id": string,"reconfirm_by": string | null,"reconfirm_requested_at": string | null,"reconfirm_token": string,"reconfirmed_at": string | null,"reminded_at": string | null,"requested_at": string,"squad_id": string | null,"status": Database["public"]['Enums']["booking_status"],"updated_at": string,"user_id": string,"waitlisted_at": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id": string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id": string,"waitlisted_at"?: string | null
+                  }
+                  Update: {
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id"?: string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id"?: string,"waitlisted_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "bookings_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_squad_id_fkey"
+      columns: ["squad_id"]
+isOneToOne: false
+      referencedRelation: "squads"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"categories": {
                   Row: {
                     "active": boolean,"created_at": string,"id": number,"label": string,"slug": string,"sort_order": number
@@ -92,6 +148,32 @@ export type Database = {
                   }
                   Relationships: [
                     
+                  ]
+                },"email_outbox": {
+                  Row: {
+                    "attempts": number,"created_at": string,"data": NonNullable<Json>,"id": number,"last_error": string | null,"priority": number,"provider_message_id": string | null,"send_after": string,"sent_at": string | null,"status": string,"template": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempts"?: number,"created_at"?: string,"data"?: NonNullable<Json>,"id"?: never,"last_error"?: string | null,"priority"?: number,"provider_message_id"?: string | null,"send_after"?: string,"sent_at"?: string | null,"status"?: string,"template": string,"user_id": string
+                  }
+                  Update: {
+                    "attempts"?: number,"created_at"?: string,"data"?: NonNullable<Json>,"id"?: never,"last_error"?: string | null,"priority"?: number,"provider_message_id"?: string | null,"send_after"?: string,"sent_at"?: string | null,"status"?: string,"template"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "email_outbox_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "email_outbox_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"event_private": {
                   Row: {
@@ -325,6 +407,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"job_runs": {
+                  Row: {
+                    "error_count": number,"job": string,"last_detail": Json | null,"last_error": string | null,"last_finished_at": string | null,"last_started_at": string | null,"last_status": string | null,"run_count": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "error_count"?: number,"job": string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
+                  }
+                  Update: {
+                    "error_count"?: number,"job"?: string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"languages": {
                   Row: {
                     "active": boolean,"created_at": string,"id": number,"label": string,"slug": string,"sort_order": number
@@ -338,6 +434,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"notifications": {
+                  Row: {
+                    "body": string | null,"created_at": string,"data": NonNullable<Json>,"id": number,"kind": string,"read_at": string | null,"title": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body"?: string | null,"created_at"?: string,"data"?: NonNullable<Json>,"id"?: never,"kind": string,"read_at"?: string | null,"title": string,"user_id": string
+                  }
+                  Update: {
+                    "body"?: string | null,"created_at"?: string,"data"?: NonNullable<Json>,"id"?: never,"kind"?: string,"read_at"?: string | null,"title"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notifications_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notifications_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"positive_tags": {
                   Row: {
@@ -486,6 +608,102 @@ isOneToOne: true
       columns: ["area_id"]
 isOneToOne: false
       referencedRelation: "areas"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"rate_limits": {
+                  Row: {
+                    "action": string,"count": number,"user_id": string,"window_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"count"?: number,"user_id": string,"window_start": string
+                  }
+                  Update: {
+                    "action"?: string,"count"?: number,"user_id"?: string,"window_start"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"squad_members": {
+                  Row: {
+                    "created_at": string,"decided_at": string | null,"event_id": string,"squad_id": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"decided_at"?: string | null,"event_id": string,"squad_id": string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"decided_at"?: string | null,"event_id"?: string,"squad_id"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "squad_members_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squad_members_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squad_members_squad_id_fkey"
+      columns: ["squad_id"]
+isOneToOne: false
+      referencedRelation: "squads"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squad_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squad_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"squads": {
+                  Row: {
+                    "created_at": string,"creator_id": string,"event_id": string,"id": string,"meeting_point": string,"name": string | null,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"creator_id": string,"event_id": string,"id"?: string,"meeting_point": string,"name"?: string | null,"status"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"creator_id"?: string,"event_id"?: string,"id"?: string,"meeting_point"?: string,"name"?: string | null,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "squads_creator_id_fkey"
+      columns: ["creator_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squads_creator_id_fkey"
+      columns: ["creator_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squads_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "squads_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
       referencedColumns: ["id"]
     }
                   ]
@@ -718,6 +936,11 @@ isOneToOne: false
             "admin_delete_hub":
 { Args: { "p_hub": string }; Returns: undefined
                            },
+"admin_job_runs":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "error_count": number,"job": string,"last_detail": Json,"last_error": string,"last_finished_at": string,"last_status": string,"run_count": number
+            }[]
+                           },
 "admin_list_host_applications":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"first_name": string,"id": string,"message": string,"user_id": string
@@ -727,6 +950,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"first_name": string,"id": string,"user_id": string
             }[]
+                           },
+"admin_send_reconfirmation":
+{ Args: { "p_booking": string }; Returns: undefined
                            },
 "admin_set_hub_events":
 { Args: { "p_event_ids": (string)[],"p_hub": string }; Returns: undefined
@@ -746,9 +972,17 @@ isOneToOne: false
 "cancel_event":
 { Args: { "p_event": string,"p_reason"?: string }; Returns: undefined
                            },
+"cancel_my_booking":
+{ Args: { "p_booking": string }; Returns: undefined
+                           },
 "claim_deletions":
 { Args: { "p_limit": number }; Returns: {
               "bucket": string,"id": number,"key": string
+            }[]
+                           },
+"claim_emails":
+{ Args: { "p_limit": number }; Returns: {
+              "attempts": number,"data": Json,"id": number,"priority": number,"template": string,"to_email": string,"user_id": string
             }[]
                            },
 "complete_ended_events":
@@ -760,8 +994,28 @@ isOneToOne: false
 "create_event":
 { Args: { "p_input": Json }; Returns: string
                            },
+"create_squad":
+{ Args: { "p_event": string,"p_meeting_point": string,"p_name"?: string }; Returns: string
+                           },
+"decide_request":
+{ Args: { "p_booking": string,"p_decision": string }; Returns: undefined
+                           },
+"decide_squad_request":
+{ Args: { "p_approve": boolean,"p_squad": string,"p_user": string }; Returns: undefined
+                           },
 "delete_my_account":
 { Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"disband_squad":
+{ Args: { "p_squad": string }; Returns: undefined
+                           },
+"emails_sent_today":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"event_squads":
+{ Args: { "p_event": string }; Returns: {
+              "complete": boolean,"creator_first_name": string,"creator_id": string,"id": string,"member_count": number,"my_status": string,"name": string,"spots_left": number
+            }[]
                            },
 "export_my_data":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -805,14 +1059,28 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"finish_emails":
+{ Args: { "p_results": Json }; Returns: undefined
+                           },
 "get_event_address":
 { Args: { "p_event": string }; Returns: Json
                            },
 "get_event_for_edit":
 { Args: { "p_event": string }; Returns: Json
                            },
+"get_my_booking":
+{ Args: { "p_event": string }; Returns: Json
+                           },
 "get_my_profile":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"get_squad":
+{ Args: { "p_squad": string }; Returns: Json
+                           },
+"host_inbox":
+{ Args: { "p_event": string }; Returns: {
+              "age": number,"area_id": number,"bio_prompts": Json,"booking_id": string,"events_in_common": number,"first_name": string,"interest_ids": (number)[],"is_verified": boolean,"language_ids": (number)[],"photo_keys": (string)[],"requested_at": string,"shows_up_attended": number,"shows_up_total": number,"squad_id": string,"squad_name": string,"status": Database["public"]['Enums']["booking_status"],"top_tags": Json,"user_id": string
+            }[]
                            },
 "hub_event_cards":
 { Args: { "p_hub": string }; Returns: {
@@ -850,22 +1118,50 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"leave_squad":
+{ Args: { "p_squad": string }; Returns: undefined
+                           },
 "mark_deletions_done":
 { Args: { "p_ids": (number)[] }; Returns: undefined
+                           },
+"mark_notifications_read":
+{ Args: { "p_ids"?: (number)[] }; Returns: undefined
+                           },
+"my_bookings":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "area_name": string,"booking_id": string,"cancel_reason": string,"cover_key": string,"ends_at": string,"event_id": string,"event_status": Database["public"]['Enums']["event_status"],"event_title": string,"requested_at": string,"squad_id": string,"starts_at": string,"status": Database["public"]['Enums']["booking_status"],"waitlist_position": number
+            }[]
                            },
 "my_events":
 { Args: Record<PropertyKey, never>; Returns: {
               "cover_key": string,"id": string,"review_note": string,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"title": string,"type": Database["public"]['Enums']["event_type"]
             }[]
                            },
+"my_squads":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "event_id": string,"event_title": string,"id": string,"is_creator": boolean,"member_count": number,"my_status": string,"name": string,"request_count": number,"status": string
+            }[]
+                           },
 "purge_old_upload_keys":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"reconfirm_booking":
+{ Args: { "p_token": string }; Returns: Json
+                           },
+"record_job_run":
+{ Args: { "p_detail"?: Json,"p_error"?: string,"p_job": string,"p_status": string }; Returns: undefined
                            },
 "reject_event":
 { Args: { "p_event": string,"p_note": string }; Returns: undefined
                            },
 "remove_profile_photo":
 { Args: { "p_position": number }; Returns: undefined
+                           },
+"request_to_join":
+{ Args: { "p_event": string }; Returns: Json
+                           },
+"request_to_join_squad":
+{ Args: { "p_squad": string }; Returns: undefined
                            },
 "review_host_application":
 { Args: { "p_approved": boolean,"p_id": string,"p_note"?: string }; Returns: undefined

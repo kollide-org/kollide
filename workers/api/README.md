@@ -23,7 +23,7 @@ Set each with `npx wrangler secret put <NAME> --env staging` (and `--env product
 |---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | first server route that writes data |
 | `JOB_SHARED_SECRET` | B3 (`/jobs/r2-cleanup`; `pg_cron` calls it from B5) |
-| `BREVO_API_KEY` | B5 |
+| `BREVO_API_KEY` | B5 (see `docs/backend/EMAIL_JOBS_SETUP.md`) |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | B3 (see `docs/backend/R2_SETUP.md`) |
 | `POSTHOG_API_KEY` | B8 |
 
@@ -36,4 +36,7 @@ Full details: `docs/backend/ENV.md`.
 | `POST /uploads/sign` | signed-in | 5-minute presigned upload link for a profile photo, event cover, hub art or selfie; the database decides who may |
 | `GET /admin/selfies/:id/view` | admins | 5-minute link to a pending selfie |
 | `POST /jobs/r2-cleanup` | `X-Job-Secret` | deletes queued and orphaned R2 objects |
+| `POST /jobs/flush-email` | `X-Job-Secret` | sends queued emails through Brevo (20 a run, 280 a day, critical first) |
+| `GET /go/:eventId` | anyone | partner ticket redirect |
+| `GET /dev/mail` | local only | the local dev mailbox |
 | `PUT /dev/upload/...`, `GET /media/...`, `GET /dev/private/...` | local only | simulated R2 for development and tests (404 elsewhere) |
