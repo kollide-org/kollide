@@ -1,6 +1,6 @@
 # Kollide API Worker
 
-Hono on Cloudflare Workers. Handles only work that needs secrets: payments, upload links, email sending, jobs. Everything else goes straight from the browser to Supabase under Row Level Security.
+Hono on Cloudflare Workers. Handles only work that needs secrets: upload links, email sending, jobs. Payments are off in v1 (see `docs/backend/PAYMENTS_LATER.md`). Everything else goes straight from the browser to Supabase under Row Level Security.
 
 ## Run
 
@@ -23,9 +23,8 @@ Set each with `npx wrangler secret put <NAME> --env staging` (and `--env product
 |---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | first server route that writes data |
 | `JOB_SHARED_SECRET` | B5 (job endpoints called by `pg_cron`) |
-| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | B6 |
 | `BREVO_API_KEY` | B5 |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID` | B3 |
-| `POSTHOG_API_KEY` | B9 |
+| `POSTHOG_API_KEY` | B8 |
 
 Full details: `docs/backend/ENV.md`.

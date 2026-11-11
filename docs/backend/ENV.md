@@ -8,6 +8,8 @@ Places a value can live:
 - **Wrangler**: Worker secrets set with `npx wrangler secret put NAME --env staging|production`.
 - **Supabase dashboard**: settings you paste into the project (Auth providers, SMTP).
 
+> v1 has no payments, so there are no Razorpay variables. Payment secrets are added in P1: see `PAYMENTS_LATER.md`.
+
 ## Needed for B0 (CI and deploys)
 
 | Name | Purpose | Where it lives |
@@ -27,11 +29,9 @@ Places a value can live:
 | `SUPABASE_URL` | variable | Project URL. **Replace the two `REPLACE_*_REF` placeholders.** | `wrangler.toml` (per environment), local default `http://127.0.0.1:54321` |
 | `SUPABASE_SERVICE_ROLE_KEY` | secret | Admin database access from the Worker only. Bypasses RLS. | Wrangler (per env); `.dev.vars` locally |
 | `JOB_SHARED_SECRET` | secret | Header secret for job endpoints called by `pg_cron`. B5. | Wrangler; Supabase Vault; `.dev.vars` |
-| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | secret | Create orders and refunds, test mode. B6. | Wrangler; `.dev.vars` |
-| `RAZORPAY_WEBHOOK_SECRET` | secret | Verify webhook signatures. B6. | Wrangler; `.dev.vars` |
 | `BREVO_API_KEY` | secret | Send non-login email. B5. | Wrangler; `.dev.vars` |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | secret | Presigned upload links. B3. | Wrangler; `.dev.vars` |
-| `POSTHOG_API_KEY` | secret | Server-side funnel events (EU host). B9. | Wrangler; `.dev.vars` |
+| `POSTHOG_API_KEY` | secret | Server-side funnel events (EU host). B8. | Wrangler; `.dev.vars` |
 
 ## Frontend (`.env.local`, built into the site by Cloudflare Pages)
 
@@ -43,7 +43,7 @@ These are public by design. Never put a secret here.
 | `VITE_SUPABASE_URL` | Project URL | `.env.local`; Pages env vars |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Public (anon) key | `.env.local`; Pages env vars |
 | `VITE_API_URL` | Worker base URL | `.env.local`; Pages env vars |
-| `VITE_POSTHOG_KEY` | PostHog project key (B9) | `.env.local`; Pages env vars |
+| `VITE_POSTHOG_KEY` | PostHog project key (B8) | `.env.local`; Pages env vars |
 
 ## Local Supabase (`supabase/.env`)
 
