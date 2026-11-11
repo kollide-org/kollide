@@ -1,0 +1,135 @@
+/*
+ * Kollide design tokens.
+ *
+ * Every colour, radius, shadow and font used by a component is defined here.
+ * Components only ever read the semantic names (background, primary, highlight…),
+ * so a theme is swapped by redefining this file's variables, never by editing
+ * components.
+ *
+ * Contrast notes (WCAG AA):
+ *  - cherry rose on antique white is 5.1:1, so it is safe for text and links.
+ *  - dusty rose on antique white is 3.1:1. Use it for fills, borders and display
+ *    type only. Body-size text on a dusty rose fill uses --highlight-foreground.
+ *  - the fixed status colours are for fills, icons and borders. Text that states
+ *    a status uses the matching "-strong" shade, which passes AA on every surface.
+ */
+
+:root {
+  /* Brand */
+  --brand-cherry: #a63a50;
+  --brand-dusty: #ba6e63;
+  --brand-antique: #f0e7d8;
+  --brand-ink: #2a2224;
+
+  /* Surfaces */
+  --background: var(--brand-antique);
+  --foreground: var(--brand-ink);
+  --card: #fbf6ee;
+  --card-foreground: var(--brand-ink);
+  --popover: #fbf6ee;
+  --popover-foreground: var(--brand-ink);
+  --secondary: #e6dac8;
+  --secondary-foreground: var(--brand-ink);
+  --muted: #e8ddcc;
+  --muted-foreground: #65585a;
+  /* "accent" is the quiet hover surface used by menus and ghost buttons. */
+  --accent: #ecdccf;
+  --accent-foreground: var(--brand-ink);
+
+  /* Actions */
+  --primary: var(--brand-cherry);
+  --primary-hover: #93314a;
+  --primary-foreground: #fbf6ee;
+  --primary-soft: #f1d9d6;
+  --primary-soft-foreground: #7c2338;
+
+  /* Small highlights: reliability chips, "Squads forming" tags. */
+  --highlight: var(--brand-dusty);
+  --highlight-foreground: #1f1719;
+  --highlight-soft: #efd7cc;
+  --highlight-soft-foreground: #6e342c;
+
+  /* Lines */
+  --border: #dccfbb;
+  --input: #917f77;
+  --ring: var(--brand-cherry);
+
+  /* Status. The base shades are the same in every theme. */
+  --success: #2e7d5b;
+  --warning: #b7791f;
+  --destructive: #c0392b;
+  --on-status: #ffffff;
+  --on-warning: #1f1719;
+  --success-strong: #1f5e44;
+  --warning-strong: #7a4e0e;
+  --destructive-strong: #9c2b20;
+  --success-soft: #dcebdf;
+  --warning-soft: #f3e3c3;
+  --destructive-soft: #f5dad3;
+
+  /* Shape */
+  --radius: 0.75rem;
+
+  /* Elevation, tinted with the ink colour so shadows stay warm. */
+  --shadow-color: 42 34 36;
+  --elevation-card: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 10px 28px -14px rgb(var(--shadow-color) / 0.14);
+  --elevation-lift: 0 2px 4px rgb(var(--shadow-color) / 0.05), 0 22px 44px -18px rgb(var(--shadow-color) / 0.24);
+  --elevation-overlay: 0 4px 8px rgb(var(--shadow-color) / 0.06), 0 30px 60px -20px rgb(var(--shadow-color) / 0.3);
+
+  /* Type */
+  --font-display-family: 'Gloock', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body-family: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 300ms;
+  --easing-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}
+
+.dark {
+  --background: #1e1719;
+  --foreground: #f0e7d8;
+  --card: #2a2124;
+  --card-foreground: #f0e7d8;
+  --popover: #30262a;
+  --popover-foreground: #f0e7d8;
+  --secondary: #382d31;
+  --secondary-foreground: #f0e7d8;
+  --muted: #33292c;
+  --muted-foreground: #b8a9a4;
+  --accent: #3b2e32;
+  --accent-foreground: #f0e7d8;
+
+  --primary: #e58fa0;
+  --primary-hover: #eda3b1;
+  --primary-foreground: #2a1218;
+  --primary-soft: #4a2630;
+  --primary-soft-foreground: #f3b9c4;
+
+  --highlight: var(--brand-dusty);
+  --highlight-foreground: #1f1719;
+  --highlight-soft: #47302c;
+  --highlight-soft-foreground: #eab8ae;
+
+  --border: #3d3135;
+  --input: #8a7a7c;
+  --ring: #e58fa0;
+
+  --success-strong: #7fcfab;
+  --warning-strong: #e6b866;
+  --destructive-strong: #f0958a;
+  --success-soft: #1f3a30;
+  --warning-soft: #40311a;
+  --destructive-soft: #47231f;
+
+  --shadow-color: 0 0 0;
+  --elevation-card: 0 1px 2px rgb(var(--shadow-color) / 0.3), 0 10px 28px -14px rgb(var(--shadow-color) / 0.5);
+  --elevation-lift: 0 2px 4px rgb(var(--shadow-color) / 0.35), 0 22px 44px -18px rgb(var(--shadow-color) / 0.7);
+  --elevation-overlay: 0 4px 8px rgb(var(--shadow-color) / 0.4), 0 30px 60px -20px rgb(var(--shadow-color) / 0.8);
+
+  color-scheme: dark;
+}
