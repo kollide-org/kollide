@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, Flag, Layers, Link2, UserCheck, UsersRound } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, CalendarClock, Flag, Layers, Link2, UserCheck, UsersRound } from 'lucide-react'
 import { Outlet } from 'react-router'
 
 import { AppLink, AppNavLink } from '@/components/shared/app-link'
@@ -11,6 +11,7 @@ import type { NavItem } from './app-nav'
 
 const ADMIN_NAV: NavItem[] = [
   { to: '/admin', label: 'Host approvals', icon: UserCheck, end: true },
+  { to: '/admin/verifications', label: 'Verifications', icon: BadgeCheck },
   { to: '/admin/events', label: 'Events', icon: CalendarClock },
   { to: '/admin/hubs', label: 'Hubs', icon: Layers },
   { to: '/admin/reports', label: 'Reports', icon: Flag },

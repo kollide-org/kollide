@@ -37,8 +37,8 @@ create function pg_temp.onboard(
   first text default 'Zoya', dob date default date '1995-05-05', gender public.gender default 'woman',
   area smallint default 1, interests smallint[] default array[1, 2]::smallint[], languages smallint[] default array[1]::smallint[],
   prompts jsonb default '[{"prompt":"A perfect Saturday","answer":"Long walks"},{"prompt":"Hidden talent","answer":"Cooking"}]',
-  photos text[] default array['placeholder/11111111-1111-4111-8111-111111111111.webp',
-    'placeholder/22222222-2222-4222-8222-222222222222.webp', 'placeholder/33333333-3333-4333-8333-333333333333.webp'],
+  photos text[] default array['profiles/11111111-1111-4111-8111-111111111111.webp',
+    'profiles/22222222-2222-4222-8222-222222222222.webp', 'profiles/33333333-3333-4333-8333-333333333333.webp'],
   notice text default 'v1', conduct boolean default true, privacy boolean default true,
   last_name text default 'Khan', phone text default '+919999999999'
 ) returns void language sql as $$
@@ -46,6 +46,11 @@ create function pg_temp.onboard(
 $$;
 
 select pg_temp.sign_up('00000000-0000-4000-8000-0000000000a1', 'zoya@kollide.test');
+-- Keys the Worker would have issued for this person (B3: only issued keys can be attached).
+insert into public.upload_keys (key, user_id, purpose, size_limit) values
+  ('profiles/11111111-1111-4111-8111-111111111111.webp', '00000000-0000-4000-8000-0000000000a1', 'profile_photo', 307200),
+  ('profiles/22222222-2222-4222-8222-222222222222.webp', '00000000-0000-4000-8000-0000000000a1', 'profile_photo', 307200),
+  ('profiles/33333333-3333-4333-8333-333333333333.webp', '00000000-0000-4000-8000-0000000000a1', 'profile_photo', 307200);
 
 -- ===== the sign-up trigger =====
 select is((select count(*)::int from public.profiles where id = '00000000-0000-4000-8000-0000000000a1'), 1,
@@ -84,9 +89,9 @@ select throws_ok($$select pg_temp.onboard(prompts := '[{"prompt":"One","answer":
 select throws_ok($$select pg_temp.onboard(prompts := '[{"prompt":"a","answer":"b"},{"prompt":"a","answer":"b"},{"prompt":"a","answer":"b"},{"prompt":"a","answer":"b"}]')$$,
   'P0001', 'prompts_invalid', 'four prompts are rejected');
 select throws_ok($$select pg_temp.onboard(prompts := '[{"prompt":"a","answer":""},{"prompt":"a","answer":"b"}]')$$, 'P0001', 'prompts_invalid', 'an empty answer is rejected');
-select throws_ok($$select pg_temp.onboard(photos := array['placeholder/11111111-1111-4111-8111-111111111111.webp','placeholder/22222222-2222-4222-8222-222222222222.webp'])$$,
+select throws_ok($$select pg_temp.onboard(photos := array['profiles/11111111-1111-4111-8111-111111111111.webp','profiles/22222222-2222-4222-8222-222222222222.webp'])$$,
   'P0001', 'photos_required', 'two photos are rejected');
-select throws_ok($$select pg_temp.onboard(photos := array['placeholder/11111111-1111-4111-8111-111111111111.webp','placeholder/11111111-1111-4111-8111-111111111111.webp','placeholder/33333333-3333-4333-8333-333333333333.webp'])$$,
+select throws_ok($$select pg_temp.onboard(photos := array['profiles/11111111-1111-4111-8111-111111111111.webp','profiles/11111111-1111-4111-8111-111111111111.webp','profiles/33333333-3333-4333-8333-333333333333.webp'])$$,
   'P0001', 'photos_required', 'duplicate photos are rejected');
 select throws_ok($$select pg_temp.onboard(photos := array['x.webp','y.webp','z.webp'])$$, 'P0001', 'photos_required', 'photo keys in the wrong format are rejected');
 select throws_ok($$select pg_temp.onboard(phone := '12345')$$, 'P0001', 'phone_invalid', 'a malformed phone number is rejected');

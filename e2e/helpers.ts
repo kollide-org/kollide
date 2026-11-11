@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test'
 
+import { pictureFile } from './fixtures.ts'
+
 const MAILPIT = 'http://127.0.0.1:54324'
 
 /** Reads the 6-digit code from the newest email sent to `email` in the local Mailpit inbox. */
@@ -52,7 +54,10 @@ export async function finishOnboarding(page: Page, firstName: string) {
   await page.getByLabel('Answer 2').fill('Chai and a second chai.')
   await page.getByRole('button', { name: 'Continue' }).click()
 
-  await expect(page.getByText('Photo upload is coming very soon')).toBeVisible()
+  for (const n of [1, 2, 3]) {
+    await page.getByLabel(`Choose photo ${n}`).setInputFiles(pictureFile(`photo-${n}.png`, n * 60))
+    await expect(page.getByRole('img', { name: `Photo ${n}` })).toBeVisible()
+  }
   await page.getByRole('button', { name: 'Continue' }).click()
 
   await page.getByLabel('I accept the code of conduct').click()

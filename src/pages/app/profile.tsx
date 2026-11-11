@@ -3,6 +3,8 @@ import { toast } from 'sonner'
 
 import { useSession } from '@/app/providers/session-context'
 import { ChipSelect } from '@/components/shared/chip-select'
+import { PhotosEditor } from '@/components/shared/photos-editor'
+import { VerifySection } from '@/components/shared/verify-section'
 import { NativeSelect } from '@/components/shared/native-select'
 import { PageHeader } from '@/components/shared/page-header'
 import { PromptsEditor } from '@/components/shared/prompts-editor'
@@ -42,6 +44,7 @@ export function Component() {
         }
       />
       {editing ? <EditForm profile={profile} onDone={() => setEditing(false)} /> : <View profile={profile} />}
+      <VerifySection />
     </div>
   )
 }
@@ -63,13 +66,7 @@ function View({ profile }: { profile: MyProfile }) {
             </Badge>
           ) : null}
         </p>
-        <div className="grid grid-cols-3 gap-3" aria-label="Photos">
-          {profile.photoKeys.map((key, index) => (
-            <div key={key} className="grid aspect-square place-items-center rounded-2xl bg-secondary text-sm text-muted-foreground">
-              Photo {index + 1}
-            </div>
-          ))}
-        </div>
+        <PhotosEditor profile={profile} />
         <section aria-label="Prompts" className="grid gap-4">
           {profile.bioPrompts.map((item) => (
             <div key={item.prompt}>

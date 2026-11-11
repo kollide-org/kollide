@@ -7,6 +7,18 @@ compatibility_date = "2026-11-01"
 ENVIRONMENT = "local"
 KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "http://127.0.0.1:54321"
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+R2_ACCOUNT_ID = "local"
+R2_MEDIA_BUCKET = "kollide-media-local"
+R2_PRIVATE_BUCKET = "kollide-private-local"
+
+# R2 buckets. Locally these are simulated; staging and production use the real buckets (see docs/backend/R2_SETUP.md).
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "kollide-media-local"
+[[r2_buckets]]
+binding = "PRIVATE"
+bucket_name = "kollide-private-local"
 
 [env.staging]
 name = "kollide-api-staging"
@@ -14,6 +26,16 @@ name = "kollide-api-staging"
 ENVIRONMENT = "staging"
 KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "https://REPLACE_STAGING_REF.supabase.co" # TODO: staging project URL
+ALLOWED_ORIGINS = "https://REPLACE-STAGING-PAGES-URL,http://localhost:5173" # TODO: staging site origin
+R2_ACCOUNT_ID = "REPLACE_CLOUDFLARE_ACCOUNT_ID" # TODO
+R2_MEDIA_BUCKET = "kollide-media-staging"
+R2_PRIVATE_BUCKET = "kollide-private-staging"
+[[env.staging.r2_buckets]]
+binding = "MEDIA"
+bucket_name = "kollide-media-staging"
+[[env.staging.r2_buckets]]
+binding = "PRIVATE"
+bucket_name = "kollide-private-staging"
 
 [env.production]
 name = "kollide-api"
@@ -21,5 +43,15 @@ name = "kollide-api"
 ENVIRONMENT = "production"
 KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "https://REPLACE_PROD_REF.supabase.co" # TODO: production project URL
+ALLOWED_ORIGINS = "https://REPLACE-PRODUCTION-SITE-ORIGIN" # TODO: https://<domain>
+R2_ACCOUNT_ID = "REPLACE_CLOUDFLARE_ACCOUNT_ID" # TODO
+R2_MEDIA_BUCKET = "kollide-media"
+R2_PRIVATE_BUCKET = "kollide-private"
+[[env.production.r2_buckets]]
+binding = "MEDIA"
+bucket_name = "kollide-media"
+[[env.production.r2_buckets]]
+binding = "PRIVATE"
+bucket_name = "kollide-private"
 
 # Secrets (set with `wrangler secret put <NAME> --env <env>`, never committed). See README.md.

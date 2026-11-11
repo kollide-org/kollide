@@ -24,6 +24,11 @@ const supabase = origin('VITE_SUPABASE_URL', { required: true }) ?? 'https://*.s
 const api = origin('VITE_API_URL', { required: true })
 const media = origin('VITE_MEDIA_URL', { required: true })
 
+// Browsers upload straight to R2 with a presigned link on this host.
+const r2Account = env.VITE_R2_ACCOUNT_ID
+const upload = r2Account ? `https://${r2Account}.r2.cloudflarestorage.com` : 'https://*.r2.cloudflarestorage.com'
+if (!r2Account) console.warn('[headers] VITE_R2_ACCOUNT_ID is not set: uploads are allowed to any R2 account. Set it in Cloudflare Pages.')
+
 const posthog = ['https://eu.i.posthog.com', 'https://eu-assets.i.posthog.com'] // PostHog EU cloud and its asset host
 const google = 'https://accounts.google.com'
 
@@ -35,7 +40,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'", // React and Motion set inline style attributes
   join("img-src 'self' data: blob:", media),
   "font-src 'self'",
-  join("connect-src 'self'", supabase, api, ...posthog, google),
+  join("connect-src 'self'", supabase, api, upload, ...posthog, google),
   join('frame-src', google),
   "worker-src 'self' blob:",
   "object-src 'none'",
