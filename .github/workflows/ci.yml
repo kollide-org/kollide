@@ -39,6 +39,9 @@ jobs:
       - name: Worker tests
         run: npm run worker:test
 
+      - name: Debug ports
+        run: sudo ss -ltnp | grep -E ':543' || true; docker ps -a
+
       - name: Start local Supabase
         run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,mailpit
 
