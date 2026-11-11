@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Kollide · Social events in Bengaluru</title>
+    <meta
+      name="description"
+      content="Find social events in Bengaluru and go with a small squad of verified people. Kollide is not a dating app."
+    />
+    <meta name="theme-color" content="#f0e7d8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/gloock-latin-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      // Apply the saved or system theme before first paint, so the page never flashes the wrong one.
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('kollide:theme')
+          var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+          if (dark) {
+            document.documentElement.classList.add('dark')
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1e1719')
+          }
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
