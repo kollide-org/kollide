@@ -1,0 +1,61 @@
+name: Nightly backup
+
+# Disabled until you set the repository variable BACKUP_ENABLED to "true"
+# (Settings > Secrets and variables > Actions > Variables).
+on:
+  schedule:
+    - cron: '30 20 * * *' # 02:00 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    if: vars.BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # No environment here: a required-reviewer rule on `production` would block the nightly run.
+    # Backup secrets are repository-level secrets.
+    timeout-minutes: 30
+    env:
+      PROD_DB_URL: ${{ secrets.BACKUP_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      BUCKET: kollide-backups
+      KEEP_DAYS: 14
+    steps:
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-client-17
+
+      - name: Dump and encrypt
+        run: |
+          set -euo pipefail
+          umask 077
+          FILE="kollide-$(date -u +%Y-%m-%dT%H%M%SZ).dump.enc"
+          pg_dump --format=custom --no-owner --no-privileges "$PROD_DB_URL" \
+            | openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -pass env:BACKUP_PASSPHRASE \
+            > "$FILE"
+          test -s "$FILE"
+          echo "FILE=$FILE" >> "$GITHUB_ENV"
+
+      - name: Upload to R2
+        run: aws s3 cp "$FILE" "s3://$BUCKET/$FILE" --endpoint-url "$R2_ENDPOINT"
+
+      - name: Delete backups older than 14 days
+        run: |
+          set -euo pipefail
+          cutoff=$(date -u -d "-${KEEP_DAYS} days" +%Y-%m-%d)
+          aws s3 ls "s3://$BUCKET/" --endpoint-url "$R2_ENDPOINT" | awk '{print $4}' | while read -r key; do
+            day=$(echo "$key" | sed -n 's/^kollide-\([0-9-]\{10\}\)T.*/\1/p')
+            if [ -n "$day" ] && [[ "$day" < "$cutoff" ]]; then
+              aws s3 rm "s3://$BUCKET/$key" --endpoint-url "$R2_ENDPOINT"
+            fi
+          done

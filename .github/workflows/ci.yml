@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            workers/api/package-lock.json
+
+      - run: npm ci
+      - run: npm ci --prefix workers/api
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check (frontend and Worker)
+        run: |
+          npm run typecheck
+          npm run worker:typecheck
+
+      - name: Worker tests
+        run: npm run worker:test
+
+      - name: Start local Supabase
+        # Retry once: the first start occasionally fails with a transient port-binding error.
+        run: |
+          npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,mailpit \
+            || { npx supabase stop --no-backup; npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,mailpit; }
+
+      - name: pgTAP tests
+        run: npm run db:test
+
+      - name: RLS check
+        run: npm run db:rls
+
+      - name: Generated types are up to date
+        run: |
+          npm run db:types
+          git diff --exit-code src/types/database.ts
+
+      - name: Stop Supabase
+        if: always()
+        run: npx supabase stop --no-backup
