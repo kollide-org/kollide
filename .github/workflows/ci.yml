@@ -51,6 +51,9 @@ jobs:
       - name: RLS check
         run: npm run db:rls
 
+      - name: Security advisors (no warnings allowed)
+        run: npx supabase db advisors --type security --fail-on warn
+
       - name: Generated types are up to date
         run: |
           npm run db:types
