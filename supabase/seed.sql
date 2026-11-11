@@ -38,11 +38,15 @@ begin
       demo.id, demo.first_name, (select id from public.areas where slug = demo.area_slug),
       jsonb_build_array(jsonb_build_object('prompt', 'A perfect Saturday', 'answer', demo.bio)),
       true, now()
-    ) on conflict (id) do nothing;
+    ) on conflict (id) do update set
+      first_name = excluded.first_name, area_id = excluded.area_id, bio_prompts = excluded.bio_prompts,
+      is_verified = excluded.is_verified, onboarding_completed_at = excluded.onboarding_completed_at;
 
     insert into public.profile_private (id, last_name, phone, date_of_birth, email, gender)
     values (demo.id, demo.last_name, demo.phone, demo.dob, demo.email, demo.gender)
-    on conflict (id) do nothing;
+    on conflict (id) do update set
+      last_name = excluded.last_name, phone = excluded.phone, date_of_birth = excluded.date_of_birth,
+      email = excluded.email, gender = excluded.gender;
 
     insert into public.profile_photos (user_id, r2_key, position)
     values (demo.id, 'seed/' || demo.id || '.webp', 1)

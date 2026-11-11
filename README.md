@@ -107,7 +107,13 @@ In development, a floating button in the bottom-right corner switches the curren
 
 ## Mock and real services
 
-This arrives in milestone 2. The plan is one flag, `VITE_SERVICES=mock` or `VITE_SERVICES=real`, read in a single file, `src/services/index.ts`. Components will call TanStack Query hooks, the hooks will call service interfaces, and the lint rule in `.oxlintrc.json` already blocks any import of `services/mock` or `services/real` from outside `src/services`.
+`VITE_SERVICES=mock` (the default) uses in-memory fake data. `VITE_SERVICES=real` uses Supabase and needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`). The flag is read in one file, `src/services/index.ts`. Components call TanStack Query hooks, the hooks call the service interfaces in `src/services/types`, and the lint rule in `.oxlintrc.json` blocks any import of `services/mock` or `services/real` from outside `src/services`.
+
+Real so far: auth (Google and email code), profile and onboarding, app config and reference data. Everything else is still mock or not built. In mock mode the development role switcher works as before; in real mode it is hidden and the role comes from the database.
+
+The Content-Security-Policy is written to `dist/_headers` by `npm run build` (`scripts/build-headers.mjs`), using `VITE_SUPABASE_URL`, `VITE_API_URL` and `VITE_MEDIA_URL`.
+
+End-to-end tests run against the local Supabase stack: `npm run db:start`, then `npm run e2e`.
 
 ## Class merging
 

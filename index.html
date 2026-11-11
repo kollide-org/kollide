@@ -12,19 +12,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/fonts/gloock-latin-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/instrument-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
-    <script>
-      // Apply the saved or system theme before first paint, so the page never flashes the wrong one.
-      ;(function () {
-        try {
-          var saved = localStorage.getItem('kollide:theme')
-          var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
-          if (dark) {
-            document.documentElement.classList.add('dark')
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1e1719')
-          }
-        } catch (e) {}
-      })()
-    </script>
+    <!-- Applies the saved or system theme before first paint. An external file, so the CSP can forbid inline scripts. -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

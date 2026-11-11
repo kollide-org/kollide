@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router'
 
+import { RequireOnboarded } from '@/app/guards/require-onboarded'
 import { RequireRole } from '@/app/guards/require-role'
 import { BootFallback } from '@/app/layouts/boot-fallback'
 import { PublicLayout } from '@/app/layouts/public-layout'
@@ -28,35 +29,42 @@ export const router = createBrowserRouter([
           { path: 'safety', element: <StubPage padded title="Safety and code of conduct" milestone={3} /> },
           { path: 'privacy', element: <StubPage padded title="Privacy" milestone={3} /> },
           { path: 'terms', element: <StubPage padded title="Terms" milestone={3} /> },
-          { path: 'sign-in', element: <StubPage padded title="Sign in" milestone={4} /> },
+          { path: 'sign-in', lazy: () => import('@/pages/public/sign-in') },
+          { path: 'auth/callback', lazy: () => import('@/pages/public/auth-callback') },
+          { path: 'onboarding', lazy: () => import('@/pages/onboarding') },
         ],
       },
       {
         element: <RequireRole minimum="member" />,
         children: [
           {
-            path: 'app',
-            lazy: async () => ({ Component: (await import('@/app/layouts/app-layout')).AppLayout }),
+            element: <RequireOnboarded />,
             children: [
               {
-                index: true,
-                element: (
-                  <StubPage
-                    eyebrow="Bengaluru"
-                    title="What’s on"
-                    description="The seasonal hub, squads forming and the event feed."
-                    milestone={5}
-                  />
-                ),
-              },
-              { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
-              { path: 'squads', element: <StubPage title="Squads" milestone={6} /> },
-              { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
-              { path: 'profile', element: <StubPage title="Profile" milestone={4} /> },
-              { path: 'settings', element: <StubPage title="Settings" milestone={9} /> },
-              {
-                element: <RequireRole minimum="host" />,
-                children: [{ path: 'host', element: <StubPage title="Host dashboard" milestone={6} /> }],
+                path: 'app',
+                lazy: async () => ({ Component: (await import('@/app/layouts/app-layout')).AppLayout }),
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <StubPage
+                        eyebrow="Bengaluru"
+                        title="What’s on"
+                        description="The seasonal hub, squads forming and the event feed."
+                        milestone={5}
+                      />
+                    ),
+                  },
+                  { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
+                  { path: 'squads', element: <StubPage title="Squads" milestone={6} /> },
+                  { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
+                  { path: 'profile', lazy: () => import('@/pages/app/profile') },
+                  { path: 'settings', lazy: () => import('@/pages/app/settings') },
+                  {
+                    element: <RequireRole minimum="host" />,
+                    children: [{ path: 'host', element: <StubPage title="Host dashboard" milestone={6} /> }],
+                  },
+                ],
               },
             ],
           },
@@ -66,15 +74,20 @@ export const router = createBrowserRouter([
         element: <RequireRole minimum="admin" />,
         children: [
           {
-            path: 'admin',
-            lazy: async () => ({ Component: (await import('@/app/layouts/admin-layout')).AdminLayout }),
+            element: <RequireOnboarded />,
             children: [
-              { index: true, element: <StubPage eyebrow="Admin" title="Host approvals" milestone={9} /> },
-              { path: 'events', element: <StubPage eyebrow="Admin" title="Events" milestone={5} /> },
-              { path: 'hubs', element: <StubPage eyebrow="Admin" title="Hubs" milestone={5} /> },
-              { path: 'reports', element: <StubPage eyebrow="Admin" title="Reports" milestone={9} /> },
-              { path: 'users', element: <StubPage eyebrow="Admin" title="Users" milestone={9} /> },
-              { path: 'partners', element: <StubPage eyebrow="Admin" title="Partner links" milestone={9} /> },
+              {
+                path: 'admin',
+                lazy: async () => ({ Component: (await import('@/app/layouts/admin-layout')).AdminLayout }),
+                children: [
+                  { index: true, element: <StubPage eyebrow="Admin" title="Host approvals" milestone={9} /> },
+                  { path: 'events', element: <StubPage eyebrow="Admin" title="Events" milestone={5} /> },
+                  { path: 'hubs', element: <StubPage eyebrow="Admin" title="Hubs" milestone={5} /> },
+                  { path: 'reports', element: <StubPage eyebrow="Admin" title="Reports" milestone={9} /> },
+                  { path: 'users', element: <StubPage eyebrow="Admin" title="Users" milestone={9} /> },
+                  { path: 'partners', element: <StubPage eyebrow="Admin" title="Partner links" milestone={9} /> },
+                ],
+              },
             ],
           },
         ],

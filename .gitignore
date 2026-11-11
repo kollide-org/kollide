@@ -35,3 +35,7 @@ supabase/.branches
 *.dump
 workers/api/.wrangler
 workers/api/node_modules
+
+# Playwright
+test-results
+playwright-report

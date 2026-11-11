@@ -33,7 +33,7 @@ select throws_ok($$update public.app_config set value = 'true'$$, '42501',
   null, 'a stranger CANNOT update app_config');
 
 reset role; select pg_temp.act_as(3);
-select is((select count(*)::int from public.app_config), 1, 'a member CAN read app_config');
+select is((select count(*)::int from public.app_config), 2, 'a member CAN read app_config (payments_enabled and notice_version)');
 select is(pg_temp.n($$update public.app_config set value = 'true' where key = 'payments_enabled'$$),
   0, 'a member CANNOT change payments_enabled (no rows updated)');
 select throws_ok($$insert into public.app_config (key, value) values ('x_flag', 'true')$$, '42501',
