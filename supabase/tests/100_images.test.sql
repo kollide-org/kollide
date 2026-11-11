@@ -59,6 +59,12 @@ begin
   return k;
 end $$;
 
+-- A real event for the cover tests (events exist since B4). User 2 is its host; user 4 is another host.
+insert into public.events (id, host_id, type, title, area_id, starts_at, ends_at, capacity)
+values ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-000000000002', 'community', 'Test event', 1,
+        now() + interval '3 days', now() + interval '3 days 2 hours', 10);
+insert into public.user_roles (user_id, role) values ('00000000-0000-4000-8000-000000000004', 'host');
+
 -- ===================================================== authorize_upload (service role only)
 select pg_temp.act_as_anon();
 select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000003', 'profile_photo', null, 'image/webp', 1000)$$, '42501',
@@ -91,6 +97,8 @@ select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-00000
 select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000002', 'event_cover', null, 'image/webp', 1000)$$, 'P0001', 'event_required', 'a host must name the event');
 select ok(public.authorize_upload('00000000-0000-4000-8000-000000000002', 'event_cover', '00000000-0000-4000-8000-0000000000e1', 'image/webp', 1000) like 'events/%.webp', 'a host CAN get an event cover key');
 select ok(public.authorize_upload('00000000-0000-4000-8000-000000000001', 'event_cover', '00000000-0000-4000-8000-0000000000e1', 'image/webp', 1000) like 'events/%.webp', 'an admin CAN get an event cover key');
+select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000004', 'event_cover', '00000000-0000-4000-8000-0000000000e1', 'image/webp', 1000)$$, 'P0001', 'not_allowed', 'a host CANNOT get a cover key for someone else''s event');
+select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000002', 'event_cover', '00000000-0000-4000-8000-0000000000ff', 'image/webp', 1000)$$, 'P0001', 'not_allowed', 'nor for an event that does not exist');
 select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000003', 'hub_art', null, 'image/webp', 1000)$$, 'P0001', 'not_allowed', 'a member CANNOT get a hub art key');
 select throws_ok($$select public.authorize_upload('00000000-0000-4000-8000-000000000002', 'hub_art', null, 'image/webp', 1000)$$, 'P0001', 'not_allowed', 'a host CANNOT get a hub art key');
 select ok(public.authorize_upload('00000000-0000-4000-8000-000000000001', 'hub_art', null, 'image/webp', 1000) like 'hubs/%.webp', 'an admin CAN get a hub art key');
@@ -142,11 +150,6 @@ reset role;
 select is((select count(*)::int from public.storage_deletions where bucket = 'media' and key = :'k3'), 1, 'a removed photo is queued for deletion');
 select pg_temp.act_as(4);
 select throws_ok($$delete from public.profile_photos$$, '42501', null, 'photos CANNOT be deleted directly');
-
--- event cover stub
-reset role; select pg_temp.act_as(2);
-select throws_ok($$select public.set_event_cover('00000000-0000-4000-8000-0000000000e1', 'events/99999999-9999-4999-8999-999999999999.webp')$$, 'P0001', 'events_not_available',
-  'set_event_cover is a stub until B4');
 
 -- ===================================================== selfies and review
 reset role;

@@ -55,7 +55,7 @@ test('photos: stripped of location, shrunk to WebP, replaced and removed; selfie
   await signInWithCode(admin, 'asha.admin@kollide.test')
   await expect(admin).toHaveURL(/\/app$/)
   await admin.goto('/admin/verifications')
-  const card = admin.locator('div', { hasText: 'Zoya' }).filter({ has: admin.getByRole('button', { name: 'View selfie' }) }).last()
+  const card = admin.locator('[data-slot="card"]', { hasText: 'Zoya' })
   const [popup] = await Promise.all([adminContext.waitForEvent('page'), card.getByRole('button', { name: 'View selfie' }).click()])
   await popup.waitForLoadState()
   expect(popup.url()).toMatch(/\/dev\/private\/selfies\/[0-9a-f-]{36}\.webp$/)

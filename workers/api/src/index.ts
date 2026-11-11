@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 
 import { admin } from './routes/admin'
 import { dev, media } from './routes/dev'
+import { go } from './routes/go'
 import { jobs } from './routes/jobs'
 import { uploads } from './routes/uploads'
 import type { AppEnv } from './lib/http'
@@ -25,6 +26,7 @@ app.get('/health', (c) => c.json({ ok: true, env: c.env.ENVIRONMENT }))
 app.route('/uploads', uploads)
 app.route('/admin', admin)
 app.route('/jobs', jobs)
+app.route('/go', go)
 app.route('/dev', dev)
 app.route('/media', media)
 

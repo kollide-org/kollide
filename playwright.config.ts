@@ -13,6 +13,9 @@ function localSupabase(): { url: string; anonKey: string; serviceKey: string } {
 }
 
 const supabase = localSupabase()
+// Tests that need an admin promote a fresh user with the local service key (never a real project's).
+process.env.E2E_SUPABASE_URL = supabase.url
+process.env.E2E_SERVICE_KEY = supabase.serviceKey
 const WORKER = 'http://localhost:8787'
 
 export default defineConfig({

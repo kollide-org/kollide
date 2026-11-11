@@ -44,17 +44,10 @@ export const router = createBrowserRouter([
                 path: 'app',
                 lazy: async () => ({ Component: (await import('@/app/layouts/app-layout')).AppLayout }),
                 children: [
-                  {
-                    index: true,
-                    element: (
-                      <StubPage
-                        eyebrow="Bengaluru"
-                        title="What’s on"
-                        description="The seasonal hub, squads forming and the event feed."
-                        milestone={5}
-                      />
-                    ),
-                  },
+                  { index: true, lazy: () => import('@/pages/app/home') },
+                  { path: 'events/:id', lazy: () => import('@/pages/app/event') },
+                  { path: 'hubs/:slug', lazy: () => import('@/pages/app/hub') },
+                  { path: 'become-host', lazy: () => import('@/pages/app/become-host') },
                   { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
                   { path: 'squads', element: <StubPage title="Squads" milestone={6} /> },
                   { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
@@ -62,7 +55,11 @@ export const router = createBrowserRouter([
                   { path: 'settings', lazy: () => import('@/pages/app/settings') },
                   {
                     element: <RequireRole minimum="host" />,
-                    children: [{ path: 'host', element: <StubPage title="Host dashboard" milestone={6} /> }],
+                    children: [
+                      { path: 'host', lazy: () => import('@/pages/app/host') },
+                      { path: 'host/events/new', lazy: () => import('@/pages/app/host-event-form') },
+                      { path: 'host/events/:id', lazy: () => import('@/pages/app/host-event-form') },
+                    ],
                   },
                 ],
               },
@@ -80,10 +77,10 @@ export const router = createBrowserRouter([
                 path: 'admin',
                 lazy: async () => ({ Component: (await import('@/app/layouts/admin-layout')).AdminLayout }),
                 children: [
-                  { index: true, element: <StubPage eyebrow="Admin" title="Host approvals" milestone={9} /> },
+                  { index: true, lazy: () => import('@/pages/admin/host-applications') },
                   { path: 'verifications', lazy: () => import('@/pages/admin/verifications') },
-                  { path: 'events', element: <StubPage eyebrow="Admin" title="Events" milestone={5} /> },
-                  { path: 'hubs', element: <StubPage eyebrow="Admin" title="Hubs" milestone={5} /> },
+                  { path: 'events', lazy: () => import('@/pages/admin/events') },
+                  { path: 'hubs', lazy: () => import('@/pages/admin/hubs') },
                   { path: 'reports', element: <StubPage eyebrow="Admin" title="Reports" milestone={9} /> },
                   { path: 'users', element: <StubPage eyebrow="Admin" title="Users" milestone={9} /> },
                   { path: 'partners', element: <StubPage eyebrow="Admin" title="Partner links" milestone={9} /> },

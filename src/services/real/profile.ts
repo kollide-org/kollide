@@ -127,4 +127,26 @@ export const realProfile: ProfileService = {
     if (error) throw toServiceError(error)
     return data?.[0]?.result ?? 'none'
   },
+
+  async applyToHost(message) {
+    const supabase = await client()
+    const { error } = await supabase.rpc('apply_to_host', { p_message: message })
+    if (error) throw toServiceError(error)
+  },
+
+  async getMyHostApplication() {
+    const supabase = await client()
+    const { data: session } = await supabase.auth.getSession()
+    const userId = session.session?.user.id
+    if (!userId) return null
+    const { data, error } = await supabase
+      .from('host_applications')
+      .select('status, admin_note, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+    if (error) throw toServiceError(error)
+    const row = data?.[0]
+    return row ? { status: row.status, adminNote: row.admin_note, createdAt: row.created_at } : null
+  },
 }

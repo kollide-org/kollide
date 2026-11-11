@@ -8,6 +8,7 @@ export interface ReferenceData {
   areas: ReferenceItem[]
   interests: ReferenceItem[]
   languages: ReferenceItem[]
+  categories: ReferenceItem[]
 }
 
 export interface ReferenceService {

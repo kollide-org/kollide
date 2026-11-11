@@ -57,6 +57,12 @@ export interface ProfileUpdate {
 
 export type VerificationState = 'none' | 'pending' | 'approved' | 'rejected'
 
+export interface HostApplicationStatus {
+  status: 'pending' | 'approved' | 'rejected'
+  adminNote: string | null
+  createdAt: string
+}
+
 export interface ProfileService {
   /** Null when nobody is signed in. */
   getMyProfile(): Promise<MyProfile | null>
@@ -71,4 +77,7 @@ export interface ProfileService {
   /** Attach an uploaded selfie for review. */
   submitSelfie(key: string): Promise<void>
   getVerificationState(): Promise<VerificationState>
+  applyToHost(message: string): Promise<void>
+  /** The person's latest application, or null if they never applied. */
+  getMyHostApplication(): Promise<HostApplicationStatus | null>
 }
