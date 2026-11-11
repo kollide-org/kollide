@@ -95,3 +95,46 @@ export function localInput(days: number, hour: number): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(hour)}:00`
 }
+
+const serviceHeaders = () => {
+  const key = process.env.E2E_SERVICE_KEY as string
+  return { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json', prefer: 'return=representation' }
+}
+
+/** Inserts a row with the local service key (tests only) and returns it. */
+export async function serviceInsert(table: string, row: Record<string, unknown>): Promise<Record<string, any>> {
+  const res = await fetch(`${process.env.E2E_SUPABASE_URL}/rest/v1/${table}`, { method: 'POST', headers: serviceHeaders(), body: JSON.stringify(row) })
+  if (!res.ok) throw new Error(`insert into ${table} failed: ${res.status} ${await res.text()}`)
+  return ((await res.json()) as Record<string, any>[])[0]!
+}
+
+export const DEV_HOST_ID = '00000000-0000-4000-8000-000000000002'
+export const DEV_HOST_EMAIL = 'dev.host@kollide.test'
+
+/** A published community event hosted by the seeded host Dev, with a secret address. */
+export async function publishedEvent(opts: { title: string; capacity: number; approvalMode: 'instant' | 'host_approval'; address: string }): Promise<string> {
+  const event = await serviceInsert('events', {
+    host_id: DEV_HOST_ID, type: 'community', title: opts.title, area_id: 1, category_id: 1,
+    starts_at: new Date(Date.now() + 10 * 86_400_000).toISOString(), ends_at: new Date(Date.now() + 10 * 86_400_000 + 7_200_000).toISOString(),
+    capacity: opts.capacity, approval_mode: opts.approvalMode, status: 'published', published_at: new Date().toISOString(),
+  })
+  await serviceInsert('event_private', { event_id: event.id, address: opts.address })
+  return event.id as string
+}
+
+const WORKER = 'http://localhost:8787'
+
+/** Runs the email flush by hand (pg_cron has no Worker address locally) and returns what it did. */
+export async function flushEmail(): Promise<{ sent: number }> {
+  const res = await fetch(`${WORKER}/jobs/flush-email`, { method: 'POST', headers: { 'x-job-secret': 'local-job-secret' } })
+  if (!res.ok) throw new Error(`flush failed: ${res.status}`)
+  return (await res.json()) as { sent: number }
+}
+
+export interface DevMail { to: string; subject: string; template: string; html: string; text: string }
+
+/** The emails the local Worker "sent" to this address, newest first. */
+export async function devMail(email: string): Promise<DevMail[]> {
+  const res = await fetch(`${WORKER}/dev/mail?to=${encodeURIComponent(email)}`)
+  return ((await res.json()) as { mails: DevMail[] }).mails
+}

@@ -114,4 +114,14 @@ export const realAdmin: AdminService = {
     const { error } = await supabase.rpc('admin_delete_hub', { p_hub: id })
     if (error) throw fail(error)
   },
+
+  async jobRuns() {
+    const supabase = await client()
+    const { data, error } = await supabase.rpc('admin_job_runs')
+    if (error) throw fail(error)
+    return (data ?? []).map((r) => ({
+      job: r.job, lastFinishedAt: r.last_finished_at, lastStatus: r.last_status as 'ok' | 'warning' | 'error' | 'skipped' | null,
+      lastDetail: r.last_detail as Record<string, unknown> | null, lastError: r.last_error, runCount: Number(r.run_count), errorCount: Number(r.error_count),
+    }))
+  },
 }

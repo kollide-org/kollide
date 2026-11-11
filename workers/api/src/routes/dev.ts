@@ -31,6 +31,20 @@ dev.get('/private/*', async (c) => {
   return new Response(object.body, { headers: { 'content-type': object.httpMetadata?.contentType ?? 'application/octet-stream' } })
 })
 
+/** The local email dev mailbox: newest first, optionally only for one recipient (?to=). Nothing is ever sent for real. */
+dev.get('/mail', async (c) => {
+  const to = c.req.query('to')?.toLowerCase()
+  const listing = await c.env.MEDIA.list({ prefix: 'dev-mail/', limit: 200 })
+  const mails: unknown[] = []
+  for (const object of [...listing.objects].reverse()) {
+    const file = await c.env.MEDIA.get(object.key)
+    if (!file) continue
+    const mail = (await file.json()) as { to: string }
+    if (!to || mail.to.toLowerCase() === to) mails.push(mail)
+  }
+  return c.json({ mails })
+})
+
 /** Stands in for img.<domain> locally. */
 export const media = new Hono<AppEnv>()
 media.get('/*', async (c) => {

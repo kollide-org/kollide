@@ -51,6 +51,9 @@ jobs:
       - name: pgTAP tests
         run: npm run db:test
 
+      - name: Seat lock under concurrency (two sessions, one seat)
+        run: npm run db:race
+
       - name: RLS check
         run: npm run db:rls
 

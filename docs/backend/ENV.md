@@ -29,7 +29,9 @@ Places a value can live:
 | `SUPABASE_URL` | variable | Project URL. **Replace the two `REPLACE_*_REF` placeholders.** | `wrangler.toml` (per environment), local default `http://127.0.0.1:54321` |
 | `SUPABASE_SERVICE_ROLE_KEY` | secret | Admin database access from the Worker only. Bypasses RLS. | Wrangler (per env); `.dev.vars` locally |
 | `JOB_SHARED_SECRET` | secret | Header secret (`X-Job-Secret`) for job endpoints such as `/jobs/r2-cleanup`. Called by hand in B3 and by `pg_cron` from B5. | Wrangler; Supabase Vault (B5); `.dev.vars` |
-| `BREVO_API_KEY` | secret | Send non-login email. B5. | Wrangler; `.dev.vars` |
+| `BREVO_API_KEY` | secret | Send non-login email through Brevo (`EMAIL_JOBS_SETUP.md`). B5. | Wrangler; `.dev.vars` |
+| `SITE_URL`, `EMAIL_FROM`, `EMAIL_FROM_NAME`, `EMAIL_ALLOWLIST` | variable | Links in emails, the verified sender, and (staging) the team addresses allowed to receive email. B5. | `wrangler.toml` (per environment) |
+| `worker_url`, `job_shared_secret` | Vault secrets | Where `pg_cron` calls the Worker, and the shared secret for `/jobs/*`. B5. | Supabase Vault (per project), set in SQL Editor |
 | `R2_ACCOUNT_ID`, `R2_MEDIA_BUCKET`, `R2_PRIVATE_BUCKET`, `ALLOWED_ORIGINS` | variable | R2 account, bucket names and the site origins allowed to call the API. B3. | `wrangler.toml` (per environment) |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | secret | Presigned upload and view links (R2 API token, Object Read and Write). B3. | Wrangler; `.dev.vars` |
 | `MEDIA`, `PRIVATE` | R2 bindings | Delete and list objects in the buckets. B3. | `wrangler.toml` (per environment) |
@@ -59,7 +61,7 @@ The build writes `dist/_headers` (the Content-Security-Policy) from these values
 
 ## Supabase dashboard (per project, B2)
 
-Exact steps are in `AUTH_SETUP.md` (sign-in) and `R2_SETUP.md` (images): Google provider (client id and secret), URL configuration, email code settings and templates, Resend SMTP (host `smtp.resend.com`, port 465, user `resend`, API key, sender `auth@auth.<domain>`), rate limits.
+Exact steps are in `AUTH_SETUP.md` (sign-in), `R2_SETUP.md` (images) and `EMAIL_JOBS_SETUP.md` (email and scheduled jobs): Google provider (client id and secret), URL configuration, email code settings and templates, Resend SMTP (host `smtp.resend.com`, port 465, user `resend`, API key, sender `auth@auth.<domain>`), rate limits.
 
 ## Backup workflow (disabled until you set the repo variable `BACKUP_ENABLED=true`)
 

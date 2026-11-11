@@ -1,8 +1,11 @@
 import { BadgeCheck, CalendarClock, CalendarX, MapPin, ShieldCheck, Ticket, Users } from 'lucide-react'
 import { useParams } from 'react-router'
 
+import { useSession } from '@/app/providers/session-context'
 import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
+import { JoinPanel } from '@/components/shared/join-panel'
+import { SquadsPanel } from '@/components/shared/squads-panel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -15,6 +18,7 @@ export function Component() {
   const { id = '' } = useParams()
   const event = useEvent(id)
   const address = useEventAddress(id)
+  const { user, role } = useSession()
 
   if (event.isPending) return <Skeleton className="h-96 w-full" />
   if (!event.data) {
@@ -47,6 +51,7 @@ export function Component() {
           </div>
         </header>
         {e.description ? <p className="whitespace-pre-line text-lead">{e.description}</p> : null}
+        {!e.hasPartnerLink ? <SquadsPanel eventId={e.id} /> : null}
         {e.houseRules ? (
           <section aria-label="House rules" className="grid gap-1">
             <h2 className="text-h3">House rules</h2>
@@ -91,9 +96,7 @@ export function Component() {
             <p className="text-sm text-muted-foreground">Tickets are sold by our partner. You leave Kollide to buy them.</p>
           </div>
         ) : (
-          <p className="rounded-xl bg-secondary p-3 text-sm text-muted-foreground">
-            Requests to join open very soon. Nothing is charged by Kollide.
-          </p>
+          <JoinPanel event={e} isHost={user?.id === e.hostId} isAdmin={role === 'admin'} userId={user?.id ?? ''} />
         )}
       </aside>
     </article>

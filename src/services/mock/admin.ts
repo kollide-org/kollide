@@ -43,4 +43,7 @@ export const mockAdmin: AdminService = {
   async deleteHub(id) {
     hubs = hubs.filter((hub) => hub.id !== id)
   },
+  async jobRuns() {
+    return [{ job: 'flush-email', lastFinishedAt: new Date().toISOString(), lastStatus: 'ok', lastDetail: { sent: 0 }, lastError: null, runCount: 1, errorCount: 0 }]
+  },
 }

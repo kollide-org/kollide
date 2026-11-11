@@ -9,6 +9,10 @@ KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "http://127.0.0.1:54321"
 ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
 R2_ACCOUNT_ID = "local"
+SITE_URL = "http://localhost:5173"
+EMAIL_FROM = "mail@kollide.test"
+EMAIL_FROM_NAME = "Kollide"
+EMAIL_ALLOWLIST = ""
 R2_MEDIA_BUCKET = "kollide-media-local"
 R2_PRIVATE_BUCKET = "kollide-private-local"
 
@@ -28,6 +32,10 @@ KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "https://REPLACE_STAGING_REF.supabase.co" # TODO: staging project URL
 ALLOWED_ORIGINS = "https://REPLACE-STAGING-PAGES-URL,http://localhost:5173" # TODO: staging site origin
 R2_ACCOUNT_ID = "REPLACE_CLOUDFLARE_ACCOUNT_ID" # TODO
+SITE_URL = "https://REPLACE-STAGING-PAGES-URL" # TODO: no trailing slash
+EMAIL_FROM = "mail@mail.REPLACE-DOMAIN" # TODO: the sender verified in Brevo
+EMAIL_FROM_NAME = "Kollide"
+EMAIL_ALLOWLIST = "" # TODO: team addresses, comma separated. Staging sends only to these.
 R2_MEDIA_BUCKET = "kollide-media-staging"
 R2_PRIVATE_BUCKET = "kollide-private-staging"
 [[env.staging.r2_buckets]]
@@ -45,6 +53,10 @@ KOLLIDE_DOMAIN = "example.invalid" # TODO: set the real domain
 SUPABASE_URL = "https://REPLACE_PROD_REF.supabase.co" # TODO: production project URL
 ALLOWED_ORIGINS = "https://REPLACE-PRODUCTION-SITE-ORIGIN" # TODO: https://<domain>
 R2_ACCOUNT_ID = "REPLACE_CLOUDFLARE_ACCOUNT_ID" # TODO
+SITE_URL = "https://REPLACE-DOMAIN" # TODO: no trailing slash
+EMAIL_FROM = "mail@mail.REPLACE-DOMAIN" # TODO: the sender verified in Brevo
+EMAIL_FROM_NAME = "Kollide"
+EMAIL_ALLOWLIST = ""
 R2_MEDIA_BUCKET = "kollide-media"
 R2_PRIVATE_BUCKET = "kollide-private"
 [[env.production.r2_buckets]]

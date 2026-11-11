@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 
 import type { Env } from '../env'
+import { sendBrevo } from '../lib/brevo'
+import { renderEmail, type EmailRow } from '../emails/templates'
 import { dbErrorResponse, safeEqual, type AppEnv } from '../lib/http'
 import { supabaseAdmin } from '../lib/supabase-admin'
 
@@ -65,6 +67,85 @@ jobs.post('/r2-cleanup', async (c) => {
       cursors: { media: media.next, private: priv.next },
     })
   } catch (error) {
+    const { body, status } = dbErrorResponse(error)
+    return c.json(body, status)
+  }
+})
+
+
+// ---------------------------------------------------------------- email
+const DAILY_CAP = 280 // Brevo's free plan allows 300 a day; we stop early to keep a margin
+const WARN_AT = Math.floor(DAILY_CAP * 0.8)
+const PER_RUN = 20 // Cloudflare's free plan allows 50 subrequests per call
+
+type Outcome = { id: number; outcome: 'sent' | 'retry' | 'failed' | 'skipped'; message_id?: string; error?: string }
+
+async function deliver(env: Env, row: EmailRow): Promise<Outcome> {
+  if (!row.to_email) return { id: row.id, outcome: 'failed', error: 'no recipient (the person was deleted)' }
+  const rendered = renderEmail(row, { siteUrl: env.SITE_URL.replace(/\/$/, '') })
+  if (!rendered) return { id: row.id, outcome: 'failed', error: `unknown template ${row.template}` }
+
+  if (env.ENVIRONMENT === 'staging' && env.EMAIL_ALLOWLIST) {
+    const allowed = env.EMAIL_ALLOWLIST.split(',').map((a) => a.trim().toLowerCase())
+    if (!allowed.includes(row.to_email.toLowerCase())) {
+      return { id: row.id, outcome: 'skipped', error: 'not on the staging allow-list' }
+    }
+  }
+
+  if (env.ENVIRONMENT === 'local') {
+    // Nothing leaves the machine: the email lands in a dev mailbox the tests and developers can read at /dev/mail.
+    await env.MEDIA.put(`dev-mail/${String(row.id).padStart(10, '0')}.json`, JSON.stringify({ id: row.id, to: row.to_email, template: row.template, data: row.data, ...rendered }))
+    return { id: row.id, outcome: 'sent', message_id: `dev-${row.id}` }
+  }
+
+  const result = await sendBrevo(env.BREVO_API_KEY, {
+    fromEmail: env.EMAIL_FROM, fromName: env.EMAIL_FROM_NAME || 'Kollide', to: row.to_email, ...rendered,
+  })
+  if (result.ok) return { id: row.id, outcome: 'sent', message_id: result.messageId }
+  return { id: row.id, outcome: result.retry ? 'retry' : 'failed', error: result.error }
+}
+
+/**
+ * POST /jobs/flush-email   header: X-Job-Secret   (called every minute by pg_cron through pg_net)
+ * Sends queued emails through Brevo: critical ones first, at most 20 a run and 280 a day (UTC), retries are
+ * handled by the database (the first try plus 3 retries). Records its result in job_runs.
+ */
+jobs.post('/flush-email', async (c) => {
+  if (!(await safeEqual(c.req.header('x-job-secret') ?? '', c.env.JOB_SHARED_SECRET ?? ''))) {
+    return c.json({ error: 'unauthorized' }, 401)
+  }
+  const db = supabaseAdmin(c.env)
+  const record = (status: 'ok' | 'warning' | 'error' | 'skipped', detail: Record<string, unknown> | null, error?: string) =>
+    db.rpc('record_job_run', { p_job: 'flush-email', p_status: status, p_detail: detail, p_error: error ?? null }).catch(() => {})
+
+  try {
+    if (c.env.ENVIRONMENT !== 'local' && (!c.env.BREVO_API_KEY || !c.env.EMAIL_FROM)) {
+      await record('skipped', { reason: 'BREVO_API_KEY or EMAIL_FROM is not set' })
+      return c.json({ sent: 0, skipped: 'not configured' })
+    }
+    const sentToday = await db.rpc<number>('emails_sent_today')
+    const budget = Math.max(DAILY_CAP - sentToday, 0)
+    if (budget === 0) {
+      await record('warning', { reason: 'daily cap reached', sent_today: sentToday })
+      return c.json({ sent: 0, capped: true })
+    }
+
+    const rows = await db.rpc<EmailRow[]>('claim_emails', { p_limit: Math.min(budget, PER_RUN) })
+    const results: Outcome[] = []
+    for (let i = 0; i < rows.length; i += 5) {
+      results.push(...(await Promise.all(rows.slice(i, i + 5).map((row) => deliver(c.env, row)))))
+    }
+    if (results.length > 0) await db.rpc('finish_emails', { p_results: results })
+
+    const count = (outcome: Outcome['outcome']) => results.filter((r) => r.outcome === outcome).length
+    const total = sentToday + count('sent')
+    await record(total >= WARN_AT ? 'warning' : 'ok', {
+      claimed: rows.length, sent: count('sent'), retry: count('retry'), failed: count('failed'), skipped: count('skipped'),
+      sent_today: total, daily_cap: DAILY_CAP,
+    })
+    return c.json({ claimed: rows.length, sent: count('sent'), retry: count('retry'), failed: count('failed'), skipped: count('skipped'), sentToday: total })
+  } catch (error) {
+    await record('error', null, error instanceof Error ? error.message : 'unknown error')
     const { body, status } = dbErrorResponse(error)
     return c.json(body, status)
   }

@@ -35,6 +35,10 @@ export function testEnv(overrides: Partial<Env> = {}): Env {
     KOLLIDE_DOMAIN: 'example.invalid',
     SUPABASE_URL,
     ALLOWED_ORIGINS: 'https://site.test',
+    SITE_URL: 'https://site.test',
+    EMAIL_FROM: 'mail@mail.example.invalid',
+    EMAIL_FROM_NAME: 'Kollide',
+    EMAIL_ALLOWLIST: '',
     R2_ACCOUNT_ID: 'acct123',
     R2_MEDIA_BUCKET: 'kollide-media-staging',
     R2_PRIVATE_BUCKET: 'kollide-private-staging',
@@ -42,6 +46,7 @@ export function testEnv(overrides: Partial<Env> = {}): Env {
     R2_ACCESS_KEY_ID: 'AKIDTEST',
     R2_SECRET_ACCESS_KEY: 'secret-test',
     JOB_SHARED_SECRET: 'job-secret',
+    BREVO_API_KEY: 'brevo-test-key',
     MEDIA: workerEnv.MEDIA,
     PRIVATE: workerEnv.PRIVATE,
     ...overrides,
@@ -57,10 +62,16 @@ type Handler = (args: Record<string, unknown>) => unknown
  * DbFailure('code') (which becomes a 400 with that code, like our SQL functions do).
  * `tables` handlers answer GET queries by path prefix.
  */
-export function mockBackend(handlers: { rpc?: Record<string, Handler>; tables?: Record<string, () => unknown[]> }) {
+export function mockBackend(handlers: {
+  rpc?: Record<string, Handler>
+  tables?: Record<string, () => unknown[]>
+  /** Answers requests to any other host (for example Brevo). */
+  external?: (url: URL, init?: RequestInit) => Response | Promise<Response>
+}) {
   const rpcCalls: { name: string; args: Record<string, unknown> }[] = []
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : (input as Request).url)
+    if (url.host === 'api.brevo.com') return handlers.external ? handlers.external(url, init) : Response.json({ message: 'unexpected' }, { status: 500 })
     if (url.pathname.endsWith('/.well-known/jwks.json')) return Response.json(jwks)
     if (url.pathname.startsWith('/rest/v1/rpc/')) {
       const name = url.pathname.replace('/rest/v1/rpc/', '')

@@ -4,6 +4,7 @@ import { Outlet } from 'react-router'
 
 import { useSession } from '@/app/providers/session-context'
 import { AppLink, AppNavLink } from '@/components/shared/app-link'
+import { NotificationBell } from '@/components/shared/notification-bell'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Wordmark } from '@/components/shared/wordmark'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -81,6 +82,7 @@ export function AppLayout() {
                 </AppLink>
               </Button>
             ) : null}
+            <NotificationBell />
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -26,3 +26,11 @@ Browsers never choose an R2 key: the Worker asks `authorize_upload` for one and 
 - **B5 must redefine three stubs with `create or replace`:** `private.event_taken_seats(event)` (count bookings in requested, approved, confirmed, attended), `private.event_attendee_photos(event)` (verified attendees' photo keys) and `private.user_has_booking_access(user, event)` (approved or confirmed). `event_cards`, `search_events` and `get_event_address` then work unchanged. Test the address rule for attendees in B5.
 - B5 should also schedule `public.complete_ended_events()` (service role) with `pg_cron`.
 
+### Bookings, email and jobs (B5)
+- **One join path:** every booking goes through `private.join_event(user, event, squad)` (it locks the event row). `request_to_join` and the squad functions call it. The paid branch is marked `PAID EVENTS (P1)`: it raises `payments_disabled` while the switch is off. Never write a booking as `confirmed` or `paid` anywhere else (a trigger enforces it).
+- **Seats:** `private.event_taken_seats` counts requested, approved, confirmed and attended (P1 adds pending_payment and paid). Free events may be approved up to capacity x (1 + overbook_pct/100).
+- **Email:** never send from SQL. Call `private.queue_email(user, template, data, priority)` (1 = critical, 2 = normal) and `private.notify(...)` on every state change. A new email needs a template in `workers/api/src/emails/templates.ts`, in the `email_outbox.template` check, and a test. Emails never contain the exact address.
+- **Jobs:** each cron job function records itself with `private.record_job_run`. Add new jobs in a migration with `cron.schedule` and a Vault-based Worker call if they need the Worker.
+- **B6 will:** make `host_inbox`'s "Shows up X of Y" and top tags real, mark `attended`/`no_show`, and add `checkin_token` to bookings.
+- Test the seat lock with `npm run db:race` (two sessions, one seat).
+
