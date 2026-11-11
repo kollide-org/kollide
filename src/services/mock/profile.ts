@@ -1,9 +1,10 @@
-import type { MyProfile, ProfileService, ProfileUpdate, VerificationState } from '../types/profile'
+import type { HostApplicationStatus, MyProfile, ProfileService, ProfileUpdate, VerificationState } from '../types/profile'
 import { currentMockRole, mockAuth } from './auth'
 
 let overrides: ProfileUpdate = {}
 let photoKeys: (string | undefined)[] = []
 let verification: VerificationState = 'none'
+let application: HostApplicationStatus | null = null
 
 export const mockProfile: ProfileService = {
   async getMyProfile() {
@@ -55,5 +56,11 @@ export const mockProfile: ProfileService = {
   },
   async getVerificationState() {
     return verification
+  },
+  async applyToHost() {
+    application = { status: 'pending', adminNote: null, createdAt: new Date().toISOString() }
+  },
+  async getMyHostApplication() {
+    return application
   },
 }

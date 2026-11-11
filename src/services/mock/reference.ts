@@ -9,6 +9,7 @@ export const mockReference: ReferenceService = {
       areas: items(['Indiranagar', 'Koramangala', 'HSR Layout', 'Jayanagar', 'JP Nagar', 'Whitefield']),
       interests: items(['Board games', 'Hiking', 'Running', 'Live music', 'Film', 'Books', 'Coffee', 'Street food']),
       languages: items(['Kannada', 'English', 'Hindi', 'Tamil', 'Telugu']),
+      categories: items(['Food and drink', 'Outdoors', 'Music', 'Games', 'Arts and crafts', 'Books', 'Sports']),
     }
   },
 }

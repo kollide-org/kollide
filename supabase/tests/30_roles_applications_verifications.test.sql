@@ -52,40 +52,41 @@ select is(pg_temp.n($$delete from public.user_roles where user_id = '00000000-00
   1, 'an admin CAN revoke a role');
 select is((select count(*)::int from public.audit_log where table_name = 'user_roles' and action = 'DELETE'), 1, 'the revoke is audited');
 
--- ===== host_applications =====
+-- ===== host_applications (B4: written only through functions) =====
 reset role; select pg_temp.act_as(3);
-select lives_ok($$insert into public.host_applications (user_id, message) values ('00000000-0000-4000-8000-000000000003', 'I run a weekly board game night.')$$,
-  'a member CAN apply to host');
-select throws_ok($$insert into public.host_applications (user_id, message) values ('00000000-0000-4000-8000-000000000003', 'again')$$, '23505',
-  null, 'only one pending application at a time');
-select throws_ok($$insert into public.host_applications (user_id, message) values ('00000000-0000-4000-8000-000000000005', 'for someone else')$$, '42501',
-  null, 'a member CANNOT apply on behalf of someone else');
-select throws_ok($$insert into public.host_applications (user_id, message, status) values ('00000000-0000-4000-8000-000000000003', 'x', 'approved')$$, '42501',
-  null, 'a member CANNOT insert an already-approved application');
+select lives_ok($$select public.apply_to_host('I run a weekly board game night.')$$, 'a member CAN apply to host');
+select throws_ok($$select public.apply_to_host('again')$$, 'P0001', 'application_pending', 'only one pending application at a time');
+select throws_ok($$insert into public.host_applications (user_id, message) values ('00000000-0000-4000-8000-000000000003', 'direct')$$, '42501',
+  null, 'a member CANNOT insert an application directly');
 select is((select count(*)::int from public.host_applications), 1, 'the applicant CAN read their own application');
-select is(pg_temp.n($$update public.host_applications set status = 'approved'$$), 0,
-  'the applicant CANNOT approve their own application');
+select throws_ok($$update public.host_applications set status = 'approved'$$, '42501', null, 'the applicant CANNOT approve their own application');
+select throws_ok($$select public.review_host_application((select id from public.host_applications limit 1), true, null)$$, 'P0001', 'not_allowed',
+  'the applicant CANNOT review through the function either');
 
 reset role; select pg_temp.act_as(5);
 select is((select count(*)::int from public.host_applications), 0, 'another member CANNOT read it');
 
 reset role; select pg_temp.act_as_anon();
 select throws_ok($$select * from public.host_applications$$, '42501', null, 'a stranger CANNOT read host applications');
+select throws_ok($$select public.apply_to_host('hi')$$, '42501', null, 'a stranger CANNOT apply');
 
 reset role; select pg_temp.act_as(1);
 select is((select count(*)::int from public.host_applications), 1, 'an admin CAN read applications');
-select is(pg_temp.n($$update public.host_applications set status = 'approved', admin_note = 'Welcome',
-  reviewed_by = '00000000-0000-4000-8000-000000000001', reviewed_at = now()$$),
-  1, 'an admin CAN review an application');
+select throws_ok($$update public.host_applications set status = 'approved'$$, '42501', null, 'an admin CANNOT approve by editing the table');
+select lives_ok($$select public.review_host_application((select id from public.host_applications limit 1), true, 'Welcome')$$, 'an admin CAN approve through the function');
+select is((select count(*)::int from public.user_roles where user_id = '00000000-0000-4000-8000-000000000003' and role = 'host'), 1, 'approval adds the host role');
+select throws_ok($$select public.review_host_application((select id from public.host_applications limit 1), false, null)$$, 'P0001', 'already_reviewed', 'a second review is refused');
 select is((select new_data from public.audit_log where table_name = 'host_applications' order by id desc limit 1),
   '{"status":"approved","user_id":"00000000-0000-4000-8000-000000000003","reviewed_by":"00000000-0000-4000-8000-000000000001"}'::jsonb,
   'the review is audited without the private admin note');
 
+reset role; select pg_temp.act_as(3);
+select throws_ok($$select public.apply_to_host('already one')$$, 'P0001', 'already_host', 'a host CANNOT apply again');
+
 reset role;
 update public.profile_private set status = 'on_hold' where id = '00000000-0000-4000-8000-000000000004';
 select pg_temp.act_as(4);
-select throws_ok($$insert into public.host_applications (user_id, message) values ('00000000-0000-4000-8000-000000000004', 'let me host')$$, '42501',
-  null, 'an on-hold member CANNOT apply to host');
+select throws_ok($$select public.apply_to_host('let me host')$$, 'P0001', 'not_active', 'an on-hold member CANNOT apply to host');
 
 -- ===== verifications =====
 reset role;

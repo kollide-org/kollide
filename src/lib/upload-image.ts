@@ -2,7 +2,7 @@ import { ImageError, compressToWebp } from '@/lib/image'
 import { ServiceError, services, type UploadPurpose } from '@/services'
 
 /** Picked file in, stored key out: strips hidden data and shrinks to WebP, then uploads. */
-export async function uploadImage(file: File, purpose: UploadPurpose): Promise<string> {
+export async function uploadImage(file: File, purpose: UploadPurpose, options?: { eventId?: string }): Promise<string> {
   let image: Blob
   try {
     image = await compressToWebp(file)
@@ -10,5 +10,5 @@ export async function uploadImage(file: File, purpose: UploadPurpose): Promise<s
     if (error instanceof ImageError) throw new ServiceError(error.code)
     throw error
   }
-  return services.upload.upload(purpose, image)
+  return services.upload.upload(purpose, image, options)
 }

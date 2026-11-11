@@ -9,10 +9,10 @@ interface SignResponse {
 }
 
 export const realUpload: UploadService = {
-  async upload(purpose, image) {
+  async upload(purpose, image, options) {
     const signed = await api<SignResponse>('/uploads/sign', {
       method: 'POST',
-      body: JSON.stringify({ purpose, contentType: image.type, size: image.size }),
+      body: JSON.stringify({ purpose, contentType: image.type, size: image.size, eventId: options?.eventId }),
     })
     // The link is signed for exactly this type and size. The browser adds Content-Length itself.
     const res = await fetch(signed.url, { method: 'PUT', headers: signed.headers, body: image })

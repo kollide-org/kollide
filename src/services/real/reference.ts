@@ -6,7 +6,7 @@ const client = () => import('./client').then((module) => module.supabase)
 export const realReference: ReferenceService = {
   async get() {
     const supabase = await client()
-    const load = async (table: 'areas' | 'interests' | 'languages'): Promise<ReferenceItem[]> => {
+    const load = async (table: 'areas' | 'interests' | 'languages' | 'categories'): Promise<ReferenceItem[]> => {
       const { data, error } = await supabase
         .from(table)
         .select('id, slug, label')
@@ -16,7 +16,7 @@ export const realReference: ReferenceService = {
       if (error) throw new ServiceError('unknown', error.message)
       return data ?? []
     }
-    const [areas, interests, languages] = await Promise.all([load('areas'), load('interests'), load('languages')])
-    return { areas, interests, languages }
+    const [areas, interests, languages, categories] = await Promise.all([load('areas'), load('interests'), load('languages'), load('categories')])
+    return { areas, interests, languages, categories }
   },
 }

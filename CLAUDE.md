@@ -19,3 +19,10 @@ Put the logic in a `SECURITY DEFINER` function in the `private` schema (with `se
 
 ### Images
 Browsers never choose an R2 key: the Worker asks `authorize_upload` for one and the key is recorded in `upload_keys`. Attach functions (`set_profile_photo`, `submit_selfie`, ...) only accept keys issued to the caller. When you add a column that stores an image key (event cover, hub art), update `private.unreferenced_keys` too, or the nightly cleanup deletes it.
+
+### Events (B4)
+- Events, hubs and featured slots are written only through functions; the browser reads. `partner_url`, `referral_code` and `review_note` are not granted to the browser (partner links go through the Worker's `/go/:id`).
+- No money moves through Kollide: `price_label` is display text, `price_paise` must stay 0 while `payments_enabled` is false (a trigger enforces it).
+- **B5 must redefine three stubs with `create or replace`:** `private.event_taken_seats(event)` (count bookings in requested, approved, confirmed, attended), `private.event_attendee_photos(event)` (verified attendees' photo keys) and `private.user_has_booking_access(user, event)` (approved or confirmed). `event_cards`, `search_events` and `get_event_address` then work unchanged. Test the address rule for attendees in B5.
+- B5 should also schedule `public.complete_ended_events()` (service role) with `pg_cron`.
+

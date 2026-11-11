@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test'
+import { expect, type Browser, type Page } from '@playwright/test'
 
 import { pictureFile } from './fixtures.ts'
 
@@ -63,4 +63,35 @@ export async function finishOnboarding(page: Page, firstName: string) {
   await page.getByLabel('I accept the code of conduct').click()
   await page.getByLabel('I accept the privacy notice').click()
   await page.getByRole('button', { name: 'Finish' }).click()
+}
+
+/** Gives a signed-up local user the admin role, using the local service key (tests only). */
+export async function promoteToAdmin(email: string) {
+  const url = process.env.E2E_SUPABASE_URL
+  const key = process.env.E2E_SERVICE_KEY
+  if (!url || !key) throw new Error('E2E_SUPABASE_URL and E2E_SERVICE_KEY are set by playwright.config.ts')
+  const headers = { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' }
+  const lookup = await fetch(`${url}/rest/v1/profile_private?email=eq.${encodeURIComponent(email)}&select=id`, { headers })
+  const [row] = (await lookup.json()) as { id: string }[]
+  if (!row) throw new Error(`no profile for ${email}`)
+  const res = await fetch(`${url}/rest/v1/user_roles`, { method: 'POST', headers, body: JSON.stringify({ user_id: row.id, role: 'admin' }) })
+  if (!res.ok) throw new Error(`could not grant admin: ${res.status}`)
+}
+
+/** A new signed-in, onboarded member in their own browser context. */
+export async function newMember(browser: Browser, prefix: string, firstName: string): Promise<{ page: Page; email: string }> {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  const email = uniqueEmail(prefix)
+  await signInWithCode(page, email)
+  await finishOnboarding(page, firstName)
+  await expect(page).toHaveURL(/\/app$/)
+  return { page, email }
+}
+
+/** "2026-12-01T18:00" in the browser's local time, `days` from now. */
+export function localInput(days: number, hour: number): string {
+  const date = new Date(Date.now() + days * 86_400_000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(hour)}:00`
 }
