@@ -92,6 +92,8 @@ test('request, host approves, email, address; waitlist promotion; reconfirmation
   await m1.page.goto('/app/notifications')
   await expect(m1.page.getByText('You are in')).toBeVisible()
   await m1.page.getByRole('button', { name: 'Mark all as read' }).click()
+  // Wait until the page shows nothing unread, so the request has finished before we leave (navigating early could cancel it).
+  await expect(m1.page.getByText('(unread)')).toHaveCount(0)
   await m1.page.goto('/app')
   await expect(m1.page.getByRole('link', { name: 'Notifications', exact: true })).toBeVisible()
 
