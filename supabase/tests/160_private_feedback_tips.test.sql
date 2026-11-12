@@ -95,7 +95,10 @@ select throws_ok($$delete from public.private_feedback$$, '42501', null, 'nobody
 reset role; select pg_temp.act_as_anon();
 select throws_ok($$select count(*) from public.private_feedback$$, '42501', null, 'anon CANNOT read private feedback');
 reset role; select pg_temp.act_as(1);
-select is((select count(*)::int from public.private_feedback), 1, 'admins can read it');
+select is((select count(*)::int from public.private_feedback), 0, 'admins CANNOT read the table: only the author can (so authors stay private)');
+reset role; -- (the function is internal; admin screens reach it through admin_get_report, tested in 210)
+select is((select jsonb_array_length(private.private_feedback_for_admin(:'u5'))), 1, 'admins read the note through the function...');
+select ok(not (private.private_feedback_for_admin(:'u5')::text ~* 'from_user|00000000-0000-4000-8000-0000000001a1'), '...which never includes who wrote it');
 reset role;
 select is((select count(*)::int from public.audit_log where table_name = 'private_feedback' and new_data::text like '%SECRET-NOTE-123%'), 0, 'the note never enters the audit log');
 select ok(exists (select 1 from public.audit_log where table_name = 'private_feedback' and action = 'INSERT'), 'but the fact that it was written does');

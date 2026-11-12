@@ -109,6 +109,32 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"banned_identities": {
+                  Row: {
+                    "created_at": string,"hash": string,"id": string,"kind": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"hash": string,"id"?: string,"kind": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"hash"?: string,"id"?: string,"kind"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "banned_identities_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "banned_identities_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"bookings": {
                   Row: {
                     "cancel_reason": string | null,"cancelled_at": string | null,"checkin_token": string,"created_at": string,"decided_at": string | null,"decided_by": string | null,"event_id": string,"hold_expires_at": string | null,"id": string,"reconfirm_by": string | null,"reconfirm_requested_at": string | null,"reconfirm_token": string,"reconfirmed_at": string | null,"reminded_at": string | null,"requested_at": string,"squad_id": string | null,"status": Database["public"]['Enums']["booking_status"],"updated_at": string,"user_id": string,"waitlisted_at": string | null
@@ -635,6 +661,50 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"moderation_actions": {
+                  Row: {
+                    "action": string,"admin_id": string | null,"created_at": string,"id": string,"reason": string,"report_id": string | null,"user_id": string,"user_note": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"admin_id"?: string | null,"created_at"?: string,"id"?: string,"reason": string,"report_id"?: string | null,"user_id": string,"user_note"?: string | null
+                  }
+                  Update: {
+                    "action"?: string,"admin_id"?: string | null,"created_at"?: string,"id"?: string,"reason"?: string,"report_id"?: string | null,"user_id"?: string,"user_note"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "moderation_actions_admin_id_fkey"
+      columns: ["admin_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_admin_id_fkey"
+      columns: ["admin_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "safety_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"notifications": {
                   Row: {
                     "body": string | null,"created_at": string,"data": NonNullable<Json>,"id": number,"kind": string,"read_at": string | null,"title": string,"user_id": string
@@ -658,6 +728,32 @@ isOneToOne: false
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"partner_click_counts": {
+                  Row: {
+                    "clicks": number,"day": string,"event_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "clicks"?: number,"day": string,"event_id": string
+                  }
+                  Update: {
+                    "clicks"?: number,"day"?: string,"event_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "partner_click_counts_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "partner_click_counts_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
       referencedColumns: ["id"]
     }
                   ]
@@ -903,14 +999,14 @@ isOneToOne: false
                   ]
                 },"review_flags": {
                   Row: {
-                    "created_at": string,"details": NonNullable<Json>,"event_id": string | null,"id": string,"kind": string,"ref_key": string,"resolved_at": string | null,"resolved_by": string | null,"status": string,"subject_user_id": string | null
+                    "created_at": string,"details": NonNullable<Json>,"event_id": string | null,"id": string,"kind": string,"ref_key": string,"resolution_note": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": string,"subject_user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind": string,"ref_key": string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
+                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind": string,"ref_key": string,"resolution_note"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind"?: string,"ref_key"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
+                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind"?: string,"ref_key"?: string,"resolution_note"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -953,14 +1049,14 @@ isOneToOne: false
                   ]
                 },"safety_reports": {
                   Row: {
-                    "created_at": string,"details": string | null,"event_id": string | null,"held": boolean,"id": string,"outcome": string | null,"reason": string,"reporter_id": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string
+                    "action_taken": string | null,"admin_note": string | null,"created_at": string,"details": string | null,"event_id": string | null,"held": boolean,"id": string,"outcome": string | null,"reason": string,"reporter_id": string | null,"resolved_at": string | null,"resolved_by": string | null,"reviewed_by": string | null,"reviewing_at": string | null,"status": Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string,"user_note": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason": string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string
+                    "action_taken"?: string | null,"admin_note"?: string | null,"created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason": string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"reviewed_by"?: string | null,"reviewing_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string,"user_note"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason"?: string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id"?: string,"subject_type"?: string,"subject_user_id"?: string
+                    "action_taken"?: string | null,"admin_note"?: string | null,"created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason"?: string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"reviewed_by"?: string | null,"reviewing_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id"?: string,"subject_type"?: string,"subject_user_id"?: string,"user_note"?: string | null
                   }
                   Relationships: [
                     {
@@ -996,6 +1092,18 @@ isOneToOne: false
     },{
       foreignKeyName: "safety_reports_resolved_by_fkey"
       columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_reviewed_by_fkey"
+      columns: ["reviewed_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_reviewed_by_fkey"
+      columns: ["reviewed_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -1365,15 +1473,47 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "admin_delete_hub":
+            "admin_audit_log":
+{ Args: { "p_action"?: string,"p_actor"?: string,"p_before"?: number,"p_from"?: string,"p_limit"?: number,"p_table"?: string,"p_to"?: string }; Returns: {
+              "action": string,"actor_first_name": string,"actor_id": string,"at": string,"id": number,"new_data": Json,"old_data": Json,"row_pk": string,"table_name": string
+            }[]
+                           },
+"admin_audit_tables":
+{ Args: Record<PropertyKey, never>; Returns: (string)[]
+                           },
+"admin_delete_hub":
 { Args: { "p_hub": string }; Returns: undefined
+                           },
+"admin_email_usage":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "admin_finalise_event_now":
 { Args: { "p_event": string,"p_mark_no_shows"?: boolean }; Returns: string
                            },
+"admin_get_report":
+{ Args: { "p_id": string }; Returns: Json
+                           },
+"admin_job_health":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "error_count": number,"every_minutes": number,"job": string,"last_detail": Json,"last_error": string,"last_finished_at": string,"last_started_at": string,"last_status": string,"late": boolean,"run_count": number
+            }[]
+                           },
 "admin_job_runs":
 { Args: Record<PropertyKey, never>; Returns: {
               "error_count": number,"job": string,"last_detail": Json,"last_error": string,"last_finished_at": string,"last_status": string,"run_count": number
+            }[]
+                           },
+"admin_lift_hold":
+{ Args: { "p_note": string,"p_user": string }; Returns: undefined
+                           },
+"admin_list_appeals":
+{ Args: { "p_limit"?: number,"p_offset"?: number,"p_status"?: string }; Returns: {
+              "admin_note": string,"created_at": string,"due_at": string,"first_name": string,"id": string,"kind": string,"message": string,"overdue": boolean,"resolved_at": string,"status": string,"tip_message": string,"user_id": string,"user_status": Database["public"]['Enums']["user_status"]
+            }[]
+                           },
+"admin_list_flags":
+{ Args: { "p_limit"?: number,"p_offset"?: number,"p_status"?: string }; Returns: {
+              "created_at": string,"details": Json,"event_id": string,"event_title": string,"id": string,"kind": string,"resolution_note": string,"resolved_at": string,"status": string,"subject_first_name": string,"subject_user_id": string
             }[]
                            },
 "admin_list_host_applications":
@@ -1381,9 +1521,30 @@ isOneToOne: false
               "created_at": string,"first_name": string,"id": string,"message": string,"user_id": string
             }[]
                            },
+"admin_list_partner_events":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "clicks_30d": number,"clicks_7d": number,"clicks_total": number,"event_id": string,"host_first_name": string,"partner_url": string,"referral_code": string,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"title": string
+            }[]
+                           },
 "admin_list_pending_verifications":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"first_name": string,"id": string,"user_id": string
+            }[]
+                           },
+"admin_list_reports":
+{ Args: { "p_limit"?: number,"p_offset"?: number,"p_status"?: string }; Returns: {
+              "action_taken": string,"created_at": string,"held": boolean,"id": string,"reason": string,"reporter_first_name": string,"reviewer_first_name": string,"status": Database["public"]['Enums']["report_status"],"subject_first_name": string,"subject_id": string,"subject_status": Database["public"]['Enums']["user_status"],"subject_type": string,"subject_user_id": string
+            }[]
+                           },
+"admin_resolve_flag":
+{ Args: { "p_id": string,"p_note"?: string,"p_status": string }; Returns: undefined
+                           },
+"admin_resolve_report":
+{ Args: { "p_action": string,"p_id": string,"p_internal_note"?: string,"p_user_note"?: string }; Returns: undefined
+                           },
+"admin_search_users":
+{ Args: { "p_limit"?: number,"p_offset"?: number,"p_q"?: string,"p_status"?: string }; Returns: {
+              "created_at": string,"email": string,"first_name": string,"is_verified": boolean,"last_name": string,"onboarded": boolean,"open_reports": number,"phone_hint": string,"roles": (string)[],"status": Database["public"]['Enums']["user_status"],"user_id": string
             }[]
                            },
 "admin_send_reconfirmation":
@@ -1392,8 +1553,20 @@ isOneToOne: false
 "admin_set_hub_events":
 { Args: { "p_event_ids": (string)[],"p_hub": string }; Returns: undefined
                            },
+"admin_set_partner_link":
+{ Args: { "p_event": string,"p_referral"?: string,"p_url": string }; Returns: undefined
+                           },
+"admin_set_user_status":
+{ Args: { "p_action": string,"p_reason": string,"p_user": string,"p_user_note"?: string }; Returns: undefined
+                           },
+"admin_start_review":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "admin_upsert_hub":
 { Args: { "p_accent_color": string,"p_art_key"?: string,"p_ends_on": string,"p_id": string,"p_published": boolean,"p_slug": string,"p_sort_order": number,"p_starts_on": string,"p_subtitle": string,"p_title": string }; Returns: string
+                           },
+"admin_user_detail":
+{ Args: { "p_user": string }; Returns: Json
                            },
 "apply_to_host":
 { Args: { "p_message": string }; Returns: undefined
@@ -1618,6 +1791,9 @@ isOneToOne: false
                            },
 "record_job_run":
 { Args: { "p_detail"?: Json,"p_error"?: string,"p_job": string,"p_status": string }; Returns: undefined
+                           },
+"record_partner_click":
+{ Args: { "p_event": string }; Returns: undefined
                            },
 "reject_event":
 { Args: { "p_event": string,"p_note": string }; Returns: undefined

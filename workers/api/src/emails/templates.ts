@@ -171,6 +171,31 @@ export function renderEmail(row: EmailRow, ctx: Context): Rendered | null {
         }),
         text: `We are looking into something and have paused your account for now. You cannot join or host events while this is open.\n\nIf you think this is a mistake, you can send us an appeal from the app. We aim to reply within 48 hours.\n${ctx.siteUrl}/app/appeals`,
       }
+    case 'moderation_notice': {
+      // Fixed wording per decision, plus the note the admin chose to send (escaped). Never a reason, a report or who reported.
+      const action = String(d.action ?? '')
+      const note = typeof d.note === 'string' && d.note.trim() ? d.note.trim() : ''
+      const copy: Record<string, { subject: string; heading: string; body: string; link: string; label: string }> = {
+        note: { subject: 'A message from the Kollide team', heading: 'A message for you', body: 'The Kollide team has a message for you.', link: '/app', label: 'Open Kollide' },
+        warn: { subject: 'A note from the Kollide team', heading: 'A note from the team', body: 'We want to remind you about our code of conduct.', link: '/app', label: 'Open Kollide' },
+        hold: { subject: 'Your Kollide account is on hold', heading: 'Your account is on hold', body: 'We are looking into something and have paused your account for now. You cannot join or host events while this is open.', link: '/app/appeals', label: 'Send an appeal' },
+        suspend: { subject: 'Your Kollide account is suspended', heading: 'Your account is suspended', body: 'Your account is suspended for now. You cannot join or host events while this lasts. If you think this is a mistake, you can send us an appeal.', link: '/app/appeals', label: 'Send an appeal' },
+        ban: { subject: 'Your Kollide account was closed', heading: 'Your account was closed', body: 'Your Kollide account has been closed and you can no longer sign in. Upcoming events you hosted or joined were cancelled.', link: '', label: '' },
+        reactivate: { subject: 'Your Kollide account is active again', heading: 'You are back', body: 'Your account is active again. Thank you for your patience.', link: '/app', label: 'Open Kollide' },
+      }
+      const c = copy[action]
+      if (!c) return null
+      const url = c.link ? `${ctx.siteUrl}${c.link}` : ''
+      return {
+        subject: c.subject,
+        html: layout({
+          heading: c.heading,
+          footer: FOOTER_ESSENTIAL,
+          bodyHtml: `<p style="margin:0 0 12px 0;">${esc(c.body)}</p>${note ? `<p style="margin:0 0 12px 0;padding:12px 16px;background:#F4EFE6;border-radius:12px;">${esc(note)}</p>` : ''}${url ? button(url, c.label) : ''}`,
+        }),
+        text: `${c.body}${note ? `\n\n${note}` : ''}${url ? `\n\n${url}` : ''}`,
+      }
+    }
     default:
       return null
   }

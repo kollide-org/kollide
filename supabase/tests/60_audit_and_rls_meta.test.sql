@@ -51,11 +51,14 @@ select throws_ok($$truncate public.audit_log$$, 'P0001', 'audit_log is append-on
 
 select pg_temp.act_as_anon();
 select throws_ok($$select * from public.audit_log$$, '42501', null, 'a stranger CANNOT read the audit log');
+select throws_ok($$select * from public.admin_audit_log()$$, '42501', null, 'anon CANNOT call the audit viewer');
 reset role; select pg_temp.act_as(3);
-select is((select count(*)::int from public.audit_log), 0, 'a member CANNOT read the audit log');
+select throws_ok($$select count(*) from public.audit_log$$, '42501', null, 'a member CANNOT read the audit log');
+select throws_ok($$select * from public.admin_audit_log()$$, 'P0001', 'not_allowed', 'a member CANNOT use the audit viewer');
 select throws_ok($$insert into public.audit_log (action, table_name) values ('INSERT', 'x')$$, '42501', null, 'a member CANNOT write the audit log');
 reset role; select pg_temp.act_as(1);
-select ok((select count(*) from public.audit_log) > 0, 'an admin CAN read the audit log');
+select ok((select count(*) from public.admin_audit_log()) > 0, 'an admin CAN read the audit log through the viewer');
+select throws_ok($$select count(*) from public.audit_log$$, '42501', null, 'but NOT the table directly (the viewer masks private feedback authors)');
 select throws_ok($$insert into public.audit_log (action, table_name) values ('INSERT', 'x')$$, '42501', null, 'an admin CANNOT write the audit log directly');
 
 -- ===== reserved payment values and the switch =====

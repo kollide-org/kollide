@@ -37,6 +37,17 @@ describe('GET /go/:eventId', () => {
     expect(rpcCalls).toHaveLength(0)
   })
 
+  it('the real hook counts the click in the database and never breaks the redirect', async () => {
+    analyticsHooks.partnerClick = original
+    const { rpcCalls } = mockBackend({
+      tables: { 'events': () => [{ partner_url: 'https://tickets.example.com/show', referral_code: null }] },
+      rpc: { record_partner_click: () => null },
+    })
+    const res = await go(ID)
+    expect(res.status).toBe(302)
+    expect(rpcCalls.some((call: any) => call.name === 'record_partner_click' && call.args.p_event === ID)).toBe(true)
+  })
+
   it('works without a referral code', async () => {
     mockBackend({ tables: { 'events': () => [{ partner_url: 'https://tickets.example.com/a', referral_code: null }] } })
     const res = await go(ID)
