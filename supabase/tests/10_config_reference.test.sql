@@ -52,7 +52,7 @@ select is((select updated_by from public.app_config where key = 'payments_enable
   '00000000-0000-4000-8000-000000000001'::uuid, 'updated_by records the admin');
 select throws_ok($$update public.app_config set value = '"yes"' where key = 'payments_enabled'$$, '23514',
   null, 'payments_enabled must be a boolean');
-select is((select count(*)::int from public.audit_log where table_name = 'app_config' and action = 'UPDATE'),
+select is((select count(*)::int from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'app_config' and action = 'UPDATE'),
   1, 'the app_config change is audited');
 update public.app_config set value = 'false' where key = 'payments_enabled';
 
@@ -83,7 +83,7 @@ select is(pg_temp.n($$update public.areas set label = 'ZZ renamed' where slug = 
   1, 'an admin CAN update areas');
 select is(pg_temp.n($$delete from public.areas where slug = 'zz-test'$$),
   1, 'an admin CAN delete areas');
-select is((select count(*)::int from public.audit_log where table_name = 'areas'),
+select is((select count(*)::int from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'areas'),
   3, 'admin writes to reference tables are audited (insert, update, delete)');
 
 select * from finish();

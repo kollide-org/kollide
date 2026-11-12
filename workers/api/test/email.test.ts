@@ -101,6 +101,8 @@ describe('POST /jobs/flush-email', () => {
     expect(b.rpcCalls.map((c) => c.name)).not.toContain('claim_emails')
     expect(b.sends).toHaveLength(0)
     expect(b.records.at(-1)).toMatchObject({ p_status: 'warning' })
+    // the admin page reads the cap from here, so it must be there on this path too
+    expect(b.records.at(-1)?.p_detail).toMatchObject({ sent_today: 280, daily_cap: 280 })
   })
 
   it('claims only what is left of the daily budget, and at most 20 a run', async () => {
@@ -171,8 +173,8 @@ describe('email templates', () => {
 
   it('renders every template with a subject, HTML and plain text', () => {
     for (const template of ['request_received', 'booking_approved', 'booking_waitlisted', 'booking_declined', 'still_coming', 'day_of_reminder', 'event_cancelled',
-      'feedback_prompt', 'safety_report_ack', 'admin_alert', 'account_on_hold']) {
-      const mail = renderEmail({ ...base, template, data: { ...base.data, reconfirm_token: 'tok' } }, ctx)
+      'feedback_prompt', 'safety_report_ack', 'admin_alert', 'account_on_hold', 'moderation_notice']) {
+      const mail = renderEmail({ ...base, template, data: { ...base.data, reconfirm_token: 'tok', action: 'warn' } }, ctx)
       expect(mail, template).not.toBeNull()
       expect(mail!.subject.length).toBeGreaterThan(5)
       expect(mail!.html).toContain('#3B3B98')
@@ -223,6 +225,24 @@ describe('email templates', () => {
     expect(text('safety_report', true)).toContain('on hold')
     expect(text('appeal')).toContain('48 hours')
     expect(text('appeal_overdue')).toContain('past its 48-hour target')
+  })
+
+  it('moderation notices use fixed wording plus the admin\'s note, escaped', () => {
+    for (const action of ['note', 'warn', 'hold', 'suspend', 'ban', 'reactivate']) {
+      const mail = renderEmail({ ...base, template: 'moderation_notice', data: { action, note: '<b>Please</b> read & reply' } }, ctx)!
+      expect(mail, action).not.toBeNull()
+      expect(mail.html, action).not.toContain('<b>Please</b>')
+      expect(mail.html, action).toContain('&lt;b&gt;Please&lt;/b&gt; read &amp; reply')
+      expect(`${mail.subject} ${mail.html} ${mail.text}`.toLowerCase(), action).not.toMatch(/report|reporter|harass/)
+    }
+    expect(renderEmail({ ...base, template: 'moderation_notice', data: { action: 'nope' } }, ctx)).toBeNull()
+  })
+
+  it('a ban email has no appeal link (they cannot sign in) and a suspension has one', () => {
+    const ban = renderEmail({ ...base, template: 'moderation_notice', data: { action: 'ban' } }, ctx)!
+    expect(ban.html + ban.text).not.toContain('/app/appeals')
+    const suspend = renderEmail({ ...base, template: 'moderation_notice', data: { action: 'suspend' } }, ctx)!
+    expect(suspend.html + suspend.text).toContain('https://site.test/app/appeals')
   })
 
   it('never contains an address', () => {

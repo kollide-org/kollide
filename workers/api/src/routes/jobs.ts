@@ -126,7 +126,7 @@ jobs.post('/flush-email', async (c) => {
     const sentToday = await db.rpc<number>('emails_sent_today')
     const budget = Math.max(DAILY_CAP - sentToday, 0)
     if (budget === 0) {
-      await record('warning', { reason: 'daily cap reached', sent_today: sentToday })
+      await record('warning', { reason: 'daily cap reached', sent_today: sentToday, daily_cap: DAILY_CAP })
       return c.json({ sent: 0, capped: true })
     }
 

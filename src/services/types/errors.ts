@@ -105,6 +105,9 @@ const MESSAGES: Record<string, string> = {
   already_appealed: 'You already have an appeal open for this.',
   invalid_kind: 'That cannot be appealed.',
   already_resolved: 'That was already decided.',
+  reason_required: 'Please write a reason (at least 3 characters).',
+  invalid_transition: 'That does not apply to the person’s current status.',
+  invalid_action: 'That action is not available.',
 }
 
 export function errorMessage(error: unknown): string {

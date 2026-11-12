@@ -46,11 +46,11 @@ select is((select count(*)::int from public.user_roles), 2, 'an admin CAN read a
 select is(private.is_admin(), true, 'is_admin() is true for the admin');
 select lives_ok($$insert into public.user_roles (user_id, role, granted_by) values ('00000000-0000-4000-8000-000000000003', 'host', '00000000-0000-4000-8000-000000000001')$$,
   'an admin CAN grant host');
-select is((select count(*)::int from public.audit_log where table_name = 'user_roles' and action = 'INSERT'
+select is((select count(*)::int from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'user_roles' and action = 'INSERT'
   and new_data ->> 'user_id' = '00000000-0000-4000-8000-000000000003'), 1, 'the role grant is audited');
 select is(pg_temp.n($$delete from public.user_roles where user_id = '00000000-0000-4000-8000-000000000003'$$),
   1, 'an admin CAN revoke a role');
-select is((select count(*)::int from public.audit_log where table_name = 'user_roles' and action = 'DELETE'), 1, 'the revoke is audited');
+select is((select count(*)::int from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'user_roles' and action = 'DELETE'), 1, 'the revoke is audited');
 
 -- ===== host_applications (B4: written only through functions) =====
 reset role; select pg_temp.act_as(3);
@@ -76,7 +76,7 @@ select throws_ok($$update public.host_applications set status = 'approved'$$, '4
 select lives_ok($$select public.review_host_application((select id from public.host_applications limit 1), true, 'Welcome')$$, 'an admin CAN approve through the function');
 select is((select count(*)::int from public.user_roles where user_id = '00000000-0000-4000-8000-000000000003' and role = 'host'), 1, 'approval adds the host role');
 select throws_ok($$select public.review_host_application((select id from public.host_applications limit 1), false, null)$$, 'P0001', 'already_reviewed', 'a second review is refused');
-select is((select new_data from public.audit_log where table_name = 'host_applications' order by id desc limit 1),
+select is((select new_data from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'host_applications' order by id desc limit 1),
   '{"status":"approved","user_id":"00000000-0000-4000-8000-000000000003","reviewed_by":"00000000-0000-4000-8000-000000000001"}'::jsonb,
   'the review is audited without the private admin note');
 

@@ -74,7 +74,10 @@ export type { AuthUser } from './types/auth'
 export type * from './types/profile'
 export type { AppConfig } from './types/app-config'
 export type { ReferenceData, ReferenceItem } from './types/reference'
-export type { PendingVerification, HostApplication, AdminEvent, AdminHub, HubInput } from './types/admin'
+export type {
+  PendingVerification, HostApplication, AdminEvent, AdminHub, HubInput, ModerationAction, ReportOutcome, ReportStatus, ReportRow, ReportDetail,
+  UserRow, UserDetail, FlagRow, AppealRow, PartnerEvent, AuditEntry, AuditFilters, JobHealth, EmailUsage,
+} from './types/admin'
 export type * from './types/events'
 export type * from './types/bookings'
 export type * from './types/squads'

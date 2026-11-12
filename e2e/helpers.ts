@@ -116,6 +116,12 @@ export async function serviceInsert(table: string, row: Record<string, unknown>)
   return ((await res.json()) as Record<string, any>[])[0]!
 }
 
+/** Updates rows with the local service key (tests only). `filter` is a PostgREST filter such as `id=eq.<uuid>`. */
+export async function servicePatch(table: string, filter: string, body: Record<string, unknown>): Promise<void> {
+  const res = await fetch(`${process.env.E2E_SUPABASE_URL}/rest/v1/${table}?${filter}`, { method: 'PATCH', headers: serviceHeaders(), body: JSON.stringify(body) })
+  if (!res.ok) throw new Error(`update of ${table} failed: ${res.status} ${await res.text()}`)
+}
+
 export const DEV_HOST_ID = '00000000-0000-4000-8000-000000000002'
 export const DEV_HOST_EMAIL = 'dev.host@kollide.test'
 

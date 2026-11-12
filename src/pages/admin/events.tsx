@@ -18,6 +18,10 @@ export function Component() {
   const [busy, setBusy] = useState<string | null>(null)
   const pending = useQuery({ queryKey: ['admin-events', 'pending_review'], queryFn: () => services.admin.listEvents('pending_review') })
   const published = useQuery({ queryKey: ['admin-events', 'published'], queryFn: () => services.admin.listEvents('published') })
+  const finished = useQuery({ queryKey: ['admin-events', 'completed'], queryFn: () => services.admin.listEvents('completed') })
+  const cancelled = useQuery({ queryKey: ['admin-events', 'cancelled'], queryFn: () => services.admin.listEvents('cancelled') })
+  const partners = useQuery({ queryKey: ['admin-partners'], queryFn: () => services.admin.listPartnerEvents() })
+  const partnerById = new Map((partners.data ?? []).map((p) => [p.eventId, p]))
 
   async function run(id: string, action: () => Promise<void>, done: string) {
     setBusy(id)
@@ -70,6 +74,10 @@ export function Component() {
                 <p className="text-sm text-muted-foreground">{formatWhen(event.startsAt)} · host {event.hostFirstName ?? 'unknown'}</p>
               </div>
               <div className="flex items-center gap-2">
+                <Badge>{event.type}</Badge>
+                {partnerById.get(event.id) ? (
+                  <AppLink to="/admin/partners" className="text-sm text-primary underline underline-offset-4">{partnerById.get(event.id)!.clicksTotal} partner clicks</AppLink>
+                ) : null}
                 {event.featuredPosition ? (
                   <>
                     <Badge variant="soft">Featured in slot {event.featuredPosition}</Badge>
@@ -78,6 +86,26 @@ export function Component() {
                 ) : (
                   <FeatureControl disabled={busy === event.id} title={event.title} onFeature={(position) => void run(event.id, () => services.admin.featureEvent(event.id, position), 'Featured on the home page.')} />
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+
+      <section aria-label="Finished and cancelled" className="grid gap-4">
+        <h2 className="text-h2">Finished and cancelled</h2>
+        {[...(finished.data ?? []), ...(cancelled.data ?? [])].length === 0 ? <p className="text-muted-foreground">Nothing yet.</p> : null}
+        {[...(finished.data ?? []), ...(cancelled.data ?? [])].map((event) => (
+          <Card key={event.id}>
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
+              <div>
+                <AppLink to={`/app/events/${event.id}`} className="font-medium underline-offset-4 hover:underline">{event.title}</AppLink>
+                <p className="text-sm text-muted-foreground">{formatWhen(event.startsAt)} · host {event.hostFirstName ?? 'unknown'}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge>{event.type}</Badge>
+                <Badge variant="soft">{event.status}</Badge>
+                {partnerById.get(event.id) ? <span className="text-sm text-muted-foreground">{partnerById.get(event.id)!.clicksTotal} partner clicks</span> : null}
               </div>
             </CardContent>
           </Card>
