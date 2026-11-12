@@ -86,8 +86,9 @@ select 'ok' from (select public.check_in_manual('$BOOKING_A')) x;
 commit;
 SQL
 }
-SCAN_1="$(scan 1)" &
-SCAN_2="$(scan 2)"
+# One scan wins; the other is refused (psql then exits non-zero, which is expected, so it must not stop the script).
+(scan 1 || true) >/dev/null &
+(scan 2 || true) >/dev/null
 wait || true
 CHECKINS="$(psql_run -c "select count(*) from public.checkins where booking_id='$BOOKING_A'")"
 echo "check-ins for the double scan: $CHECKINS"
