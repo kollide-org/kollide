@@ -5,6 +5,7 @@ import { useSession } from '@/app/providers/session-context'
 import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
 import { JoinPanel } from '@/components/shared/join-panel'
+import { ReportDialog } from '@/components/shared/report-dialog'
 import { SquadsPanel } from '@/components/shared/squads-panel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -98,6 +99,7 @@ export function Component() {
         ) : (
           <JoinPanel event={e} isHost={user?.id === e.hostId} isAdmin={role === 'admin'} userId={user?.id ?? ''} />
         )}
+        {user?.id !== e.hostId ? <div className="border-t border-border pt-3"><ReportDialog subject="event" subjectId={e.id} label="Report this event" /></div> : null}
       </aside>
     </article>
   )

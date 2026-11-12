@@ -7,6 +7,8 @@ import { toast } from 'sonner'
 import { useSession } from '@/app/providers/session-context'
 import { AppLink } from '@/components/shared/app-link'
 import { PageHeader } from '@/components/shared/page-header'
+import { ReportDialog } from '@/components/shared/report-dialog'
+import { TagBadges } from '@/components/shared/reputation-badges'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -78,9 +80,10 @@ export function Component() {
                     {item.isVerified ? <BadgeCheck aria-label="Verified" className="size-5 text-primary" /> : null}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {label(reference.data?.areas, item.areaId ?? -1)} · Shows up {item.showsUpAttended} of {item.showsUpTotal} (counted once events have been attended) · {item.eventsInCommon} events in common
+                    {label(reference.data?.areas, item.areaId ?? -1)} · {item.showsUpTotal > 0 ? `Shows up ${item.showsUpAttended} of ${item.showsUpTotal}` : 'New to Kollide'} · {item.eventsInCommon} events in common
                   </p>
                   {item.squadName ? <p className="text-sm">Squad: {item.squadName}</p> : null}
+                  <TagBadges tags={item.topTags} />
                 </div>
                 <Badge variant="soft">{STATUS_LABEL[item.status] ?? item.status}</Badge>
               </div>
@@ -105,6 +108,7 @@ export function Component() {
                     <Button variant="outline" disabled={busy === item.bookingId} onClick={() => void decide(item, 'decline')}>Decline</Button>
                   </>
                 ) : null}
+                <ReportDialog subject="user" subjectId={item.userId} />
                 {role === 'admin' && item.status === 'approved' ? (
                   <Button variant="ghost" size="sm" disabled={busy === item.bookingId} onClick={() => void sendReconfirmation(item)}>
                     Send “Still coming?” now (test)

@@ -385,7 +385,7 @@ select throws_ok(format('select * from public.host_inbox(%L)', :'cap2'), 'P0001'
 reset role; select pg_temp.act_as(2);
 select ok((select count(*) from public.host_inbox(:'over')) >= 3, 'the host CAN open their inbox');
 select is((select count(*)::int from information_schema.routines r join information_schema.parameters p on p.specific_name = r.specific_name where r.routine_name = 'host_inbox' and p.parameter_name in ('phone', 'date_of_birth', 'gender', 'email', 'last_name')), 0, 'the inbox has no phone, date of birth, gender, email or last name');
-select is((select shows_up_total from public.host_inbox(:'over') limit 1), 0, 'shows-up is a placeholder until B6');
+select is((select shows_up_total from public.host_inbox(:'over') limit 1), 0, 'a person with no history shows up 0 of 0 (real numbers are tested in 170_reputation)');
 reset role; select pg_temp.act_as(1);
 select ok((select count(*) from public.host_inbox(:'over')) >= 3, 'an admin CAN open any inbox');
 reset role; select pg_temp.act_as(3);

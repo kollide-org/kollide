@@ -71,3 +71,29 @@ if [ $((END - START)) -lt 2 ]; then
   echo "FAIL: B did not wait for A's lock, so the seat lock is not working." >&2
   exit 1
 fi
+
+# ---- Check-in (B6): the same person scanned twice at the same moment is checked in exactly once.
+psql_run <<SQL >/dev/null
+update public.events set starts_at = now() - interval '1 hour', ends_at = now() + interval '1 hour' where id = '$EVENT';
+SQL
+BOOKING_A="$(psql_run -c "select id from public.bookings where event_id='$EVENT' and user_id='$A'")"
+scan() { # scan <label>: the host checks the same booking in; prints ok or the error code
+  psql_run <<SQL 2>&1 | tr -d '\n' | sed 's/.*ERROR:  *\([a-z_]*\).*/\1/'
+begin;
+select set_config('request.jwt.claims', '{"sub":"$H","role":"authenticated"}', true);
+set local role authenticated;
+select 'ok' from (select public.check_in_manual('$BOOKING_A')) x;
+commit;
+SQL
+}
+# One scan wins; the other is refused (psql then exits non-zero, which is expected, so it must not stop the script).
+(scan 1 || true) >/dev/null &
+(scan 2 || true) >/dev/null
+wait || true
+CHECKINS="$(psql_run -c "select count(*) from public.checkins where booking_id='$BOOKING_A'")"
+echo "check-ins for the double scan: $CHECKINS"
+if [ "$CHECKINS" != "1" ]; then
+  echo "FAIL: the double scan created $CHECKINS check-ins instead of 1." >&2
+  exit 1
+fi
+echo "OK: a double scan checks the person in once."

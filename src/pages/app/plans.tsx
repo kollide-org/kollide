@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { AppLink } from '@/components/shared/app-link'
+import { CheckinTicket } from '@/components/shared/checkin-ticket'
 import { PageHeader } from '@/components/shared/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -45,6 +46,10 @@ export function Component() {
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="soft">{LABEL[b.status] ?? b.status}{b.status === 'waitlisted' && b.waitlistPosition ? ` #${b.waitlistPosition}` : ''}</Badge>
+          {(b.status === 'approved' || b.status === 'confirmed') && b.eventStatus === 'published' ? <CheckinTicket bookingId={b.bookingId} eventTitle={b.eventTitle} /> : null}
+          {b.status === 'attended' ? (
+            <Button asChild variant="soft" size="sm"><AppLink to={`/app/events/${b.eventId}/feedback`}>Share feedback</AppLink></Button>
+          ) : null}
           {canCancel ? <Button variant="outline" size="sm" onClick={() => void cancel(b.bookingId)}>Cancel</Button> : null}
         </div>
       </CardContent>

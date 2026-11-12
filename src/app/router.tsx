@@ -52,7 +52,9 @@ export const router = createBrowserRouter([
                   { path: 'plans', lazy: () => import('@/pages/app/plans') },
                   { path: 'squads', lazy: () => import('@/pages/app/squads') },
                   { path: 'notifications', lazy: () => import('@/pages/app/notifications') },
-                  { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
+                  { path: 'connections', lazy: () => import('@/pages/app/connections') },
+                  { path: 'appeals', lazy: () => import('@/pages/app/appeals') },
+                  { path: 'events/:id/feedback', lazy: () => import('@/pages/app/feedback') },
                   { path: 'profile', lazy: () => import('@/pages/app/profile') },
                   { path: 'settings', lazy: () => import('@/pages/app/settings') },
                   {
@@ -62,6 +64,7 @@ export const router = createBrowserRouter([
                       { path: 'host/events/new', lazy: () => import('@/pages/app/host-event-form') },
                       { path: 'host/events/:id', lazy: () => import('@/pages/app/host-event-form') },
                       { path: 'host/events/:id/inbox', lazy: () => import('@/pages/app/host-inbox') },
+                      { path: 'host/events/:id/checkin', lazy: () => import('@/pages/app/host-checkin') },
                     ],
                   },
                 ],

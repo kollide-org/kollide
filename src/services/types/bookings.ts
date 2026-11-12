@@ -1,3 +1,5 @@
+import type { TagCount } from './feedback'
+
 /** pending_payment, paid, expired and refunded are reserved for P1 (payments) and never appear in v1. */
 export type BookingStatus =
   | 'requested' | 'approved' | 'waitlisted' | 'declined' | 'confirmed' | 'attended' | 'no_show' | 'cancelled'
@@ -43,6 +45,8 @@ export interface InboxItem {
   prompts: { prompt: string; answer: string }[]
   showsUpAttended: number
   showsUpTotal: number
+  /** Their three most common tags from the last 12 months. */
+  topTags: TagCount[]
   eventsInCommon: number
 }
 

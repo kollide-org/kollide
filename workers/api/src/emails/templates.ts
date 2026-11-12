@@ -120,6 +120,57 @@ export function renderEmail(row: EmailRow, ctx: Context): Rendered | null {
         }),
         text: `We are sorry: ${title} has been cancelled.\n${info.text}\n\nNothing is owed and nothing was charged. Find another event: ${ctx.siteUrl}/app`,
       }
+    case 'feedback_prompt': {
+      const url = `${eventUrl}/feedback`
+      const until = d.closes_at ? when(d.closes_at) : ''
+      return {
+        subject: `How was ${title}?`,
+        html: layout({
+          heading: 'How was it?',
+          footer: FOOTER_OPTIONAL,
+          bodyHtml: `<p style="margin:0 0 12px 0;">Thanks for coming to <strong>${esc(title)}</strong>.</p><p style="margin:0 0 12px 0;">Take a minute to share a few kind words about the people you met. What you choose stays hidden until both of you have shared, or the window closes.</p>${until ? `<p style="margin:0 0 8px 0;color:#5A5A70;">Open until ${esc(until)}.</p>` : ''}${button(url, 'Share your thoughts')}`,
+        }),
+        text: `Thanks for coming to ${title}.\n\nTake a minute to share a few kind words about the people you met. What you choose stays hidden until both of you have shared, or the window closes.${until ? `\nOpen until ${until}.` : ''}\n${url}`,
+      }
+    }
+    case 'safety_report_ack':
+      return {
+        subject: 'We have your report',
+        html: layout({
+          heading: 'Thank you for telling us',
+          footer: FOOTER_ESSENTIAL,
+          bodyHtml: `<p style="margin:0 0 12px 0;">We received your report and the team will look into it.</p><p style="margin:0 0 12px 0;">We take safety seriously and we will handle this with care. We cannot share what happens next, to protect everyone's privacy.</p><p style="margin:0;color:#5A5A70;">If you are ever in immediate danger, please contact local emergency services first.</p>${button(`${ctx.siteUrl}/app`, 'Back to Kollide')}`,
+        }),
+        text: `We received your report and the team will look into it.\n\nWe take safety seriously and we will handle this with care. We cannot share what happens next, to protect everyone's privacy.\n\nIf you are ever in immediate danger, please contact local emergency services first.\n${ctx.siteUrl}/app`,
+      }
+    case 'admin_alert': {
+      // Admins only. Never any names, notes or report details: the queue in the admin area shows those.
+      const kind = String(d.kind ?? '')
+      const what =
+        kind === 'safety_report' ? (d.held === true ? 'A safety report came in and put a member on hold.' : 'A safety report came in.')
+        : kind === 'appeal' ? 'A member sent an appeal. We aim to answer within 48 hours.'
+        : kind === 'appeal_overdue' ? 'An appeal is past its 48-hour target.'
+        : 'Something needs your attention.'
+      return {
+        subject: kind === 'appeal_overdue' ? 'Appeal overdue' : kind === 'appeal' ? 'New appeal' : 'New safety report',
+        html: layout({
+          heading: 'Needs your attention',
+          footer: 'You are getting this because you are a Kollide admin.',
+          bodyHtml: `<p style="margin:0 0 12px 0;">${esc(what)}</p>${button(`${ctx.siteUrl}/admin`, 'Open the admin area')}`,
+        }),
+        text: `${what}\n${ctx.siteUrl}/admin`,
+      }
+    }
+    case 'account_on_hold':
+      return {
+        subject: 'Your Kollide account is on hold',
+        html: layout({
+          heading: 'Your account is on hold',
+          footer: FOOTER_ESSENTIAL,
+          bodyHtml: `<p style="margin:0 0 12px 0;">We are looking into something and have paused your account for now. You cannot join or host events while this is open.</p><p style="margin:0 0 12px 0;">If you think this is a mistake, you can send us an appeal from the app. We aim to reply within 48 hours.</p>${button(`${ctx.siteUrl}/app/appeals`, 'Send an appeal')}`,
+        }),
+        text: `We are looking into something and have paused your account for now. You cannot join or host events while this is open.\n\nIf you think this is a mistake, you can send us an appeal from the app. We aim to reply within 48 hours.\n${ctx.siteUrl}/app/appeals`,
+      }
     default:
       return null
   }

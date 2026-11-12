@@ -31,7 +31,10 @@ export function Component() {
             {n.body ? <p className="text-muted-foreground">{n.body}</p> : null}
             <p className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
               {formatWhen(n.createdAt)}
-              {n.eventId ? <AppLink to={`/app/events/${n.eventId}`} className="text-primary underline underline-offset-4">Open event</AppLink> : null}
+              {n.eventId && n.kind === 'feedback_open' ? <AppLink to={`/app/events/${n.eventId}/feedback`} className="text-primary underline underline-offset-4">Share feedback</AppLink> : null}
+              {n.eventId && n.kind !== 'feedback_open' ? <AppLink to={`/app/events/${n.eventId}`} className="text-primary underline underline-offset-4">Open event</AppLink> : null}
+              {n.kind === 'account_on_hold' || n.kind === 'appeal_resolved' || n.kind === 'tip' ? <AppLink to="/app/appeals" className="text-primary underline underline-offset-4">Appeals</AppLink> : null}
+              {n.kind === 'connection' ? <AppLink to="/app/connections" className="text-primary underline underline-offset-4">See connections</AppLink> : null}
             </p>
           </li>
         ))}

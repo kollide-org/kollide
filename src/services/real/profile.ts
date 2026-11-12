@@ -1,6 +1,7 @@
 import type { Json } from '@/types/database'
 
 import { ServiceError } from '../types/errors'
+import type { TagCount } from '../types/feedback'
 import type { AppRole, MyProfile, Prompt, ProfileService } from '../types/profile'
 
 const client = () => import('./client').then((module) => module.supabase)
@@ -40,6 +41,20 @@ function parseProfile(raw: Json): MyProfile {
 }
 
 export const realProfile: ProfileService = {
+  async getMyReputation(userId) {
+    const supabase = await client()
+    const { data, error } = await supabase
+      .from('profile_cards')
+      .select('events_attended, shows_up_attended, shows_up_total, top_tags, is_new')
+      .eq('id', userId)
+      .maybeSingle()
+    if (error) throw toServiceError(error)
+    return {
+      eventsAttended: data?.events_attended ?? 0, showsUpAttended: data?.shows_up_attended ?? 0, showsUpTotal: data?.shows_up_total ?? 0,
+      topTags: Array.isArray(data?.top_tags) ? (data.top_tags as unknown as TagCount[]) : [], isNew: data?.is_new ?? true,
+    }
+  },
+
   async getMyProfile() {
     const supabase = await client()
     const { data, error } = await supabase.rpc('get_my_profile')

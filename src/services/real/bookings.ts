@@ -1,5 +1,6 @@
 import { ServiceError } from '../types/errors'
 import type { BookingsService, BookingStatus, InboxItem, MyBooking } from '../types/bookings'
+import type { TagCount } from '../types/feedback'
 
 const client = () => import('./client').then((module) => module.supabase)
 
@@ -59,7 +60,8 @@ export const realBookings: BookingsService = {
       firstName: r.first_name, age: r.age, areaId: r.area_id, isVerified: r.is_verified, photoKeys: r.photo_keys ?? [],
       interestIds: r.interest_ids ?? [], languageIds: r.language_ids ?? [],
       prompts: Array.isArray(r.bio_prompts) ? (r.bio_prompts as { prompt: string; answer: string }[]) : [],
-      showsUpAttended: r.shows_up_attended, showsUpTotal: r.shows_up_total, eventsInCommon: r.events_in_common,
+      showsUpAttended: r.shows_up_attended, showsUpTotal: r.shows_up_total, topTags: Array.isArray(r.top_tags) ? (r.top_tags as unknown as TagCount[]) : [],
+      eventsInCommon: r.events_in_common,
     }))
   },
 

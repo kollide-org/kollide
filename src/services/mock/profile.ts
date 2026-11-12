@@ -7,6 +7,9 @@ let verification: VerificationState = 'none'
 let application: HostApplicationStatus | null = null
 
 export const mockProfile: ProfileService = {
+  async getMyReputation() {
+    return { eventsAttended: 3, showsUpAttended: 3, showsUpTotal: 4, topTags: [{ slug: 'warm', label: 'Warm', count: 2 }, { slug: 'reliable', label: 'Reliable', count: 1 }], isNew: false }
+  },
   async getMyProfile() {
     const role = currentMockRole()
     if (role === 'visitor') return null
