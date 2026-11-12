@@ -40,6 +40,11 @@ export function Component() {
                       <AppLink to={`/app/host/events/${event.id}/inbox`}>Requests</AppLink>
                     </Button>
                   ) : null}
+                  {event.status === 'published' || event.status === 'completed' ? (
+                    <Button asChild variant="soft" size="sm">
+                      <AppLink to={`/app/host/events/${event.id}/checkin`}>Check-in</AppLink>
+                    </Button>
+                  ) : null}
                   <Button asChild variant="outline" size="sm">
                     <AppLink to={`/app/host/events/${event.id}`}>{event.status === 'draft' ? 'Edit' : 'Open'}</AppLink>
                   </Button>

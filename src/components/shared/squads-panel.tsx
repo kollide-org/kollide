@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
+import { ReportDialog } from '@/components/shared/report-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,7 +55,7 @@ export function SquadsPanel({ eventId }: { eventId: string }) {
                 {squad.memberCount} of 6 · {squad.complete ? 'ready' : 'forming (needs 4)'}
               </span>
             </span>
-            {squad.myStatus === 'approved' ? <span className="text-sm">You are in</span> : null}
+            {squad.myStatus === 'approved' ? <span className="text-sm">You are in</span> : <ReportDialog subject="squad" subjectId={squad.id} />}
             {squad.myStatus === 'requested' ? <span className="text-sm">Request sent</span> : null}
             {!squad.myStatus && !inASquad && squad.spotsLeft > 0 ? (
               <Button size="sm" variant="outline" disabled={busy} onClick={() => void run(() => services.squads.requestToJoin(squad.id), 'Request sent to the squad.')}>

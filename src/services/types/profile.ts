@@ -1,3 +1,5 @@
+import type { TagCount } from './feedback'
+
 export type Gender = 'woman' | 'man' | 'non_binary' | 'prefer_not_to_say'
 export type UserStatus = 'active' | 'on_hold' | 'suspended' | 'banned'
 export type AppRole = 'admin' | 'host'
@@ -63,7 +65,19 @@ export interface HostApplicationStatus {
   createdAt: string
 }
 
+/** Calculated from check-ins and tags, never edited by hand. */
+export interface Reputation {
+  eventsAttended: number
+  showsUpAttended: number
+  showsUpTotal: number
+  topTags: TagCount[]
+  /** "New to Kollide": no history yet. */
+  isNew: boolean
+}
+
 export interface ProfileService {
+  /** My own reputation, from my profile card. */
+  getMyReputation(userId: string): Promise<Reputation>
   /** Null when nobody is signed in. */
   getMyProfile(): Promise<MyProfile | null>
   completeOnboarding(input: OnboardingInput): Promise<void>

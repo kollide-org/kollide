@@ -170,7 +170,8 @@ describe('email templates', () => {
   const base = row()
 
   it('renders every template with a subject, HTML and plain text', () => {
-    for (const template of ['request_received', 'booking_approved', 'booking_waitlisted', 'booking_declined', 'still_coming', 'day_of_reminder', 'event_cancelled']) {
+    for (const template of ['request_received', 'booking_approved', 'booking_waitlisted', 'booking_declined', 'still_coming', 'day_of_reminder', 'event_cancelled',
+      'feedback_prompt', 'safety_report_ack', 'admin_alert', 'account_on_hold']) {
       const mail = renderEmail({ ...base, template, data: { ...base.data, reconfirm_token: 'tok' } }, ctx)
       expect(mail, template).not.toBeNull()
       expect(mail!.subject.length).toBeGreaterThan(5)
@@ -196,6 +197,32 @@ describe('email templates', () => {
     expect(mail.html).not.toContain('<script>')
     expect(mail.html).toContain('&lt;script&gt;')
     expect(mail.html).toContain('&amp; friends')
+  })
+
+  it('the feedback prompt links to the feedback flow and says when it closes', () => {
+    const mail = renderEmail({ ...base, template: 'feedback_prompt', data: { ...base.data, event_id: 'ev-1', closes_at: '2026-12-17T06:30:00Z' } }, ctx)!
+    expect(mail.html).toContain('https://site.test/app/events/ev-1/feedback')
+    expect(mail.text).toContain('Open until')
+  })
+
+  it('safety emails never carry names, reasons or notes', () => {
+    const data = { ...base.data, kind: 'safety_report', held: true, report_id: 'r-1', reason: 'harassment', details: 'SECRET DETAILS', subject_name: 'Asha' }
+    for (const template of ['safety_report_ack', 'admin_alert', 'account_on_hold']) {
+      const mail = renderEmail({ ...base, template, data }, ctx)!
+      const all = `${mail.subject} ${mail.html} ${mail.text}`
+      expect(all, template).not.toContain('SECRET DETAILS')
+      expect(all.toLowerCase(), template).not.toContain('harassment')
+      expect(all, template).not.toContain('Asha')
+    }
+    const held = renderEmail({ ...base, template: 'account_on_hold' }, ctx)!
+    expect(held.html + held.text).toContain('/app/appeals')
+  })
+
+  it('admin alerts say what happened for each kind', () => {
+    const text = (kind: string, held?: boolean) => renderEmail({ ...base, template: 'admin_alert', data: { kind, held } }, ctx)!.text
+    expect(text('safety_report', true)).toContain('on hold')
+    expect(text('appeal')).toContain('48 hours')
+    expect(text('appeal_overdue')).toContain('past its 48-hour target')
   })
 
   it('never contains an address', () => {

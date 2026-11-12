@@ -37,6 +37,50 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"appeals": {
+                  Row: {
+                    "admin_note": string | null,"created_at": string,"due_at": string,"id": string,"kind": string,"message": string,"overdue_alerted_at": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": string,"tip_id": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_note"?: string | null,"created_at"?: string,"due_at"?: string,"id"?: string,"kind": string,"message": string,"overdue_alerted_at"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"tip_id"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "admin_note"?: string | null,"created_at"?: string,"due_at"?: string,"id"?: string,"kind"?: string,"message"?: string,"overdue_alerted_at"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"tip_id"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "appeals_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "appeals_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "appeals_tip_id_fkey"
+      columns: ["tip_id"]
+isOneToOne: false
+      referencedRelation: "profile_tips"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "appeals_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "appeals_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"areas": {
                   Row: {
                     "active": boolean,"created_at": string,"id": number,"label": string,"slug": string,"sort_order": number
@@ -67,14 +111,14 @@ export type Database = {
                   ]
                 },"bookings": {
                   Row: {
-                    "cancel_reason": string | null,"cancelled_at": string | null,"created_at": string,"decided_at": string | null,"decided_by": string | null,"event_id": string,"hold_expires_at": string | null,"id": string,"reconfirm_by": string | null,"reconfirm_requested_at": string | null,"reconfirm_token": string,"reconfirmed_at": string | null,"reminded_at": string | null,"requested_at": string,"squad_id": string | null,"status": Database["public"]['Enums']["booking_status"],"updated_at": string,"user_id": string,"waitlisted_at": string | null
+                    "cancel_reason": string | null,"cancelled_at": string | null,"checkin_token": string,"created_at": string,"decided_at": string | null,"decided_by": string | null,"event_id": string,"hold_expires_at": string | null,"id": string,"reconfirm_by": string | null,"reconfirm_requested_at": string | null,"reconfirm_token": string,"reconfirmed_at": string | null,"reminded_at": string | null,"requested_at": string,"squad_id": string | null,"status": Database["public"]['Enums']["booking_status"],"updated_at": string,"user_id": string,"waitlisted_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id": string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id": string,"waitlisted_at"?: string | null
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"checkin_token"?: string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id": string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id": string,"waitlisted_at"?: string | null
                   }
                   Update: {
-                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id"?: string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id"?: string,"waitlisted_at"?: string | null
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"checkin_token"?: string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"event_id"?: string,"hold_expires_at"?: string | null,"id"?: string,"reconfirm_by"?: string | null,"reconfirm_requested_at"?: string | null,"reconfirm_token"?: string,"reconfirmed_at"?: string | null,"reminded_at"?: string | null,"requested_at"?: string,"squad_id"?: string | null,"status"?: Database["public"]['Enums']["booking_status"],"updated_at"?: string,"user_id"?: string,"waitlisted_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -134,6 +178,112 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"checkins": {
+                  Row: {
+                    "booking_id": string,"checked_in_by": string | null,"created_at": string,"event_id": string,"id": string,"method": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "booking_id": string,"checked_in_by"?: string | null,"created_at"?: string,"event_id": string,"id"?: string,"method": string,"user_id": string
+                  }
+                  Update: {
+                    "booking_id"?: string,"checked_in_by"?: string | null,"created_at"?: string,"event_id"?: string,"id"?: string,"method"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "checkins_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: true
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_checked_in_by_fkey"
+      columns: ["checked_in_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_checked_in_by_fkey"
+      columns: ["checked_in_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "checkins_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"connections": {
+                  Row: {
+                    "created_at": string,"event_id": string,"from_user": string,"to_user": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"event_id": string,"from_user": string,"to_user": string
+                  }
+                  Update: {
+                    "created_at"?: string,"event_id"?: string,"from_user"?: string,"to_user"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "connections_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connections_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connections_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connections_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connections_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connections_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"consents": {
                   Row: {
@@ -203,14 +353,14 @@ isOneToOne: true
                   ]
                 },"events": {
                   Row: {
-                    "approval_mode": Database["public"]['Enums']["approval_mode"],"area_id": number,"capacity": number | null,"category_id": number | null,"cover_key": string | null,"created_at": string,"description": string,"ends_at": string,"host_id": string,"house_party": boolean,"house_rules": string | null,"id": string,"max_age": number | null,"min_age": number,"overbook_pct": number,"partner_url": string | null,"price_label": string | null,"price_paise": number,"pricing_mode": Database["public"]['Enums']["pricing_mode"],"published_at": string | null,"referral_code": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"submitted_at": string | null,"title": string,"type": Database["public"]['Enums']["event_type"],"updated_at": string,"women_only": boolean
+                    "approval_mode": Database["public"]['Enums']["approval_mode"],"area_id": number,"attendance_finalised_at": string | null,"capacity": number | null,"category_id": number | null,"cover_key": string | null,"created_at": string,"description": string,"ends_at": string,"feedback_closes_at": string | null,"host_id": string,"house_party": boolean,"house_rules": string | null,"id": string,"max_age": number | null,"min_age": number,"overbook_pct": number,"partner_url": string | null,"price_label": string | null,"price_paise": number,"pricing_mode": Database["public"]['Enums']["pricing_mode"],"published_at": string | null,"referral_code": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"submitted_at": string | null,"title": string,"type": Database["public"]['Enums']["event_type"],"updated_at": string,"women_only": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "approval_mode"?: Database["public"]['Enums']["approval_mode"],"area_id": number,"capacity"?: number | null,"category_id"?: number | null,"cover_key"?: string | null,"created_at"?: string,"description"?: string,"ends_at": string,"host_id": string,"house_party"?: boolean,"house_rules"?: string | null,"id"?: string,"max_age"?: number | null,"min_age"?: number,"overbook_pct"?: number,"partner_url"?: string | null,"price_label"?: string | null,"price_paise"?: number,"pricing_mode"?: Database["public"]['Enums']["pricing_mode"],"published_at"?: string | null,"referral_code"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"starts_at": string,"status"?: Database["public"]['Enums']["event_status"],"submitted_at"?: string | null,"title": string,"type": Database["public"]['Enums']["event_type"],"updated_at"?: string,"women_only"?: boolean
+                    "approval_mode"?: Database["public"]['Enums']["approval_mode"],"area_id": number,"attendance_finalised_at"?: string | null,"capacity"?: number | null,"category_id"?: number | null,"cover_key"?: string | null,"created_at"?: string,"description"?: string,"ends_at": string,"feedback_closes_at"?: string | null,"host_id": string,"house_party"?: boolean,"house_rules"?: string | null,"id"?: string,"max_age"?: number | null,"min_age"?: number,"overbook_pct"?: number,"partner_url"?: string | null,"price_label"?: string | null,"price_paise"?: number,"pricing_mode"?: Database["public"]['Enums']["pricing_mode"],"published_at"?: string | null,"referral_code"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"starts_at": string,"status"?: Database["public"]['Enums']["event_status"],"submitted_at"?: string | null,"title": string,"type": Database["public"]['Enums']["event_type"],"updated_at"?: string,"women_only"?: boolean
                   }
                   Update: {
-                    "approval_mode"?: Database["public"]['Enums']["approval_mode"],"area_id"?: number,"capacity"?: number | null,"category_id"?: number | null,"cover_key"?: string | null,"created_at"?: string,"description"?: string,"ends_at"?: string,"host_id"?: string,"house_party"?: boolean,"house_rules"?: string | null,"id"?: string,"max_age"?: number | null,"min_age"?: number,"overbook_pct"?: number,"partner_url"?: string | null,"price_label"?: string | null,"price_paise"?: number,"pricing_mode"?: Database["public"]['Enums']["pricing_mode"],"published_at"?: string | null,"referral_code"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"starts_at"?: string,"status"?: Database["public"]['Enums']["event_status"],"submitted_at"?: string | null,"title"?: string,"type"?: Database["public"]['Enums']["event_type"],"updated_at"?: string,"women_only"?: boolean
+                    "approval_mode"?: Database["public"]['Enums']["approval_mode"],"area_id"?: number,"attendance_finalised_at"?: string | null,"capacity"?: number | null,"category_id"?: number | null,"cover_key"?: string | null,"created_at"?: string,"description"?: string,"ends_at"?: string,"feedback_closes_at"?: string | null,"host_id"?: string,"house_party"?: boolean,"house_rules"?: string | null,"id"?: string,"max_age"?: number | null,"min_age"?: number,"overbook_pct"?: number,"partner_url"?: string | null,"price_label"?: string | null,"price_paise"?: number,"pricing_mode"?: Database["public"]['Enums']["pricing_mode"],"published_at"?: string | null,"referral_code"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"starts_at"?: string,"status"?: Database["public"]['Enums']["event_status"],"submitted_at"?: string | null,"title"?: string,"type"?: Database["public"]['Enums']["event_type"],"updated_at"?: string,"women_only"?: boolean
                   }
                   Relationships: [
                     {
@@ -340,6 +490,56 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"host_ratings": {
+                  Row: {
+                    "as_described": number,"created_at": string,"event_id": string,"felt_safe": number,"from_user": string,"host_id": string,"well_organised": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "as_described": number,"created_at"?: string,"event_id": string,"felt_safe": number,"from_user": string,"host_id": string,"well_organised": number
+                  }
+                  Update: {
+                    "as_described"?: number,"created_at"?: string,"event_id"?: string,"felt_safe"?: number,"from_user"?: string,"host_id"?: string,"well_organised"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "host_ratings_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "host_ratings_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "host_ratings_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "host_ratings_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "host_ratings_host_id_fkey"
+      columns: ["host_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "host_ratings_host_id_fkey"
+      columns: ["host_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"hub_events": {
                   Row: {
@@ -475,6 +675,56 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"private_feedback": {
+                  Row: {
+                    "about_user": string,"created_at": string,"event_id": string,"from_user": string | null,"id": string,"issue_code": string,"note": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "about_user": string,"created_at"?: string,"event_id": string,"from_user"?: string | null,"id"?: string,"issue_code": string,"note"?: string | null
+                  }
+                  Update: {
+                    "about_user"?: string,"created_at"?: string,"event_id"?: string,"from_user"?: string | null,"id"?: string,"issue_code"?: string,"note"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "private_feedback_about_user_fkey"
+      columns: ["about_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "private_feedback_about_user_fkey"
+      columns: ["about_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "private_feedback_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "private_feedback_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "private_feedback_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "private_feedback_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profile_interests": {
                   Row: {
                     "interest_id": number,"user_id": string
@@ -591,6 +841,32 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"profile_tips": {
+                  Row: {
+                    "created_at": string,"id": string,"issue_code": string,"message": string,"status": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"issue_code": string,"message": string,"status"?: string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"issue_code"?: string,"message"?: string,"status"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "profile_tips_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profile_tips_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "area_id": number | null,"bio_prompts": NonNullable<Json>,"created_at": string,"deleted_at": string | null,"first_name": string | null,"id": string,"is_verified": boolean,"onboarding_completed_at": string | null,"updated_at": string
@@ -624,6 +900,118 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"review_flags": {
+                  Row: {
+                    "created_at": string,"details": NonNullable<Json>,"event_id": string | null,"id": string,"kind": string,"ref_key": string,"resolved_at": string | null,"resolved_by": string | null,"status": string,"subject_user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind": string,"ref_key": string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"details"?: NonNullable<Json>,"event_id"?: string | null,"id"?: string,"kind"?: string,"ref_key"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"subject_user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "review_flags_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_flags_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_flags_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_flags_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_flags_subject_user_id_fkey"
+      columns: ["subject_user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "review_flags_subject_user_id_fkey"
+      columns: ["subject_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"safety_reports": {
+                  Row: {
+                    "created_at": string,"details": string | null,"event_id": string | null,"held": boolean,"id": string,"outcome": string | null,"reason": string,"reporter_id": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason": string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id": string,"subject_type": string,"subject_user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"details"?: string | null,"event_id"?: string | null,"held"?: boolean,"id"?: string,"outcome"?: string | null,"reason"?: string,"reporter_id"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"subject_id"?: string,"subject_type"?: string,"subject_user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_reports_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_reporter_id_fkey"
+      columns: ["reporter_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_reporter_id_fkey"
+      columns: ["reporter_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_subject_user_id_fkey"
+      columns: ["subject_user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_reports_subject_user_id_fkey"
+      columns: ["subject_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"squad_members": {
                   Row: {
@@ -720,6 +1108,56 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"tag_awards": {
+                  Row: {
+                    "created_at": string,"event_id": string,"from_user": string,"revealed_at": string | null,"tag_ids": (number)[],"to_user": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"event_id": string,"from_user": string,"revealed_at"?: string | null,"tag_ids": (number)[],"to_user": string
+                  }
+                  Update: {
+                    "created_at"?: string,"event_id"?: string,"from_user"?: string,"revealed_at"?: string | null,"tag_ids"?: (number)[],"to_user"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "tag_awards_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "event_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tag_awards_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tag_awards_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tag_awards_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tag_awards_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tag_awards_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"upload_keys": {
                   Row: {
@@ -912,16 +1350,10 @@ isOneToOne: false
                   ]
                 },"profile_cards": {
                   Row: {
-                    "age": number | null,"area_id": number | null,"bio_prompts": NonNullable<Json>,"created_at": string,"first_name": string | null,"id": string,"interest_ids": (number)[] | null,"is_verified": boolean,"language_ids": (number)[] | null,"photo_keys": (string)[] | null
+                    "age": number | null,"area_id": number | null,"bio_prompts": NonNullable<Json>,"created_at": string,"events_attended": number | null,"first_name": string | null,"id": string,"interest_ids": (number)[] | null,"is_new": boolean | null,"is_verified": boolean,"language_ids": (number)[] | null,"photo_keys": (string)[] | null,"shows_up_attended": number | null,"shows_up_total": number | null,"top_tags": Json | null
                   }
                   ComputedFields: never
-                  Insert: {
-                           "age"?: never,"area_id"?: number | null,"bio_prompts"?: Json | null,"created_at"?: string | null,"first_name"?: string | null,"id"?: string | null,"interest_ids"?: never,"is_verified"?: boolean | null,"language_ids"?: never,"photo_keys"?: never
-                         }
-                        Update: {
-                           "age"?: never,"area_id"?: number | null,"bio_prompts"?: Json | null,"created_at"?: string | null,"first_name"?: string | null,"id"?: string | null,"interest_ids"?: never,"is_verified"?: boolean | null,"language_ids"?: never,"photo_keys"?: never
-                         }
-                        Relationships: [
+                  Relationships: [
                     {
       foreignKeyName: "profiles_area_id_fkey"
       columns: ["area_id"]
@@ -935,6 +1367,9 @@ isOneToOne: false
           Functions: {
             "admin_delete_hub":
 { Args: { "p_hub": string }; Returns: undefined
+                           },
+"admin_finalise_event_now":
+{ Args: { "p_event": string,"p_mark_no_shows"?: boolean }; Returns: string
                            },
 "admin_job_runs":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -975,6 +1410,12 @@ isOneToOne: false
 "cancel_my_booking":
 { Args: { "p_booking": string }; Returns: undefined
                            },
+"check_in":
+{ Args: { "p_token": string }; Returns: Json
+                           },
+"check_in_manual":
+{ Args: { "p_booking": string }; Returns: Json
+                           },
 "claim_deletions":
 { Args: { "p_limit": number }; Returns: {
               "bucket": string,"id": number,"key": string
@@ -990,6 +1431,9 @@ isOneToOne: false
                            },
 "complete_onboarding":
 { Args: { "p_accept_conduct": boolean,"p_accept_privacy": boolean,"p_area_id": number,"p_date_of_birth": string,"p_first_name": string,"p_gender": Database["public"]['Enums']["gender"],"p_interest_ids": (number)[],"p_language_ids": (number)[],"p_last_name"?: string,"p_notice_version": string,"p_phone"?: string,"p_photo_keys": (string)[],"p_prompts": Json }; Returns: undefined
+                           },
+"create_appeal":
+{ Args: { "p_kind": string,"p_message"?: string,"p_tip_id"?: string }; Returns: string
                            },
 "create_event":
 { Args: { "p_input": Json }; Returns: string
@@ -1077,6 +1521,14 @@ isOneToOne: false
 "get_squad":
 { Args: { "p_squad": string }; Returns: Json
                            },
+"give_tags":
+{ Args: { "p_event": string,"p_tag_ids": (number)[],"p_to": string }; Returns: undefined
+                           },
+"host_checkin_list":
+{ Args: { "p_event": string }; Returns: {
+              "booking_id": string,"checked_in": boolean,"checked_in_at": string,"first_name": string,"method": string,"photo_key": string,"squad_name": string,"status": Database["public"]['Enums']["booking_status"],"user_id": string
+            }[]
+                           },
 "host_inbox":
 { Args: { "p_event": string }; Returns: {
               "age": number,"area_id": number,"bio_prompts": Json,"booking_id": string,"events_in_common": number,"first_name": string,"interest_ids": (number)[],"is_verified": boolean,"language_ids": (number)[],"photo_keys": (string)[],"requested_at": string,"shows_up_attended": number,"shows_up_total": number,"squad_id": string,"squad_name": string,"status": Database["public"]['Enums']["booking_status"],"top_tags": Json,"user_id": string
@@ -1132,9 +1584,22 @@ isOneToOne: false
               "area_name": string,"booking_id": string,"cancel_reason": string,"cover_key": string,"ends_at": string,"event_id": string,"event_status": Database["public"]['Enums']["event_status"],"event_title": string,"requested_at": string,"squad_id": string,"starts_at": string,"status": Database["public"]['Enums']["booking_status"],"waitlist_position": number
             }[]
                            },
+"my_checkin_token":
+{ Args: { "p_booking": string }; Returns: string
+                           },
+"my_connections":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "connected_at": string,"event_id": string,"event_title": string,"first_name": string,"photo_key": string,"user_id": string
+            }[]
+                           },
 "my_events":
 { Args: Record<PropertyKey, never>; Returns: {
               "cover_key": string,"id": string,"review_note": string,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"title": string,"type": Database["public"]['Enums']["event_type"]
+            }[]
+                           },
+"my_feedback_tasks":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "can_rate_host": boolean,"closes_at": string,"event_id": string,"event_title": string,"host_id": string,"host_rated": boolean,"people": Json
             }[]
                            },
 "my_squads":
@@ -1144,6 +1609,9 @@ isOneToOne: false
                            },
 "purge_old_upload_keys":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"rate_host":
+{ Args: { "p_as_described": number,"p_event": string,"p_felt_safe": number,"p_well_organised": number }; Returns: undefined
                            },
 "reconfirm_booking":
 { Args: { "p_token": string }; Returns: Json
@@ -1157,11 +1625,17 @@ isOneToOne: false
 "remove_profile_photo":
 { Args: { "p_position": number }; Returns: undefined
                            },
+"report":
+{ Args: { "p_details"?: string,"p_reason": string,"p_subject_id": string,"p_subject_type": string }; Returns: Json
+                           },
 "request_to_join":
 { Args: { "p_event": string }; Returns: Json
                            },
 "request_to_join_squad":
 { Args: { "p_squad": string }; Returns: undefined
+                           },
+"resolve_appeal":
+{ Args: { "p_appeal": string,"p_decision": string,"p_note"?: string }; Returns: undefined
                            },
 "review_host_application":
 { Args: { "p_approved": boolean,"p_id": string,"p_note"?: string }; Returns: undefined
@@ -1214,8 +1688,14 @@ isOneToOne: false
 "submit_event_for_review":
 { Args: { "p_event": string }; Returns: undefined
                            },
+"submit_private_feedback":
+{ Args: { "p_about": string,"p_event": string,"p_issue": string,"p_note"?: string }; Returns: undefined
+                           },
 "submit_selfie":
 { Args: { "p_key": string }; Returns: undefined
+                           },
+"tap_meet_again":
+{ Args: { "p_event": string,"p_user": string }; Returns: Json
                            },
 "unfeature_event":
 { Args: { "p_event": string }; Returns: undefined

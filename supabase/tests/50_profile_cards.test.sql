@@ -53,7 +53,8 @@ select pg_temp.act_as(3);
 select is((select count(*)::int from public.profile_cards), 4, 'a profile that has not finished onboarding is not a card yet');
 
 reset role; select pg_temp.act_as(3);
-select throws_ok($$update public.profile_cards set first_name = 'x'$$, '42501', null, 'a member CANNOT write through the view');
+-- Since B6 the view joins the reputation numbers, so it is no longer updatable at all (before: permission denied).
+select throws_ok($$update public.profile_cards set first_name = 'x'$$, '55000', null, 'a member CANNOT write through the view');
 
 select * from finish();
 rollback;

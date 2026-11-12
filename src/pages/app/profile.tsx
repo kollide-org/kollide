@@ -4,7 +4,9 @@ import { toast } from 'sonner'
 import { useSession } from '@/app/providers/session-context'
 import { ChipSelect } from '@/components/shared/chip-select'
 import { PhotosEditor } from '@/components/shared/photos-editor'
+import { ReputationSection } from '@/components/shared/reputation-section'
 import { VerifySection } from '@/components/shared/verify-section'
+import { AppLink } from '@/components/shared/app-link'
 import { NativeSelect } from '@/components/shared/native-select'
 import { PageHeader } from '@/components/shared/page-header'
 import { PromptsEditor } from '@/components/shared/prompts-editor'
@@ -43,7 +45,13 @@ export function Component() {
           )
         }
       />
+      {profile.status && profile.status !== 'active' ? (
+        <p role="status" className="rounded-xl border border-border bg-secondary px-4 py-3">
+          Your account is on hold while we look into something. <AppLink to="/app/appeals" className="text-primary underline underline-offset-4">You can send an appeal.</AppLink>
+        </p>
+      ) : null}
       {editing ? <EditForm profile={profile} onDone={() => setEditing(false)} /> : <View profile={profile} />}
+      {editing ? null : <ReputationSection userId={profile.id} />}
       <VerifySection />
     </div>
   )

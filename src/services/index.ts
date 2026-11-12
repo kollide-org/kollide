@@ -2,6 +2,10 @@ import { mockAdmin } from './mock/admin'
 import { mockAppConfig } from './mock/app-config'
 import { mockAuth } from './mock/auth'
 import { mockBookings } from './mock/bookings'
+import { mockCheckin } from './mock/checkin'
+import { mockConnections } from './mock/connections'
+import { mockFeedback } from './mock/feedback'
+import { mockSafety } from './mock/safety'
 import { mockEvents } from './mock/events'
 import { mockProfile } from './mock/profile'
 import { mockNotifications } from './mock/notifications'
@@ -12,6 +16,10 @@ import { realAdmin } from './real/admin'
 import { realAppConfig } from './real/app-config'
 import { realAuth } from './real/auth'
 import { realBookings } from './real/bookings'
+import { realCheckin } from './real/checkin'
+import { realConnections } from './real/connections'
+import { realFeedback } from './real/feedback'
+import { realSafety } from './real/safety'
 import { realEvents } from './real/events'
 import { realProfile } from './real/profile'
 import { realNotifications } from './real/notifications'
@@ -22,6 +30,10 @@ import type { AdminService } from './types/admin'
 import type { AppConfigService } from './types/app-config'
 import type { AuthService } from './types/auth'
 import type { BookingsService } from './types/bookings'
+import type { CheckinService } from './types/checkin'
+import type { ConnectionsService } from './types/connections'
+import type { FeedbackService } from './types/feedback'
+import type { SafetyService } from './types/safety'
 import type { NotificationsService } from './types/notifications'
 import type { SquadsService } from './types/squads'
 import type { EventsService } from './types/events'
@@ -49,9 +61,13 @@ export const services: {
   bookings: BookingsService
   squads: SquadsService
   notifications: NotificationsService
+  checkin: CheckinService
+  feedback: FeedbackService
+  safety: SafetyService
+  connections: ConnectionsService
 } = real
-  ? { auth: realAuth, profile: realProfile, appConfig: realAppConfig, reference: realReference, upload: realUpload, admin: realAdmin, events: realEvents, bookings: realBookings, squads: realSquads, notifications: realNotifications }
-  : { auth: mockAuth, profile: mockProfile, appConfig: mockAppConfig, reference: mockReference, upload: mockUpload, admin: mockAdmin, events: mockEvents, bookings: mockBookings, squads: mockSquads, notifications: mockNotifications }
+  ? { auth: realAuth, profile: realProfile, appConfig: realAppConfig, reference: realReference, upload: realUpload, admin: realAdmin, events: realEvents, bookings: realBookings, squads: realSquads, notifications: realNotifications, checkin: realCheckin, feedback: realFeedback, safety: realSafety, connections: realConnections }
+  : { auth: mockAuth, profile: mockProfile, appConfig: mockAppConfig, reference: mockReference, upload: mockUpload, admin: mockAdmin, events: mockEvents, bookings: mockBookings, squads: mockSquads, notifications: mockNotifications, checkin: mockCheckin, feedback: mockFeedback, safety: mockSafety, connections: mockConnections }
 
 export { ServiceError, errorMessage } from './types/errors'
 export type { AuthUser } from './types/auth'
@@ -63,5 +79,12 @@ export type * from './types/events'
 export type * from './types/bookings'
 export type * from './types/squads'
 export type * from './types/notifications'
+export type * from './types/checkin'
+export { QR_PREFIX, tokenFromQr } from './types/checkin'
+export type * from './types/feedback'
+export { ISSUE_OPTIONS } from './types/feedback'
+export type * from './types/safety'
+export { REPORT_REASONS } from './types/safety'
+export type * from './types/connections'
 export type { JobRun } from './types/admin'
 export type { UploadPurpose } from './types/upload'

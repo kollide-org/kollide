@@ -28,7 +28,7 @@ export const mockBookings: BookingsService = {
     return [{
       bookingId: 'mock-request-1', userId: 'mock-user-9', status: 'requested', requestedAt: new Date().toISOString(), squadName: null,
       firstName: 'Riya', age: 27, areaId: 1, isVerified: true, photoKeys: [], interestIds: [1, 2], languageIds: [1],
-      prompts: [{ prompt: 'A perfect Saturday', answer: 'Coffee and board games.' }], showsUpAttended: 0, showsUpTotal: 0, eventsInCommon: 1,
+      prompts: [{ prompt: 'A perfect Saturday', answer: 'Coffee and board games.' }], showsUpAttended: 3, showsUpTotal: 4, topTags: [{ slug: 'warm', label: 'Warm', count: 2 }], eventsInCommon: 1,
     }]
   },
   async decide() {},

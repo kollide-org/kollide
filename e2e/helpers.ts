@@ -78,6 +78,14 @@ export async function promoteToAdmin(email: string) {
   if (!res.ok) throw new Error(`could not grant admin: ${res.status}`)
 }
 
+/** The id of a signed-up local user (tests only). */
+export async function userIdFor(email: string): Promise<string> {
+  const res = await fetch(`${process.env.E2E_SUPABASE_URL}/rest/v1/profile_private?email=eq.${encodeURIComponent(email)}&select=id`, { headers: serviceHeaders() })
+  const [row] = (await res.json()) as { id: string }[]
+  if (!row) throw new Error(`no profile for ${email}`)
+  return row.id
+}
+
 /** A new signed-in, onboarded member in their own browser context. */
 export async function newMember(browser: Browser, prefix: string, firstName: string): Promise<{ page: Page; email: string }> {
   const context = await browser.newContext()
