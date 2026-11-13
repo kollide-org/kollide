@@ -41,6 +41,15 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix workers/api
 
+      # Stops a launch that still has placeholder values in the production Worker config (domain, Supabase ref, origins, sender...).
+      # The demo seed is never part of this workflow: `supabase db push` runs without --include-seed.
+      - name: Preflight - no placeholders left in the production Worker config
+        run: |
+          if awk '/^\[env\.production/{p=1} p' workers/api/wrangler.toml | grep -nE 'REPLACE|example\.invalid'; then
+            echo "::error::workers/api/wrangler.toml still has placeholder values in the production section (listed above). Replace them first: docs/backend/LAUNCH_CHECKLIST.md"
+            exit 1
+          fi
+
       - name: Apply migrations to production
         run: |
           npx supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
@@ -49,3 +58,16 @@ jobs:
       - name: Deploy production Worker
         run: npx wrangler deploy --env production
         working-directory: workers/api
+
+      # Runs when the repository variable PROD_API_URL is set (for example https://api.<domain>).
+      - name: Smoke test - the production Worker answers and says it is production
+        if: vars.PROD_API_URL != ''
+        run: |
+          for i in 1 2 3 4 5 6; do
+            body=$(curl -fsS "${{ vars.PROD_API_URL }}/health" || true)
+            echo "$body"
+            if echo "$body" | grep -q '"env":"production"'; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::/health did not answer with env production"
+          exit 1

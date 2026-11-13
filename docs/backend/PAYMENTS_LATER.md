@@ -10,7 +10,7 @@
 
 | Seam | Where | v1 behaviour | P1 change |
 | --- | --- | --- | --- |
-| Feature switch | `app_config` table, key `payments_enabled` (boolean) | `false`. Readable by everyone, writable by admins only. | Set to `true` after go-live checks |
+| Feature switch | `app_config` table, key `payments_enabled` (boolean) | `false`. Readable by everyone. **Nobody can change it through the API, admins included** (policies exclude this key; test 10 and 260). | Set to `true` in a migration (or with the service role), after go-live checks |
 | Price fields | `events.price_paise` (integer, ≥ 0), `pricing_mode` enum includes `paid` | A check refuses `pricing_mode = 'paid'` or `price_paise > 0` while the switch is off | Relax the check when the switch is on, for `type = 'kollide'` events only |
 | Booking states | `booking_status` enum includes `pending_payment`, `paid`, `expired`, `refunded` | Never written | Used by the paid branch |
 | Single join path | `join_event(event_id, …)` (or `request_to_join`), with the event row locked `FOR UPDATE` | Free and community branches only | Add a branch: paid event → create a `pending_payment` booking with `hold_expires_at = now() + 15 min` |
@@ -84,7 +84,7 @@ export interface PaymentProvider {
    - webhook secret in Wrangler secrets;
    - add Razorpay to the CSP;
    - one real ₹1 payment and its refund;
-   - then set `payments_enabled = true`.
+   - then set `payments_enabled = true` in a migration (the admin API cannot flip it).
 
 ### Tests P1 must add
 - **Webhook:** valid, invalid and tampered signatures; duplicate events; late capture.

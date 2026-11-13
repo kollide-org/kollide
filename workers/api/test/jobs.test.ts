@@ -87,3 +87,33 @@ describe('POST /jobs/r2-cleanup', () => {
     expect(spy).not.toHaveBeenCalled()
   })
 })
+
+describe('POST /jobs/r2-cleanup records itself', () => {
+  it('writes its result and the cursors to job_runs, so the next run continues from there', async () => {
+    const records: any[] = []
+    mockBackend({
+      rpc: { claim_deletions: () => [], purge_old_upload_keys: () => 0, record_job_run: (a) => void records.push(a) },
+    })
+    const res = await run('job-secret', testEnv({ MEDIA: fakeBucket([]).bucket, PRIVATE: fakeBucket([]).bucket }))
+    expect(res.status).toBe(200)
+    expect(records.at(-1)).toMatchObject({ p_job: 'r2-cleanup', p_status: 'ok' })
+    expect(records.at(-1).p_detail).toHaveProperty('cursors')
+  })
+
+  it('records an error when the database fails', async () => {
+    const records: any[] = []
+    mockBackend({ rpc: { claim_deletions: () => { throw new Error('boom') }, record_job_run: (a) => void records.push(a) } })
+    const res = await run('job-secret')
+    expect(res.status).toBe(500)
+    expect(records.at(-1)).toMatchObject({ p_job: 'r2-cleanup', p_status: 'error' })
+  })
+})
+
+describe('payments', () => {
+  it('there are no payment or webhook routes in v1', async () => {
+    mockBackend({})
+    for (const path of ['/payments', '/payments/orders', '/webhooks/razorpay', '/webhooks']) {
+      expect((await app.request(path, { method: 'POST' }, testEnv())).status, path).toBe(404)
+    }
+  })
+})

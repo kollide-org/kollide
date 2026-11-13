@@ -143,9 +143,7 @@ select is(pg_temp.try_as(2, call), 'P0001:not_allowed', name || ': a host is ref
 -- an admin on hold is refused too
 update public.profile_private set status = 'on_hold' where id = :'u1';
 select is(pg_temp.try_as(1, call), 'P0001:not_active', name || ': an admin who is on hold is refused')
-  from admin_fns where name not in ('review_host_application', 'review_verification', 'approve_event', 'reject_event', 'feature_event', 'unfeature_event', 'admin_upsert_hub',
-                                    'admin_set_hub_events', 'admin_delete_hub', 'admin_list_host_applications', 'admin_list_pending_verifications', 'admin_send_reconfirmation',
-                                    'admin_job_runs') order by name;
+  from admin_fns order by name;
 update public.profile_private set status = 'active' where id = :'u1';
 
 -- the shared ones refuse strangers

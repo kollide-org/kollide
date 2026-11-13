@@ -43,6 +43,18 @@ The site runs at `http://localhost:5173`.
 | `npm run preview` | Serves the built site locally |
 | `npm run lint` | Runs oxlint |
 | `npm run cn` | Regenerates `src/lib/cn-tables.ts` (see "Class merging") |
+| `npm run typecheck` | Type-checks the frontend |
+| `npm run db:start` / `db:stop` / `db:reset` | Starts, stops or resets the local Supabase stack (reset also runs the demo seed) |
+| `npm run db:test` | pgTAP tests (`supabase/tests`) |
+| `npm run db:rls` | Fails if any table in `public` has Row Level Security off |
+| `npm run db:race` | Two sessions race for the last seat; and a double check-in scan |
+| `npm run db:types` | Regenerates `src/types/database.ts` after a migration |
+| `npm run db:restore-test` | Backup drill: dump, encrypt, decrypt, restore into a scratch database, compare (`docs/backend/RESTORE.md`) |
+| `npm run worker:dev` / `worker:test` / `worker:typecheck` | The Cloudflare Worker in `workers/api` |
+| `npm run e2e` | Playwright end-to-end tests against the local stack |
+| `npm run check:bundle` | Fails if the built frontend contains a service key or a server secret name |
+| `npm run check:dns -- auth.<domain> mail.<domain>` | SPF, DKIM and DMARC check for the sending domains (`docs/backend/EMAIL_DNS.md`) |
+| `npm run load:join` | 50 simultaneous join requests on one event: no overbooking (`docs/backend/LAUNCH_CHECKLIST.md`) |
 
 ## Stack
 

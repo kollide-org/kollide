@@ -20,7 +20,11 @@
     "worker:test": "npm --prefix workers/api test",
     "worker:typecheck": "npm --prefix workers/api run typecheck",
     "e2e": "playwright test",
-    "db:race": "bash scripts/test-concurrency.sh"
+    "db:race": "bash scripts/test-concurrency.sh",
+    "db:restore-test": "bash scripts/restore-test.sh",
+    "check:bundle": "node scripts/check-bundle-secrets.mjs dist",
+    "check:dns": "node scripts/check-dns.mjs",
+    "load:join": "node scripts/load-join.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

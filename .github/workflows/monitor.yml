@@ -1,0 +1,34 @@
+name: Health check
+
+# Out-of-band check: the database alerts you by email, but that email goes through the same Worker. If the Worker is down, only this
+# tells you. A failed run makes GitHub email the people who watch this repository's Actions.
+# Set the repository variables PROD_API_URL and (optionally) STAGING_API_URL, for example https://api.<domain>. Empty = skipped.
+on:
+  schedule:
+    - cron: '7 * * * *' # hourly
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    # With neither variable set the job is skipped entirely (no runner is started). Hourly is about 720 runner minutes a month:
+    # free for a public repository; on a private repository it counts against the plan's included minutes.
+    if: vars.PROD_API_URL != '' || vars.STAGING_API_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Production Worker
+        if: vars.PROD_API_URL != ''
+        run: |
+          body=$(curl -fsS --max-time 20 --retry 2 "${{ vars.PROD_API_URL }}/health")
+          echo "$body"
+          echo "$body" | grep -q '"ok":true' && echo "$body" | grep -q '"env":"production"'
+
+      - name: Staging Worker
+        if: vars.STAGING_API_URL != ''
+        run: |
+          body=$(curl -fsS --max-time 20 --retry 2 "${{ vars.STAGING_API_URL }}/health")
+          echo "$body"
+          echo "$body" | grep -q '"ok":true'

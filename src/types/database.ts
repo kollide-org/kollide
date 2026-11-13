@@ -661,14 +661,14 @@ isOneToOne: false
                   ]
                 },"job_runs": {
                   Row: {
-                    "error_count": number,"job": string,"last_detail": Json | null,"last_error": string | null,"last_finished_at": string | null,"last_started_at": string | null,"last_status": string | null,"run_count": number
+                    "error_count": number,"job": string,"last_detail": Json | null,"last_error": string | null,"last_finished_at": string | null,"last_ok_at": string | null,"last_started_at": string | null,"last_status": string | null,"run_count": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "error_count"?: number,"job": string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
+                    "error_count"?: number,"job": string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_ok_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
                   }
                   Update: {
-                    "error_count"?: number,"job"?: string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
+                    "error_count"?: number,"job"?: string,"last_detail"?: Json | null,"last_error"?: string | null,"last_finished_at"?: string | null,"last_ok_at"?: string | null,"last_started_at"?: string | null,"last_status"?: string | null,"run_count"?: number
                   }
                   Relationships: [
                     

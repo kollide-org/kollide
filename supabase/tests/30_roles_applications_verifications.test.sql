@@ -95,7 +95,7 @@ select pg_temp.act_as(3);
 select is((select count(*)::int from public.verifications), 1, 'the owner CAN read their own verification result');
 select throws_ok($$select selfie_key from public.verifications$$, '42501', null, 'the owner CANNOT read the selfie key');
 select throws_ok($$select * from public.verifications$$, '42501', null, 'select * is refused because the selfie key is not granted');
-select is(pg_temp.n($$update public.verifications set result = 'approved'$$), 0,
+select throws_ok($$update public.verifications set result = 'approved'$$, '42501', null,
   'the owner CANNOT approve their own verification');
 
 reset role; select pg_temp.act_as(5);
@@ -104,8 +104,8 @@ select is((select count(*)::int from public.verifications), 0, 'another member C
 reset role; select pg_temp.act_as(1);
 select is((select count(*)::int from public.verifications), 1, 'an admin CAN read the verification result');
 select throws_ok($$select selfie_key from public.verifications$$, '42501', null, 'an admin CANNOT read the selfie key through the API (Worker only)');
-select is(pg_temp.n($$update public.verifications set result = 'approved', reviewed_at = now()$$), 1,
-  'an admin CAN review a verification');
+select throws_ok($$update public.verifications set result = 'approved', reviewed_at = now()$$, '42501', null,
+  'an admin CANNOT set a result directly: review_verification is the only way (it deletes the selfie)');
 reset role;
 select is((select count(*)::int from public.audit_log where table_name = 'verifications' and new_data::text like '%selfie%'), 0,
   'the selfie key never appears in the audit log');

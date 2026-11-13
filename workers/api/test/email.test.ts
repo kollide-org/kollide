@@ -227,6 +227,15 @@ describe('email templates', () => {
     expect(text('appeal_overdue')).toContain('past its 48-hour target')
   })
 
+  it('monitoring alerts say what is wrong, with only a job name or numbers', () => {
+    const mail = (data: Record<string, unknown>) => renderEmail({ ...base, template: 'admin_alert', data }, ctx)!
+    expect(mail({ kind: 'job_late', job: 'flush-email' }).text).toContain('flush-email')
+    expect(mail({ kind: 'job_late', job: 'flush-email' }).subject).toBe('A scheduled job is not running')
+    expect(mail({ kind: 'email_cap', sent: 224, cap: 280 }).text).toContain('224 of 280')
+    expect(mail({ kind: 'db_size', mb: 412 }).text).toContain('412 MB')
+    expect(mail({ kind: 'job_late', job: '<script>x</script>' }).html).not.toContain('<script>')
+  })
+
   it('moderation notices use fixed wording plus the admin\'s note, escaped', () => {
     for (const action of ['note', 'warn', 'hold', 'suspend', 'ban', 'reactivate']) {
       const mail = renderEmail({ ...base, template: 'moderation_notice', data: { action, note: '<b>Please</b> read & reply' } }, ctx)!

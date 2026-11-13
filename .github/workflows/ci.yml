@@ -42,6 +42,9 @@ jobs:
       - name: Build (also writes the Content-Security-Policy)
         run: npm run build
 
+      - name: No server secret in the built frontend
+        run: node scripts/check-bundle-secrets.mjs dist
+
       - name: Start local Supabase
         # Retry once: the first start occasionally fails with a transient port-binding error.
         run: |
@@ -59,6 +62,9 @@ jobs:
 
       - name: Security advisors (no warnings allowed)
         run: npx supabase db advisors --type security --fail-on warn
+
+      - name: Performance advisors (no warnings allowed)
+        run: npx supabase db advisors --type performance --fail-on warn
 
       - name: Generated types are up to date
         run: |
