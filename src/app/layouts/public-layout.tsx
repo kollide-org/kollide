@@ -1,18 +1,23 @@
 import { Menu } from 'lucide-react'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Outlet } from 'react-router'
 
 import { useSession } from '@/app/providers/session-context'
+import { SmoothScroll } from '@/components/motion/smooth-scroll'
 import { AppLink, AppNavLink } from '@/components/shared/app-link'
 import { SiteFooter } from '@/components/shared/site-footer'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Wordmark } from '@/components/shared/wordmark'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { ROLE_HOME } from '@/services/types/role'
 
 import { useScrolled } from './use-scrolled'
+
+// The menu sheet is only needed on small screens, and only once it is opened.
+const loadMenu = () => import('./public-menu')
+const PublicMenu = lazy(loadMenu)
+const preloadMenu = () => void loadMenu()
 
 const NAV_LINKS = [
   { to: '/how-it-works', label: 'How it works' },
@@ -23,10 +28,12 @@ export function PublicLayout() {
   const { role, status } = useSession()
   const scrolled = useScrolled()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [menuLoaded, setMenuLoaded] = useState(false)
   const signedIn = role !== 'visitor'
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="paper flex min-h-dvh flex-col">
+      <SmoothScroll />
       <header
         className={cn(
           'sticky top-0 z-40 border-b transition-[background-color,border-color] duration-300',
@@ -73,58 +80,33 @@ export function PublicLayout() {
               </>
             )}
 
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
-                  <Menu className="size-5" aria-hidden="true" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[min(22rem,88vw)]">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Wordmark to={null} />
-                  </SheetTitle>
-                  <SheetDescription className="sr-only">Site navigation</SheetDescription>
-                </SheetHeader>
-                <nav aria-label="Mobile" className="flex flex-1 flex-col px-4 pb-6">
-                  <ul className="grid gap-1">
-                    {NAV_LINKS.map((link) => (
-                      <li key={link.to}>
-                        <AppLink
-                          to={link.to}
-                          onClick={() => setMenuOpen(false)}
-                          className="flex min-h-14 items-center rounded-xl px-3 font-display text-h3 hover:bg-accent"
-                        >
-                          {link.label}
-                        </AppLink>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto grid gap-3">
-                    {signedIn ? (
-                      <Button asChild size="lg">
-                        <AppLink to={ROLE_HOME[role]} onClick={() => setMenuOpen(false)}>
-                          Open Kollide
-                        </AppLink>
-                      </Button>
-                    ) : (
-                      <>
-                        <Button asChild size="lg">
-                          <AppLink to="/sign-in" onClick={() => setMenuOpen(false)}>
-                            Join Kollide
-                          </AppLink>
-                        </Button>
-                        <Button asChild variant="ghost" size="lg">
-                          <AppLink to="/sign-in" onClick={() => setMenuOpen(false)}>
-                            Sign in
-                          </AppLink>
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label="Open menu"
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              onPointerEnter={preloadMenu}
+              onFocus={preloadMenu}
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu className="size-5" aria-hidden="true" />
+            </Button>
+            {menuOpen || menuLoaded ? (
+              <Suspense fallback={null}>
+                <PublicMenu
+                  open={menuOpen}
+                  onOpenChange={(open) => {
+                    setMenuLoaded(true)
+                    setMenuOpen(open)
+                  }}
+                  links={NAV_LINKS}
+                  signedIn={signedIn}
+                  homePath={ROLE_HOME[role]}
+                />
+              </Suspense>
+            ) : null}
           </div>
         </div>
       </header>
