@@ -15,10 +15,18 @@ function TooltipProvider({
   )
 }
 
+/**
+ * Each tooltip brings its own provider, so the tooltip code is only loaded by
+ * the screens that use one and not by the whole app.
+ */
 function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+  return (
+    <TooltipProvider delayDuration={200}>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+    </TooltipProvider>
+  )
 }
 
 function TooltipTrigger({
