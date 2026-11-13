@@ -35,7 +35,7 @@ Places a value can live:
 | `R2_ACCOUNT_ID`, `R2_MEDIA_BUCKET`, `R2_PRIVATE_BUCKET`, `ALLOWED_ORIGINS` | variable | R2 account, bucket names and the site origins allowed to call the API. B3. | `wrangler.toml` (per environment) |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | secret | Presigned upload and view links (R2 API token, Object Read and Write). B3. | Wrangler; `.dev.vars` |
 | `MEDIA`, `PRIVATE` | R2 bindings | Delete and list objects in the buckets. B3. | `wrangler.toml` (per environment) |
-| `POSTHOG_API_KEY` | secret | Server-side funnel events (EU host). B8. | Wrangler; `.dev.vars` |
+| `POSTHOG_API_KEY` | secret | Server-side funnel events to PostHog EU (`/jobs/flush-analytics`, and `partner_link_clicked` from `/go`). Optional: unset means no server-side events are sent. Use the staging project's key on staging. B8. | Wrangler (`--env staging` / `--env production`); `.dev.vars` |
 
 ## Frontend (`.env.local`, and Cloudflare Pages environment variables for builds)
 
@@ -49,9 +49,12 @@ These are public by design (they end up in the browser). Never put a secret here
 | `VITE_API_URL` | Worker base URL (`https://api.<domain>`); used in the CSP | `.env.local`; Pages env vars |
 | `VITE_MEDIA_URL` | Image host (`https://img.<domain>`); where photos load from, and used in the CSP | `.env.local`; Pages env vars |
 | `VITE_R2_ACCOUNT_ID` | Cloudflare account ID; the CSP allows uploads to that R2 host only | `.env.local`; Pages env vars |
-| `VITE_POSTHOG_KEY` | PostHog project key (B8) | `.env.local`; Pages env vars |
+| `VITE_POSTHOG_KEY` | PostHog EU project key (public). Empty means no browser analytics at all. Loaded only after Analytics consent. B8. | `.env.local`; Pages env vars |
+| `VITE_APP_ENV` | `local`, `staging` or `production`: the `env` property on every analytics event (default: `local` in dev builds, `production` otherwise). B8. | `.env.local`; Pages env vars |
+| `VITE_POSTHOG_RECORDING_SAMPLE` | Share of consenting sessions that are recorded, 0 to 1 (default `0.2`). Tune without code. B8. | `.env.local`; Pages env vars |
+| `VITE_META_PIXEL_ID`, `VITE_GOOGLE_ADS_ID` | Advertising pixel ids. Empty (the default) means the pixels never load and the CSP does not mention Meta or Google. Loaded only after Marketing consent. B8. | `.env.local`; Pages env vars |
 
-The build writes `dist/_headers` (the Content-Security-Policy) from these values, so Pages must have `VITE_SUPABASE_URL`, `VITE_API_URL` and `VITE_MEDIA_URL` set for the CSP to name the real hosts. The build prints a warning when one is missing.
+The build writes `dist/_headers` (the Content-Security-Policy) from these values (including the Meta and Google hosts, only when their ids are set), so Pages must have `VITE_SUPABASE_URL`, `VITE_API_URL` and `VITE_MEDIA_URL` set for the CSP to name the real hosts. The build prints a warning when one is missing.
 
 ## Local Supabase (`supabase/.env`)
 

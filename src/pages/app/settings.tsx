@@ -1,8 +1,9 @@
-import { Download, LogOut, Trash2 } from 'lucide-react'
+import { Cookie, Download, LogOut, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
+import { useConsent } from '@/app/providers/consent-context'
 import { useSession } from '@/app/providers/session-context'
 import { PageHeader } from '@/components/shared/page-header'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ import { errorMessage, services } from '@/services'
 
 export function Component() {
   const { user, signOut } = useSession()
+  const { openSettings } = useConsent()
   const navigate = useNavigate()
   const [typed, setTyped] = useState('')
   const [open, setOpen] = useState(false)
@@ -55,7 +57,7 @@ export function Component() {
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="ph-no-capture grid gap-8">
       <PageHeader eyebrow="Account" title="Settings" description={user?.email ? `Signed in as ${user.email}` : undefined} />
       <Card>
         <CardContent className="grid gap-4 pt-6">
@@ -65,6 +67,9 @@ export function Component() {
             </Button>
             <Button variant="outline" onClick={() => void exportData()}>
               <Download /> Export my data
+            </Button>
+            <Button variant="outline" onClick={openSettings}>
+              <Cookie /> Cookie settings
             </Button>
           </div>
         </CardContent>

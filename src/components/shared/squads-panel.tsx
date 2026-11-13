@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { ReportDialog } from '@/components/shared/report-dialog'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useEventSquads } from '@/hooks/use-bookings'
+import { track } from '@/lib/analytics'
 import { errorMessage, services } from '@/services'
 
 /** Small groups (4 to 6) going to the event together. The person who starts a squad approves who joins. */
@@ -17,6 +19,14 @@ export function SquadsPanel({ eventId }: { eventId: string }) {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [open, setOpen] = useState(false)
+
+  const viewed = useRef<string | null>(null)
+  useEffect(() => {
+    if (squads.data && viewed.current !== eventId) {
+      viewed.current = eventId
+      track('squad_viewed', { event_id: eventId, squad_count: squads.data.length })
+    }
+  }, [squads.data, eventId])
 
   const inASquad = squads.data?.some((s) => s.myStatus === 'requested' || s.myStatus === 'approved') ?? false
 

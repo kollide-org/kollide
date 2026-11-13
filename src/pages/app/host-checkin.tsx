@@ -97,7 +97,7 @@ export function Component() {
         {rows.length === 0 && !list.isPending ? <p className="text-muted-foreground">Nobody holds a place yet.</p> : null}
         {list.isError ? <p role="alert" className="text-destructive-strong">{errorMessage(list.error)}</p> : null}
         {rows.map((row) => (
-          <Card key={row.bookingId}>
+          <Card key={row.bookingId} className="ph-no-capture">
             <CardContent className="flex flex-wrap items-center gap-4 pt-6">
               <div className="size-14 shrink-0 overflow-hidden rounded-2xl bg-secondary">
                 {row.photoKey ? <img src={mediaUrl(row.photoKey)} alt="" className="size-full object-cover" /> : null}

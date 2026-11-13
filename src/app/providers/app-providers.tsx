@@ -4,6 +4,7 @@ import { lazy, Suspense, useState, type ReactNode } from 'react'
 
 import { TooltipProvider } from '@/components/ui/tooltip'
 
+import { ConsentProvider } from './consent-provider'
 import { SessionProvider } from './session-provider'
 import { ThemeProvider } from './theme-provider'
 
@@ -34,10 +35,12 @@ export function AppProviders({ children }: { children: ReactNode }) {
           {/* `strict` makes a full `motion.*` component an error. Use `m.*` from "motion/react-m". */}
           <LazyMotion features={loadMotionFeatures} strict>
             <SessionProvider>
-              <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
-              <Suspense fallback={null}>
-                <Toaster />
-              </Suspense>
+              <ConsentProvider>
+                <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+                <Suspense fallback={null}>
+                  <Toaster />
+                </Suspense>
+              </ConsentProvider>
             </SessionProvider>
           </LazyMotion>
         </MotionConfig>

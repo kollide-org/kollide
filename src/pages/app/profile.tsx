@@ -64,7 +64,7 @@ function View({ profile }: { profile: MyProfile }) {
     items?.find((item) => item.id === id)?.label ?? ''
 
   return (
-    <Card>
+    <Card className="ph-no-capture">
       <CardContent className="grid gap-6 pt-6">
         <p className="text-lead">
           {[age ? `${age}` : null, label(reference.data?.areas, profile.areaId ?? -1) || null].filter(Boolean).join(' · ')}
@@ -138,7 +138,7 @@ function EditForm({ profile, onDone }: { profile: MyProfile; onDone: () => void 
   }
 
   return (
-    <form onSubmit={save} className="grid max-w-xl gap-6">
+    <form onSubmit={save} className="ph-no-capture grid max-w-xl gap-6">
       <div className="grid gap-2">
         <Label htmlFor="edit-first-name">First name</Label>
         <Input id="edit-first-name" maxLength={40} value={firstName} onChange={(e) => setFirstName(e.target.value)} />

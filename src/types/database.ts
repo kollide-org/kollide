@@ -23,7 +23,33 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "app_config": {
+            "analytics_outbox": {
+                  Row: {
+                    "attempts": number,"created_at": string,"dedupe_key": string,"event": string,"id": number,"last_error": string | null,"occurred_at": string,"properties": NonNullable<Json>,"send_after": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempts"?: number,"created_at"?: string,"dedupe_key": string,"event": string,"id"?: never,"last_error"?: string | null,"occurred_at"?: string,"properties"?: NonNullable<Json>,"send_after"?: string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "attempts"?: number,"created_at"?: string,"dedupe_key"?: string,"event"?: string,"id"?: never,"last_error"?: string | null,"occurred_at"?: string,"properties"?: NonNullable<Json>,"send_after"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "analytics_outbox_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profile_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "analytics_outbox_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"app_config": {
                   Row: {
                     "key": string,"updated_at": string,"updated_by": string | null,"value": NonNullable<Json>
                   }
@@ -1568,6 +1594,9 @@ isOneToOne: false
 "admin_user_detail":
 { Args: { "p_user": string }; Returns: Json
                            },
+"analytics_consent_ok":
+{ Args: { "p_user": string }; Returns: boolean
+                           },
 "apply_to_host":
 { Args: { "p_message": string }; Returns: undefined
                            },
@@ -1588,6 +1617,11 @@ isOneToOne: false
                            },
 "check_in_manual":
 { Args: { "p_booking": string }; Returns: Json
+                           },
+"claim_analytics_events":
+{ Args: { "p_limit": number }; Returns: {
+              "attempts": number,"event": string,"id": number,"occurred_at": string,"properties": Json,"user_id": string
+            }[]
                            },
 "claim_deletions":
 { Args: { "p_limit": number }; Returns: {
@@ -1676,6 +1710,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"finish_analytics_events":
+{ Args: { "p_results": Json }; Returns: undefined
+                           },
 "finish_emails":
 { Args: { "p_results": Json }; Returns: undefined
                            },
@@ -1765,6 +1802,11 @@ isOneToOne: false
               "connected_at": string,"event_id": string,"event_title": string,"first_name": string,"photo_key": string,"user_id": string
             }[]
                            },
+"my_consent":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"granted": boolean,"notice_version": string,"purpose": Database["public"]['Enums']["consent_purpose"]
+            }[]
+                           },
 "my_events":
 { Args: Record<PropertyKey, never>; Returns: {
               "cover_key": string,"id": string,"review_note": string,"starts_at": string,"status": Database["public"]['Enums']["event_status"],"title": string,"type": Database["public"]['Enums']["event_type"]
@@ -1788,6 +1830,9 @@ isOneToOne: false
                            },
 "reconfirm_booking":
 { Args: { "p_token": string }; Returns: Json
+                           },
+"record_consent":
+{ Args: { "p_analytics": boolean,"p_anonymous_id": string,"p_marketing": boolean,"p_notice_version": string,"p_preferences": boolean }; Returns: undefined
                            },
 "record_job_run":
 { Args: { "p_detail"?: Json,"p_error"?: string,"p_job": string,"p_status": string }; Returns: undefined

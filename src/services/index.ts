@@ -3,6 +3,7 @@ import { mockAppConfig } from './mock/app-config'
 import { mockAuth } from './mock/auth'
 import { mockBookings } from './mock/bookings'
 import { mockCheckin } from './mock/checkin'
+import { mockConsent } from './mock/consent'
 import { mockConnections } from './mock/connections'
 import { mockFeedback } from './mock/feedback'
 import { mockSafety } from './mock/safety'
@@ -17,6 +18,7 @@ import { realAppConfig } from './real/app-config'
 import { realAuth } from './real/auth'
 import { realBookings } from './real/bookings'
 import { realCheckin } from './real/checkin'
+import { realConsent } from './real/consent'
 import { realConnections } from './real/connections'
 import { realFeedback } from './real/feedback'
 import { realSafety } from './real/safety'
@@ -31,6 +33,7 @@ import type { AppConfigService } from './types/app-config'
 import type { AuthService } from './types/auth'
 import type { BookingsService } from './types/bookings'
 import type { CheckinService } from './types/checkin'
+import type { ConsentService } from './types/consent'
 import type { ConnectionsService } from './types/connections'
 import type { FeedbackService } from './types/feedback'
 import type { SafetyService } from './types/safety'
@@ -65,9 +68,10 @@ export const services: {
   feedback: FeedbackService
   safety: SafetyService
   connections: ConnectionsService
+  consent: ConsentService
 } = real
-  ? { auth: realAuth, profile: realProfile, appConfig: realAppConfig, reference: realReference, upload: realUpload, admin: realAdmin, events: realEvents, bookings: realBookings, squads: realSquads, notifications: realNotifications, checkin: realCheckin, feedback: realFeedback, safety: realSafety, connections: realConnections }
-  : { auth: mockAuth, profile: mockProfile, appConfig: mockAppConfig, reference: mockReference, upload: mockUpload, admin: mockAdmin, events: mockEvents, bookings: mockBookings, squads: mockSquads, notifications: mockNotifications, checkin: mockCheckin, feedback: mockFeedback, safety: mockSafety, connections: mockConnections }
+  ? { auth: realAuth, profile: realProfile, appConfig: realAppConfig, reference: realReference, upload: realUpload, admin: realAdmin, events: realEvents, bookings: realBookings, squads: realSquads, notifications: realNotifications, checkin: realCheckin, feedback: realFeedback, safety: realSafety, connections: realConnections, consent: realConsent }
+  : { auth: mockAuth, profile: mockProfile, appConfig: mockAppConfig, reference: mockReference, upload: mockUpload, admin: mockAdmin, events: mockEvents, bookings: mockBookings, squads: mockSquads, notifications: mockNotifications, checkin: mockCheckin, feedback: mockFeedback, safety: mockSafety, connections: mockConnections, consent: mockConsent }
 
 export { ServiceError, errorMessage } from './types/errors'
 export type { AuthUser } from './types/auth'
@@ -89,5 +93,6 @@ export { ISSUE_OPTIONS } from './types/feedback'
 export type * from './types/safety'
 export { REPORT_REASONS } from './types/safety'
 export type * from './types/connections'
+export type { ConsentService, StoredChoice } from './types/consent'
 export type { JobRun } from './types/admin'
 export type { UploadPurpose } from './types/upload'

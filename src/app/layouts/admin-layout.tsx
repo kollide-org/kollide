@@ -72,7 +72,7 @@ export function AdminLayout() {
         </div>
       </aside>
 
-      <main id="main" className="min-w-0 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
+      <main id="main" className="ph-no-capture min-w-0 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
         <div className="mx-auto max-w-5xl">
           <Outlet />
         </div>

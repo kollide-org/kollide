@@ -9,7 +9,7 @@ export function ReputationSection({ userId }: { userId: string }) {
   const tips = useMyTips()
   return (
     <>
-      <Card>
+      <Card className="ph-no-capture">
         <CardContent className="grid gap-3 pt-6">
           <h2 className="text-h3">How others see you</h2>
           {reputation.data ? <ReputationLine reputation={reputation.data} /> : null}
@@ -18,7 +18,7 @@ export function ReputationSection({ userId }: { userId: string }) {
         </CardContent>
       </Card>
       {tips.data && tips.data.length > 0 ? (
-        <Card>
+        <Card className="ph-no-capture">
           <CardContent className="grid gap-3 pt-6">
             <h2 className="text-h3">A gentle note from the community</h2>
             <ul className="grid gap-2">{tips.data.map((tip) => <li key={tip.id}>{tip.message}</li>)}</ul>

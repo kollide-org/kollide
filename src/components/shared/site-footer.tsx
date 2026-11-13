@@ -1,3 +1,5 @@
+import { useConsent } from '@/app/providers/consent-context'
+
 import { AppLink } from './app-link'
 import { Wordmark } from './wordmark'
 
@@ -11,6 +13,7 @@ const FOOTER_LINKS = [
 ]
 
 export function SiteFooter() {
+  const { openSettings } = useConsent()
   return (
     <footer className="border-t border-border bg-secondary/50">
       <div className="container-page grid gap-12 py-14 md:grid-cols-[1.4fr_1fr] md:py-20">
@@ -36,6 +39,15 @@ export function SiteFooter() {
                 </AppLink>
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={openSettings}
+                className="inline-flex min-h-11 items-center rounded-md text-foreground underline-offset-4 hover:text-primary hover:underline"
+              >
+                Cookie settings
+              </button>
+            </li>
           </ul>
         </nav>
       </div>

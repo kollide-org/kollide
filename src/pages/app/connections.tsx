@@ -26,7 +26,7 @@ export function Component() {
       <ul className="grid gap-4">
         {connections.data?.map((c) => (
           <li key={c.userId}>
-            <Card>
+            <Card className="ph-no-capture">
               <CardContent className="flex flex-wrap items-center gap-4 pt-6">
                 <div className="size-16 shrink-0 overflow-hidden rounded-2xl bg-secondary">
                   {c.photoKey ? <img src={mediaUrl(c.photoKey)} alt="" className="size-full object-cover" /> : null}

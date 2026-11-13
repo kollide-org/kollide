@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { AppLink } from '@/components/shared/app-link'
@@ -7,10 +8,18 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useMySquads } from '@/hooks/use-bookings'
+import { track } from '@/lib/analytics'
 import { errorMessage, services, type MySquad } from '@/services'
 
 export function Component() {
   const squads = useMySquads()
+  const viewed = useRef(false)
+  useEffect(() => {
+    if (squads.data && !viewed.current) {
+      viewed.current = true
+      track('squad_viewed', { event_id: null, squad_count: squads.data.length })
+    }
+  }, [squads.data])
   return (
     <div className="grid gap-8">
       <PageHeader eyebrow="Together" title="Squads" description="Small groups of 4 to 6 who go to an event together." />
@@ -45,7 +54,7 @@ function SquadCard({ squad }: { squad: MySquad }) {
   }
 
   return (
-    <Card>
+    <Card className="ph-no-capture">
       <CardContent className="grid gap-3 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>

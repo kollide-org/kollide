@@ -32,8 +32,8 @@ select is((select count(*)::int from pg_class c join pg_namespace n on n.oid = c
   'every public table has at least one explicit policy');
 select is((select count(*)::int from information_schema.role_table_grants
   where table_schema = 'public' and grantee = 'anon' and privilege_type <> 'SELECT'
-    and table_name not in ('consents')), 0,
-  'anon has no write privileges anywhere except inserting consents');
+    ), 0,
+  'anon has no write privileges anywhere (a cookie choice goes through record_consent)');
 select is(has_table_privilege('anon', 'public.profile_private', 'select'), false, 'anon CANNOT select profile_private');
 select is(has_table_privilege('authenticated', 'public.audit_log', 'insert'), false, 'authenticated CANNOT insert into audit_log');
 

@@ -44,7 +44,8 @@ go.get('/:eventId', async (c) => {
   target.searchParams.set('utm_medium', 'referral')
 
   // The click is recorded without making the person wait for it.
-  const record = analyticsHooks.partnerClick(c.env, { eventId: id }).catch(() => {})
+  const user = c.req.query('u')
+  const record = analyticsHooks.partnerClick(c.env, { eventId: id, userId: user && UUID.test(user) ? user.toLowerCase() : undefined }).catch(() => {})
   try {
     c.executionCtx.waitUntil(record)
   } catch {

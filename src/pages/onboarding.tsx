@@ -140,7 +140,7 @@ export function Component() {
 
   return (
     <div className="container-page py-10 md:py-16">
-      <form onSubmit={submit} className="mx-auto grid max-w-xl gap-8">
+      <form onSubmit={submit} className="ph-no-capture mx-auto grid max-w-xl gap-8">
         <header>
           <p className="eyebrow text-primary">
             Step {step + 1} of {STEPS.length}

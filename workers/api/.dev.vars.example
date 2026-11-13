@@ -5,3 +5,5 @@ R2_ACCESS_KEY_ID=local
 R2_SECRET_ACCESS_KEY=local
 JOB_SHARED_SECRET=local-job-secret
 BREVO_API_KEY=local
+# Optional. Locally nothing is ever sent to PostHog, so this can stay empty.
+POSTHOG_API_KEY=

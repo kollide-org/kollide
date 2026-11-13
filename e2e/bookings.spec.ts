@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { DEV_HOST_EMAIL, devMail, flushEmail, newMember, promoteToAdmin, publishedEvent, signInWithCode } from './helpers.ts'
+import { DEV_HOST_EMAIL, devMail, flushEmail, newMember, promoteToAdmin, publishedEvent, signInWithCode, newContext } from './helpers.ts'
 
 test.setTimeout(240_000)
 // The host signs in with a one-minute limit per address, so a retry of this test would be refused.
@@ -21,7 +21,7 @@ test('request, host approves, email, address; waitlist promotion; reconfirmation
   await expect(m1.page.getByText('Your request is with the host')).toBeVisible()
   await expect(m1.page.getByTestId('exact-address')).toHaveCount(0)
 
-  const hostContext = await browser.newContext()
+  const hostContext = await newContext(browser)
   const host = await hostContext.newPage()
   await signInWithCode(host, DEV_HOST_EMAIL)
   await expect(host).toHaveURL(/\/app$/)
@@ -80,7 +80,7 @@ test('request, host approves, email, address; waitlist promotion; reconfirmation
   const still = (await devMail(m1.email)).find((m) => m.template === 'still_coming')!
   expect(still.subject).toBe(`Still coming to ${approvalTitle}?`)
   const link = still.html.match(/href="(http:\/\/localhost:5173\/reconfirm\/[0-9a-f-]{36})"/)![1]!
-  const visitor = await (await browser.newContext()).newPage() // not signed in: one tap is enough
+  const visitor = await (await newContext(browser)).newPage() // not signed in: one tap is enough
   await visitor.goto(link)
   await expect(visitor.getByRole('heading', { name: /see you there/ })).toBeVisible()
   await m1.page.goto('/app/plans')

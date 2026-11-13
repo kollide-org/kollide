@@ -85,7 +85,7 @@ function PersonFeedback({ task, person, tags, tapped }: { task: FeedbackTask; pe
   }
 
   return (
-    <Card>
+    <Card className="ph-no-capture">
       <CardContent className="grid gap-4 pt-6">
         <div className="flex items-center gap-4">
           <div className="size-14 shrink-0 overflow-hidden rounded-2xl bg-secondary">

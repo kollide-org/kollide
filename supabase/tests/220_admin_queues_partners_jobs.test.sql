@@ -222,7 +222,7 @@ reset role;
 -- ---------------------------------------------------------------- job health
 delete from public.job_runs; -- (pg_cron also records runs while the tests run; start from nothing)
 select pg_temp.act_as(1);
-select is((select count(*)::int from public.admin_job_health()), 8, 'every scheduled job is listed');
+select is((select count(*)::int from public.admin_job_health()), 9, 'every scheduled job is listed');
 select ok((select bool_and(late) from public.admin_job_health()), 'jobs that never ran are late');
 reset role;
 select private.record_job_run('reputation', 'ok', null, null);

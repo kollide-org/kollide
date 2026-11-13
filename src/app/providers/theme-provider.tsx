@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-import { readStored, writeStored } from '@/lib/storage'
+import { readPreference, writePreference } from '@/lib/preferences'
 
 import {
   THEME_PREFERENCES,
@@ -30,7 +30,10 @@ function getSystemTheme(): ResolvedTheme {
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceState] = useState<ThemePreference>(
-    () => readStored(THEME_STORAGE_KEY, THEME_PREFERENCES) ?? 'system',
+    () => {
+      const stored = readPreference(THEME_STORAGE_KEY)
+      return (THEME_PREFERENCES as readonly string[]).includes(stored ?? '') ? (stored as ThemePreference) : 'system'
+    },
   )
   const systemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => 'light' as const)
   const resolvedTheme = preference === 'system' ? systemTheme : preference
@@ -44,7 +47,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setPreference = useCallback((next: ThemePreference) => {
     setPreferenceState(next)
-    writeStored(THEME_STORAGE_KEY, next === 'system' ? null : next)
+    writePreference(THEME_STORAGE_KEY, next === 'system' ? null : next) // saved to the browser only with Preferences consent
   }, [])
 
   const value = useMemo<ThemeContextValue>(

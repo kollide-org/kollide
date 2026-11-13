@@ -4,6 +4,18 @@ import { pictureFile } from './fixtures.ts'
 
 const MAILPIT = 'http://127.0.0.1:54324'
 
+/** The cookie banner's "Reject all" choice, already made. Specs that are not about cookies start like this so the banner never covers a button. */
+export const REJECTED_COOKIES = [{
+  name: 'kollide_consent',
+  value: encodeURIComponent(JSON.stringify({ v: 'v1', a: '00000000-0000-4000-8000-0000000000e2', preferences: false, analytics: false, marketing: false, t: 1 })),
+  domain: 'localhost', path: '/', expires: -1, httpOnly: false, secure: false, sameSite: 'Lax' as const,
+}]
+
+/** A browser context that has already rejected optional cookies. */
+export async function newContext(browser: Browser) {
+  return browser.newContext({ storageState: { cookies: REJECTED_COOKIES, origins: [] } })
+}
+
 /** Reads the 6-digit code from the newest email sent to `email` in the local Mailpit inbox. */
 export async function readCode(email: string): Promise<string> {
   let code: string | undefined
@@ -88,7 +100,7 @@ export async function userIdFor(email: string): Promise<string> {
 
 /** A new signed-in, onboarded member in their own browser context. */
 export async function newMember(browser: Browser, prefix: string, firstName: string): Promise<{ page: Page; email: string }> {
-  const context = await browser.newContext()
+  const context = await newContext(browser)
   const page = await context.newPage()
   const email = uniqueEmail(prefix)
   await signInWithCode(page, email)
@@ -114,6 +126,13 @@ export async function serviceInsert(table: string, row: Record<string, unknown>)
   const res = await fetch(`${process.env.E2E_SUPABASE_URL}/rest/v1/${table}`, { method: 'POST', headers: serviceHeaders(), body: JSON.stringify(row) })
   if (!res.ok) throw new Error(`insert into ${table} failed: ${res.status} ${await res.text()}`)
   return ((await res.json()) as Record<string, any>[])[0]!
+}
+
+/** Reads rows with the local service key (tests only). `query` is a PostgREST query string such as `user_id=eq.<uuid>&select=event`. */
+export async function serviceSelect(table: string, query: string): Promise<Record<string, any>[]> {
+  const res = await fetch(`${process.env.E2E_SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: serviceHeaders() })
+  if (!res.ok) throw new Error(`read of ${table} failed: ${res.status} ${await res.text()}`)
+  return (await res.json()) as Record<string, any>[]
 }
 
 /** Updates rows with the local service key (tests only). `filter` is a PostgREST filter such as `id=eq.<uuid>`. */

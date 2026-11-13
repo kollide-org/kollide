@@ -25,7 +25,7 @@ Set each with `npx wrangler secret put <NAME> --env staging` (and `--env product
 | `JOB_SHARED_SECRET` | B3 (`/jobs/r2-cleanup`; `pg_cron` calls it from B5) |
 | `BREVO_API_KEY` | B5 (see `docs/backend/EMAIL_JOBS_SETUP.md`) |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | B3 (see `docs/backend/R2_SETUP.md`) |
-| `POSTHOG_API_KEY` | B8 |
+| `POSTHOG_API_KEY` | B8 (optional; see `docs/backend/ANALYTICS.md`) |
 
 Full details: `docs/backend/ENV.md`.
 

@@ -68,7 +68,7 @@ export function Component() {
       {inbox.data?.length === 0 ? <p className="text-muted-foreground">Nobody has asked yet.</p> : null}
       <div className="grid gap-4">
         {inbox.data?.map((item) => (
-          <Card key={item.bookingId}>
+          <Card key={item.bookingId} className="ph-no-capture">
             <CardContent className="grid gap-4 pt-6">
               <div className="flex flex-wrap items-start gap-4">
                 <div className="size-20 shrink-0 overflow-hidden rounded-2xl bg-secondary">

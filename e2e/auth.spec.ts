@@ -57,7 +57,8 @@ test('email code sign-in, onboarding, profile, export and account deletion', asy
   const text = await (await import('node:fs/promises')).readFile((await download.path()) as string, 'utf8')
   const exported = JSON.parse(text)
   expect(exported.private.email).toBe(email)
-  expect(exported.consents).toHaveLength(2)
+  // the code of conduct and the privacy notice, plus the cookie choice (preferences, analytics, marketing) recorded when signing in
+  expect(exported.consents).toHaveLength(5)
 
   // Delete the account.
   await page.getByRole('button', { name: 'Delete my account' }).first().click()

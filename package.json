@@ -30,6 +30,7 @@
     "jsqr": "^1.4.0",
     "lucide-react": "^1.72.0",
     "motion": "^14.12.0",
+    "posthog-js": "^1.447.15",
     "qrcode.react": "^4.2.0",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",

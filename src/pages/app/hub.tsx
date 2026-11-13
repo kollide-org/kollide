@@ -38,7 +38,7 @@ export function Component() {
       {events.length === 0 ? <p className="text-muted-foreground">No upcoming events in this hub yet.</p> : null}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
-          <EventCardView key={event.id} event={event} />
+          <EventCardView key={event.id} event={event} hub={h.slug} />
         ))}
       </div>
     </div>
