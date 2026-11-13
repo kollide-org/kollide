@@ -9,7 +9,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | Milestone | State |
 |---|---|
 | 1. Foundations (tokens, theme, fonts, base components, layouts, role switcher) | Built |
-| 2. Mock layer | Not started |
+| 2. Mock layer (types, services, seed data, placeholder artwork) | Built |
 | 3. Landing page | Not started |
 | 4. Onboarding | Not started |
 | 5. Events | Not started |
@@ -42,6 +42,8 @@ The site runs at `http://localhost:5173`.
 | `npm run build` | Regenerates the class-merge tables, type-checks, and builds the static site into `dist/` |
 | `npm run preview` | Serves the built site locally |
 | `npm run lint` | Runs oxlint |
+| `npm test` | Runs the unit tests for the rules and the mock services |
+| `npm run placeholders` | Redraws the placeholder artwork in `public/assets` from the seed data |
 | `npm run cn` | Regenerates `src/lib/cn-tables.ts` (see "Class merging") |
 
 ## Stack
@@ -54,17 +56,25 @@ Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack
 src/
   app/            router, providers, layouts (public, app, admin), role guard
   pages/          one folder per area: public, app, admin, dev
-  features/       feature code, added from milestone 4
+  features/       query hooks and feature code, one folder per area
   components/
     ui/           shadcn components, restyled to the Kollide tokens
     shared/       wordmark, links, empty and error states, footer
+    people/       avatar, avatar stack, verified badge, reliability chip
     motion/       shared animation components
-  services/       types now; interfaces and the mock layer in milestone 2
-  domain/         reputation and booking rules, added in milestone 2
+  services/
+    types/        every entity, as TypeScript types
+    interfaces/   one interface per service
+    mock/         the mock backend and its seed data
+    real/         where the real backend plugs in
+    index.ts      the single mock/real switch
+  domain/         reputation, booking and refund rules, as tested pure functions
   styles/         tokens.css, fonts.css, globals.css
-  lib/            class merging, motion presets, storage helpers
+  lib/            class merging, formatting, motion presets, storage helpers
   dev/            the development-only role switcher
+public/assets/    covers, hub artwork and avatars for the seed data
 public/fonts/     self-hosted fonts and their licences
+scripts/          the placeholder artwork generator
 ```
 
 ## Theme
@@ -103,11 +113,45 @@ The style guide at `/styleguide` shows every token and component in both themes.
 
 There are four roles: visitor, member, host and admin. `RequireRole` in `src/app/guards` hides routes a role may not see. This is a courtesy in the interface; real enforcement belongs to the backend.
 
-In development, a floating button in the bottom-right corner switches the current role and links to the main areas. It is not included in production builds. The choice is saved under `kollide:dev-role` in `localStorage`.
+In development, a floating button in the bottom-right corner signs you in as the seeded account for each role, links to the main areas, and resets the demo data. It is not included in production builds.
+
+| Role | Signed in as | What their account shows |
+|---|---|---|
+| Member | Ananya | A plan to reconfirm, a pending request, a waitlist place, a gentle decline, two paid bookings, ₹900 credit, and feedback to give |
+| Host | Arjun | A request inbox with six requests and two people on the waitlist |
+| Admin | Meera | Host applications, an event to approve, open reports, an appeal and a collusion flag |
 
 ## Mock and real services
 
-This arrives in milestone 2. The plan is one flag, `VITE_SERVICES=mock` or `VITE_SERVICES=real`, read in a single file, `src/services/index.ts`. Components will call TanStack Query hooks, the hooks will call service interfaces, and the lint rule in `.oxlintrc.json` already blocks any import of `services/mock` or `services/real` from outside `src/services`.
+Components never talk to a backend directly. They call TanStack Query hooks in `src/features`, the hooks call the service interfaces, and one file decides which implementation answers.
+
+```
+component  ->  query hook  ->  service interface  ->  mock or real implementation
+```
+
+**The switch.** `src/services/index.ts` reads one flag:
+
+| Setting | Result |
+|---|---|
+| `VITE_SERVICES=mock` (the default) | The mock backend runs in the browser |
+| `VITE_SERVICES=real` | Calls go to `src/services/real` |
+
+Put the flag in a `.env.local` file or in the build environment. To connect a real backend, implement the nine interfaces in `src/services/interfaces` inside `src/services/real`. No component or hook changes. A lint rule in `.oxlintrc.json` blocks any import of `services/mock` or `services/real` from outside `src/services`.
+
+**The mock backend.**
+
+- It keeps its data in memory and mirrors it to `localStorage` under `kollide:mock-db`, so changes survive a refresh. "Reset demo data" in the role switcher starts again from the seed.
+- The seed is built relative to today, so there are always events coming up. It has 40 members, 16 events (14 of them live), 3 squads, 12 finished events that give reliability a history, and one event from yesterday whose feedback window is open.
+- Calls take about 450 ms, so loading states are visible. Set `VITE_MOCK_DELAY_MS` to change this.
+- The email sign-in code is always `123456`.
+- To see a failed payment, pay with a UPI ID ending in `@fail` or a card number ending in `0002`.
+- Raise `DB_VERSION` in `src/services/mock/db.ts` whenever the seed or its shape changes, so browsers with old data reseed.
+
+**Calculated values.** Reliability ("Shows up: 7 of 8"), tag counts, spots left, host ratings and gentle tips are worked out from bookings, check-ins and reviews each time they are asked for. None of them is stored. The rules live in `src/domain` as pure functions with tests, ready to move to the backend unchanged.
+
+**Seed images.** The covers, hub artwork and avatars in `public/assets` are placeholder artwork drawn from the brand palette by `npm run placeholders`. They stand in for generated photographs. To swap in real images, add the files and change `IMAGE_EXTENSION` in `src/services/mock/seed/assets.ts`.
+
+The page at `/dev/data` shows the seed data read through the real hooks.
 
 ## Class merging
 
