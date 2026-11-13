@@ -64,3 +64,21 @@ export const LANGUAGES = [
   'Punjabi',
 ] as const
 export type Language = (typeof LANGUAGES)[number]
+
+/** The prompts a member can answer on their profile. They choose two or three. */
+export const PROFILE_PROMPTS = [
+  { promptId: 'perfect-sunday', question: 'A perfect Sunday is…' },
+  { promptId: 'ask-me-about', question: 'Ask me about…' },
+  { promptId: 'find-me-at', question: 'You’ll find me at…' },
+  { promptId: 'looking-for', question: 'I’m looking for people to…' },
+  { promptId: 'best-of-bengaluru', question: 'The best thing about Bengaluru is…' },
+  { promptId: 'say-yes-to', question: 'I will always say yes to…' },
+  { promptId: 'new-in-town', question: 'Something I want to try in this city…' },
+] as const
+
+export const GENDER_OPTIONS = [
+  { value: 'woman', label: 'Woman' },
+  { value: 'man', label: 'Man' },
+  { value: 'non_binary', label: 'Non-binary' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+] as const
