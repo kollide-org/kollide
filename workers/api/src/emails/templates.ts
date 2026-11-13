@@ -144,15 +144,20 @@ export function renderEmail(row: EmailRow, ctx: Context): Rendered | null {
         text: `We received your report and the team will look into it.\n\nWe take safety seriously and we will handle this with care. We cannot share what happens next, to protect everyone's privacy.\n\nIf you are ever in immediate danger, please contact local emergency services first.\n${ctx.siteUrl}/app`,
       }
     case 'admin_alert': {
-      // Admins only. Never any names, notes or report details: the queue in the admin area shows those.
+      // Admins only. Never any names, notes or report details: the queue in the admin area shows those. (Monitoring alerts carry only a job name or numbers.)
       const kind = String(d.kind ?? '')
       const what =
         kind === 'safety_report' ? (d.held === true ? 'A safety report came in and put a member on hold.' : 'A safety report came in.')
         : kind === 'appeal' ? 'A member sent an appeal. We aim to answer within 48 hours.'
         : kind === 'appeal_overdue' ? 'An appeal is past its 48-hour target.'
+        : kind === 'job_late' ? `A scheduled job (${String(d.job ?? 'unknown')}) has not run successfully for a while. Check the Jobs page.`
+        : kind === 'email_cap' ? `Emails are nearly at the daily limit: ${Number(d.sent ?? 0)} of ${Number(d.cap ?? 0)} sent today. The rest go out after midnight UTC.`
+        : kind === 'db_size' ? `The database is ${Number(d.mb ?? 0)} MB. The free plan allows 500 MB.`
         : 'Something needs your attention.'
       return {
-        subject: kind === 'appeal_overdue' ? 'Appeal overdue' : kind === 'appeal' ? 'New appeal' : 'New safety report',
+        subject: kind === 'appeal_overdue' ? 'Appeal overdue' : kind === 'appeal' ? 'New appeal'
+          : kind === 'job_late' ? 'A scheduled job is not running' : kind === 'email_cap' ? 'Emails are nearly at the daily limit'
+          : kind === 'db_size' ? 'The database is getting full' : 'New safety report',
         html: layout({
           heading: 'Needs your attention',
           footer: 'You are getting this because you are a Kollide admin.',

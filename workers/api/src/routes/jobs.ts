@@ -61,13 +61,17 @@ jobs.post('/r2-cleanup', async (c) => {
     const priv = await sweep(c.env.PRIVATE, 'private', PRIVATE_KEYS, input.privateCursor, c.env)
     const purged = await db.rpc<number>('purge_old_upload_keys')
 
-    return c.json({
+    const result = {
       deletedQueued: queued.length,
       deletedOrphans: { media: media.deleted, private: priv.deleted },
       purged,
       cursors: { media: media.next, private: priv.next },
-    })
+    }
+    // The database job passes these cursors back next time, so each run continues where the last one stopped.
+    await db.rpc('record_job_run', { p_job: 'r2-cleanup', p_status: 'ok', p_detail: result, p_error: null }).catch(() => {})
+    return c.json(result)
   } catch (error) {
+    await db.rpc('record_job_run', { p_job: 'r2-cleanup', p_status: 'error', p_detail: null, p_error: error instanceof Error ? error.message : 'unknown error' }).catch(() => {})
     const { body, status } = dbErrorResponse(error)
     return c.json(body, status)
   }
@@ -171,7 +175,8 @@ jobs.post('/flush-analytics', async (c) => {
   try {
     const local = c.env.ENVIRONMENT === 'local'
     if (!local && !c.env.POSTHOG_API_KEY) {
-      await record('skipped', { reason: 'POSTHOG_API_KEY is not set' })
+      // Analytics are optional: without a key nothing is sent, and that is a healthy state (so the monitor does not alert about it)
+      await record('ok', { configured: false, reason: 'POSTHOG_API_KEY is not set: no server-side events are sent' })
       return c.json({ sent: 0, skipped: 'not configured' })
     }
     const rows = await db.rpc<AnalyticsRow[]>('claim_analytics_events', { p_limit: 50 })

@@ -46,15 +46,25 @@ select is(pg_temp.n($$update public.app_config set value = 'true' where key = 'p
   0, 'a host (not admin) CANNOT change payments_enabled');
 
 reset role; select pg_temp.act_as(1);
+-- Since B9 not even an admin can flip the payments switch over the API: P1 changes it through a migration.
 select is(pg_temp.n($$update public.app_config set value = 'true' where key = 'payments_enabled'$$),
-  1, 'an admin CAN change app_config');
-select is((select updated_by from public.app_config where key = 'payments_enabled'),
+  0, 'an admin CANNOT change payments_enabled through the API');
+select throws_ok($$insert into public.app_config (key, value) values ('payments_enabled', 'true')$$, '42501',
+  null, 'nor insert it');
+select is(pg_temp.n($$delete from public.app_config where key = 'payments_enabled'$$), 0, 'nor delete it');
+select is(private.payments_enabled(), false, 'payments stay off');
+select is(pg_temp.n($$update public.app_config set value = '"v1"' where key = 'notice_version'$$),
+  1, 'an admin CAN still change the other settings');
+select is((select updated_by from public.app_config where key = 'notice_version'),
   '00000000-0000-4000-8000-000000000001'::uuid, 'updated_by records the admin');
-select throws_ok($$update public.app_config set value = '"yes"' where key = 'payments_enabled'$$, '23514',
-  null, 'payments_enabled must be a boolean');
+select throws_ok($$update public.app_config set value = '5' where key = 'notice_version'$$, '23514',
+  null, 'notice_version must be a string');
 select is((select count(*)::int from public.admin_audit_log(null, null, null, null, null, 200, null) where table_name = 'app_config' and action = 'UPDATE'),
   1, 'the app_config change is audited');
-update public.app_config set value = 'false' where key = 'payments_enabled';
+reset role;
+-- the boolean check still protects the row for the service role and migrations
+select throws_ok($$update public.app_config set value = '"yes"' where key = 'payments_enabled'$$, '23514',
+  null, 'payments_enabled must be a boolean');
 
 -- ===== reference tables =====
 reset role; select pg_temp.act_as_anon();

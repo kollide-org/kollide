@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write # a failed backup opens (or updates) an issue
 
 jobs:
   backup:
@@ -46,6 +47,11 @@ jobs:
           test -s "$FILE"
           echo "FILE=$FILE" >> "$GITHUB_ENV"
 
+      - name: Check the backup can be read (decrypt and list its contents)
+        run: |
+          set -euo pipefail
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -pass env:BACKUP_PASSPHRASE -in "$FILE" | pg_restore --list > /dev/null
+
       - name: Upload to R2
         run: aws s3 cp "$FILE" "s3://$BUCKET/$FILE" --endpoint-url "$R2_ENDPOINT"
 
@@ -59,3 +65,14 @@ jobs:
               aws s3 rm "s3://$BUCKET/$key" --endpoint-url "$R2_ENDPOINT"
             fi
           done
+
+      # A backup that silently stops is worse than none. This tells you the next morning.
+      - name: Report a failed backup
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Nightly backup failed"
+          body="The nightly backup failed on $(date -u +%Y-%m-%d). Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"; fi

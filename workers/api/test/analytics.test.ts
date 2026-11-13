@@ -71,7 +71,7 @@ describe('POST /jobs/flush-analytics', () => {
     const res = await flush('job-secret', testEnv())
     expect(await res.json()).toMatchObject({ sent: 0, skipped: 'not configured' })
     expect(b.rpcCalls.map((c) => c.name)).not.toContain('claim_analytics_events')
-    expect(b.records.at(-1)).toMatchObject({ p_status: 'skipped' })
+    expect(b.records.at(-1)).toMatchObject({ p_status: 'ok', p_detail: { configured: false } }) // optional feature: healthy, not an alarm
   })
 
   it('sends nothing from a local machine and marks the rows skipped', async () => {

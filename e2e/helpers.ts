@@ -157,11 +157,17 @@ export async function publishedEvent(opts: { title: string; capacity: number; ap
 
 const WORKER = 'http://localhost:8787'
 
-/** Runs the email flush by hand (pg_cron has no Worker address locally) and returns what it did. */
+/** Runs the email flush by hand (pg_cron has no Worker address locally) until the queue is empty (it sends 20 a run, critical first). */
 export async function flushEmail(): Promise<{ sent: number }> {
-  const res = await fetch(`${WORKER}/jobs/flush-email`, { method: 'POST', headers: { 'x-job-secret': 'local-job-secret' } })
-  if (!res.ok) throw new Error(`flush failed: ${res.status}`)
-  return (await res.json()) as { sent: number }
+  let sent = 0
+  for (let round = 0; round < 15; round++) {
+    const res = await fetch(`${WORKER}/jobs/flush-email`, { method: 'POST', headers: { 'x-job-secret': 'local-job-secret' } })
+    if (!res.ok) throw new Error(`flush failed: ${res.status}`)
+    const body = (await res.json()) as { sent?: number; claimed?: number }
+    sent += body.sent ?? 0
+    if (!body.claimed) break
+  }
+  return { sent }
 }
 
 export interface DevMail { to: string; subject: string; template: string; html: string; text: string }

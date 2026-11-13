@@ -66,6 +66,13 @@ The build writes `dist/_headers` (the Content-Security-Policy) from these values
 
 Exact steps are in `AUTH_SETUP.md` (sign-in), `R2_SETUP.md` (images) and `EMAIL_JOBS_SETUP.md` (email and scheduled jobs): Google provider (client id and secret), URL configuration, email code settings and templates, Resend SMTP (host `smtp.resend.com`, port 465, user `resend`, API key, sender `auth@auth.<domain>`), rate limits.
 
+## GitHub repository variables (Settings → Secrets and variables → Actions → Variables)
+
+| Name | Purpose |
+|---|---|
+| `PROD_API_URL`, `STAGING_API_URL` | Worker base URLs (`https://api.<domain>`). `monitor.yml` pings `/health` hourly, and `promote-production.yml` runs a smoke test after deploying. Empty means skipped. |
+| `BACKUP_ENABLED` | `true` turns the nightly backup on. |
+
 ## Backup workflow (disabled until you set the repo variable `BACKUP_ENABLED=true`)
 
 Repository secrets, not environment secrets:

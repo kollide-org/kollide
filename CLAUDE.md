@@ -49,3 +49,11 @@ Browsers never choose an R2 key: the Worker asks `authorize_upload` for one and 
 - **Partner clicks** are counted per event per day by the Worker through `record_partner_click`; nothing about the person is kept.
 - **Job health:** every cron job needs a line in `private.job_schedule()` (a test checks it).
 - **Payments page:** read-only text, no switch.
+
+### Hardening and launch (B9)
+- **New cron job:** add a line to `private.job_schedule()` and make the job call `private.record_job_run`. `private.job_monitor()` emails admins when a scheduled job has no success within 2x its interval (`job_runs.last_ok_at`), so a job without a line, or one that never records, will alert or hide.
+- **Anon-executable functions** are pinned in `supabase/tests/250_catalog_hardening.test.sql` (also: `search_path = ''` on every function, no definer in `public`, pinned write grants). A new one needs a reason and an entry there. Admin functions start with `private.require_admin()`.
+- **New foreign key to `profiles` or `auth.users`:** classify it in `supabase/tests/270_dpdp_coverage.test.sql` (cleaned, anonymised or kept on purpose), update `export_my_data()` and `private.delete_my_account()`.
+- **`payments_enabled` changes only through a migration** (or the service role). Admins cannot write it through the API; `260_payments_refused.test.sql` covers every paid path.
+- **New rate-limited action:** call `private.check_rate_limit` inside the definer function and test the refusal like 280 does.
+- **Launch and recovery:** `docs/backend/LAUNCH_CHECKLIST.md`, `RESTORE.md`, `RATE_LIMITS.md`, `BREACH_RESPONSE.md`. `promote-production` is run by the owner, never by a session.
