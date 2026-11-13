@@ -93,7 +93,7 @@ export const PEOPLE: SeedPerson[] = ROWS.map(
     role: 'member',
     status: 'active',
     verification: 'verified',
-    showsUp: 0.93,
+    showsUp: 0.9,
     ...overrides,
   }),
 )
