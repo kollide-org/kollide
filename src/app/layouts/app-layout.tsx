@@ -6,7 +6,7 @@ import { useSession } from '@/app/providers/session-context'
 import { AppLink, AppNavLink } from '@/components/shared/app-link'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Wordmark } from '@/components/shared/wordmark'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -18,13 +18,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { spring } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { hasRole, ROLE_LABELS } from '@/services/types/role'
+import { hasRole } from '@/services/types/role'
 
 import { APP_NAV } from './app-nav'
 import { useScrolled } from './use-scrolled'
 
 export function AppLayout() {
-  const { role, setRole } = useSession()
+  const { role, session, signOut } = useSession()
+  const firstName = session?.profile?.firstName ?? 'Member'
+  const photoUrl = session?.profile?.photos[0]?.url
   const scrolled = useScrolled()
   const isHost = hasRole(role, 'host')
   const isAdmin = hasRole(role, 'admin')
@@ -90,12 +92,15 @@ export function AppLayout() {
                   className="rounded-full transition-transform duration-200 active:scale-95"
                 >
                   <Avatar className="size-10">
-                    <AvatarFallback className="bg-highlight font-semibold text-highlight-foreground">K</AvatarFallback>
+                    {photoUrl ? <AvatarImage src={photoUrl} alt="" /> : null}
+                    <AvatarFallback className="bg-highlight font-semibold text-highlight-foreground">
+                      {firstName.charAt(0)}
+                    </AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                <DropdownMenuLabel>Signed in as {ROLE_LABELS[role].toLowerCase()}</DropdownMenuLabel>
+                <DropdownMenuLabel>Signed in as {firstName}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <AppLink to="/app/settings">
@@ -112,7 +117,7 @@ export function AppLayout() {
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setRole('visitor')}>
+                <DropdownMenuItem onSelect={() => void signOut()}>
                   <LogOut aria-hidden="true" />
                   Sign out
                 </DropdownMenuItem>

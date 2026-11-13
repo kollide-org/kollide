@@ -20,7 +20,7 @@ const NAV_LINKS = [
 ]
 
 export function PublicLayout() {
-  const { role } = useSession()
+  const { role, status } = useSession()
   const scrolled = useScrolled()
   const [menuOpen, setMenuOpen] = useState(false)
   const signedIn = role !== 'visitor'
@@ -58,7 +58,7 @@ export function PublicLayout() {
 
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
-            {signedIn ? (
+            {status === 'loading' ? null : signedIn ? (
               <Button asChild variant="outline" className="hidden md:inline-flex">
                 <AppLink to={ROLE_HOME[role]}>Open Kollide</AppLink>
               </Button>

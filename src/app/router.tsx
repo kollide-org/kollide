@@ -24,6 +24,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, Component: LandingPage },
           { path: 'styleguide', lazy: () => import('@/pages/dev/styleguide') },
+          { path: 'dev/data', lazy: () => import('@/pages/dev/mock-data') },
           { path: 'how-it-works', element: <StubPage padded title="How it works" milestone={3} /> },
           { path: 'safety', element: <StubPage padded title="Safety and code of conduct" milestone={3} /> },
           { path: 'privacy', element: <StubPage padded title="Privacy" milestone={3} /> },

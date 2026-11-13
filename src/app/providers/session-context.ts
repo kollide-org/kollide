@@ -1,14 +1,17 @@
 import { createContext, useContext } from 'react'
 
+import type { Session } from '@/services'
 import type { Role } from '@/services/types/role'
 
+export const SESSION_QUERY_KEY = ['session'] as const
+
 export interface SessionContextValue {
+  /** `loading` until the auth service has answered once. */
+  status: 'loading' | 'ready'
+  session: Session | null
+  /** "visitor" when nobody is signed in. */
   role: Role
-  /**
-   * Development only. Lets every screen be tested as any role.
-   * In milestone 2 the role comes from `authService` instead.
-   */
-  setRole: (role: Role) => void
+  signOut: () => Promise<void>
 }
 
 export const SessionContext = createContext<SessionContextValue | null>(null)
