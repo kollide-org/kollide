@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { useLocation } from 'react-router'
 import { FlaskConical } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -14,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 import { devTools } from '@/services'
 import { ROLE_LABELS, ROLES, type Role } from '@/services/types/role'
 
@@ -40,6 +42,9 @@ if (devTools) window.__kollide = devTools
 export default function RoleSwitcher() {
   const { role, session } = useSession()
   const queryClient = useQueryClient()
+  const { pathname } = useLocation()
+  // On a phone the sign-in and setup screens keep their main button at the bottom, so stay out of the way.
+  const focusedFlow = pathname.startsWith('/onboarding') || pathname.startsWith('/sign-in')
 
   if (!devTools) return null
   const tools = devTools
@@ -60,7 +65,7 @@ export default function RoleSwitcher() {
   }
 
   return (
-    <div className="fixed right-3 bottom-20 z-50 md:right-4 md:bottom-4">
+    <div className={cn('fixed right-3 bottom-20 z-50 md:right-4 md:bottom-4', focusedFlow && 'hidden md:block')}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

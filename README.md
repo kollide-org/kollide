@@ -11,7 +11,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 1. Foundations (tokens, theme, fonts, base components, layouts, role switcher) | Built |
 | 2. Mock layer (types, services, seed data, placeholder artwork) | Built |
 | 3. Landing page and public pages (How it works, Safety, Privacy, Terms) | Built |
-| 4. Onboarding | Not started |
+| 4. Sign-in, onboarding and profile | Built |
 | 5. Events | Not started |
 | 6. Requests and squads | Not started |
 | 7. Bookings | Not started |
@@ -48,7 +48,7 @@ The site runs at `http://localhost:5173`.
 
 ## Stack
 
-Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. GSAP with ScrollTrigger and Lenis are used on the public pages only. Icons are Lucide throughout. Zod is added in the milestone that first uses it.
+Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. Forms use React Hook Form with Zod for validation. GSAP with ScrollTrigger and Lenis are used on the public pages only. Icons are Lucide throughout.
 
 ## Folder structure
 
@@ -137,6 +137,21 @@ In development, a floating button in the bottom-right corner signs you in as the
 | Member | Ananya | A plan to reconfirm, a pending request, a waitlist place, a gentle decline, two paid bookings, ₹900 credit, and feedback to give |
 | Host | Arjun | A request inbox with six requests and two people on the waitlist |
 | Admin | Meera | Host applications, an event to approve, open reports, an appeal and a collusion flag |
+
+## Sign-in and onboarding
+
+Both ways of signing in go through `authService`, so nothing here is a real login yet.
+
+- **Google:** "Continue with Google" signs in as a new account (`you@gmail.com` in mock mode).
+- **Email code:** enter an email, then a 6-digit code. In mock mode the code is always `123456`, and the screen says so. Use a seeded address such as `ananya.rao@example.com` to sign in as an existing member.
+
+An account without a finished profile can only reach `/onboarding`. The steps, in order: first name, date of birth, gender, area, three photos, interests, languages, prompts, mobile number, an optional selfie, and consent.
+
+- Date of birth comes second, so nobody under 18 is asked for photos or a phone number before being turned away.
+- Each step has its own address (`/onboarding/photos`), so the browser's back button works. A step cannot be opened until the ones before it are done.
+- The draft is saved to `localStorage` as it is typed, one per account, so a refresh loses nothing.
+- Photos are cropped to four by five in the browser and stored as WebP (JPEG where the browser cannot write WebP).
+- Validation rules live in `src/features/onboarding/schemas.ts` as Zod schemas, with tests. The mock service checks the same rules again.
 
 ## Mock and real services
 
