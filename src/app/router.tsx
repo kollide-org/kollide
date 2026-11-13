@@ -29,10 +29,17 @@ export const router = createBrowserRouter([
           { path: 'safety', lazy: () => import('@/pages/public/safety') },
           { path: 'privacy', lazy: () => import('@/pages/public/privacy') },
           { path: 'terms', lazy: () => import('@/pages/public/terms') },
-          { path: 'sign-in', element: <StubPage padded title="Sign in" milestone={4} /> },
           { path: 'events/:slug', element: <StubPage padded title="Event preview" milestone={5} /> },
         ],
       },
+      {
+        lazy: async () => ({ Component: (await import('@/pages/auth/auth-layout')).AuthLayout }),
+        children: [
+          { path: 'sign-in', lazy: () => import('@/pages/auth/sign-in') },
+          { path: 'sign-in/code', lazy: () => import('@/pages/auth/sign-in-code') },
+        ],
+      },
+      { path: 'onboarding/:step?', lazy: () => import('@/pages/onboarding') },
       {
         element: <RequireRole minimum="member" />,
         children: [
@@ -54,7 +61,8 @@ export const router = createBrowserRouter([
               { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
               { path: 'squads', element: <StubPage title="Squads" milestone={6} /> },
               { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
-              { path: 'profile', element: <StubPage title="Profile" milestone={4} /> },
+              { path: 'profile', lazy: () => import('@/pages/app/profile') },
+              { path: 'people/:userId', lazy: () => import('@/pages/app/person') },
               { path: 'settings', element: <StubPage title="Settings" milestone={9} /> },
               {
                 element: <RequireRole minimum="host" />,

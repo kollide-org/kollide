@@ -1,4 +1,4 @@
-import { ClipboardList, LogOut, Settings, ShieldCheck } from 'lucide-react'
+import { CircleUser, ClipboardList, LogOut, Settings, ShieldCheck } from 'lucide-react'
 import * as m from 'motion/react-m'
 import { Outlet } from 'react-router'
 
@@ -102,6 +102,12 @@ export function AppLayout() {
               <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuLabel>Signed in as {firstName}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <AppLink to="/app/profile">
+                    <CircleUser aria-hidden="true" />
+                    Your profile
+                  </AppLink>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <AppLink to="/app/settings">
                     <Settings aria-hidden="true" />
