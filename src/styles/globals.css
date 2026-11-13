@@ -47,6 +47,9 @@
   --color-destructive-soft: var(--destructive-soft);
   --color-on-status: var(--on-status);
   --color-on-warning: var(--on-warning);
+  /* A seasonal hub sets --hub-accent on its section. Outside a hub these fall back to the highlight. */
+  --color-hub-accent: var(--hub-accent, var(--highlight));
+  --color-hub-accent-foreground: var(--hub-accent-foreground, var(--highlight-foreground));
   --color-brand-cherry: var(--brand-cherry);
   --color-brand-dusty: var(--brand-dusty);
   --color-brand-antique: var(--brand-antique);
