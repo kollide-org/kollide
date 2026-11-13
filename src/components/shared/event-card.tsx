@@ -7,11 +7,11 @@ import { mediaUrl } from '@/lib/media'
 import type { EventCard } from '@/services'
 
 /** One event in a list. Shows the area, never the address. */
-export function EventCardView({ event }: { event: EventCard }) {
+export function EventCardView({ event, hub }: { event: EventCard; hub?: string }) {
   const cover = event.coverKey ? mediaUrl(event.coverKey) : ''
   return (
     <AppLink
-      to={`/app/events/${event.id}`}
+      to={`/app/events/${event.id}${hub ? `?hub=${encodeURIComponent(hub)}` : ''}`}
       className="group grid overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <div className="aspect-[16/9] w-full bg-gradient-to-br from-primary-soft to-secondary">

@@ -65,13 +65,13 @@ type Handler = (args: Record<string, unknown>) => unknown
 export function mockBackend(handlers: {
   rpc?: Record<string, Handler>
   tables?: Record<string, () => unknown[]>
-  /** Answers requests to any other host (for example Brevo). */
+  /** Answers requests to any other host (for example Brevo or PostHog). */
   external?: (url: URL, init?: RequestInit) => Response | Promise<Response>
 }) {
   const rpcCalls: { name: string; args: Record<string, unknown> }[] = []
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : (input as Request).url)
-    if (url.host === 'api.brevo.com') return handlers.external ? handlers.external(url, init) : Response.json({ message: 'unexpected' }, { status: 500 })
+    if (url.host === 'api.brevo.com' || url.host === 'eu.i.posthog.com') return handlers.external ? handlers.external(url, init) : Response.json({ message: 'unexpected' }, { status: 500 })
     if (url.pathname.endsWith('/.well-known/jwks.json')) return Response.json(jwks)
     if (url.pathname.startsWith('/rest/v1/rpc/')) {
       const name = url.pathname.replace('/rest/v1/rpc/', '')

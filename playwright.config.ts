@@ -24,7 +24,19 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
-  use: { baseURL: 'http://localhost:5173', trace: 'retain-on-failure' },
+  // Specs that are not about cookies start with optional cookies already rejected, so the banner never covers a button.
+  use: {
+    baseURL: 'http://localhost:5173',
+    trace: 'retain-on-failure',
+    storageState: {
+      cookies: [{
+        name: 'kollide_consent',
+        value: encodeURIComponent(JSON.stringify({ v: 'v1', a: '00000000-0000-4000-8000-0000000000e2', preferences: false, analytics: false, marketing: false, t: 1 })),
+        domain: 'localhost', path: '/', expires: -1, httpOnly: false, secure: false, sameSite: 'Lax',
+      }],
+      origins: [],
+    },
+  },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
@@ -45,6 +57,11 @@ export default defineConfig({
         VITE_SUPABASE_ANON_KEY: supabase.anonKey,
         VITE_API_URL: WORKER,
         VITE_MEDIA_URL: `${WORKER}/media`,
+        // dummy ids: the consent spec proves nothing loads without permission (every host is intercepted there)
+        VITE_APP_ENV: 'local',
+        VITE_POSTHOG_KEY: 'phc_e2e_dummy',
+        VITE_META_PIXEL_ID: '1234567890',
+        VITE_GOOGLE_ADS_ID: 'AW-1234567890',
       },
     },
   ],

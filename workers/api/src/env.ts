@@ -25,4 +25,6 @@ export type Env = {
   R2_SECRET_ACCESS_KEY: string
   JOB_SHARED_SECRET: string
   BREVO_API_KEY: string
+  /** PostHog project API key (server-side funnel events). Unset means no server-side events are sent. */
+  POSTHOG_API_KEY?: string
 }

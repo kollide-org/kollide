@@ -4,6 +4,7 @@ import type { Env } from '../env'
 import { sendBrevo } from '../lib/brevo'
 import { renderEmail, type EmailRow } from '../emails/templates'
 import { dbErrorResponse, safeEqual, type AppEnv } from '../lib/http'
+import { capture } from '../lib/posthog'
 import { supabaseAdmin } from '../lib/supabase-admin'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -144,6 +145,61 @@ jobs.post('/flush-email', async (c) => {
       sent_today: total, daily_cap: DAILY_CAP,
     })
     return c.json({ claimed: rows.length, sent: count('sent'), retry: count('retry'), failed: count('failed'), skipped: count('skipped'), sentToday: total })
+  } catch (error) {
+    await record('error', null, error instanceof Error ? error.message : 'unknown error')
+    const { body, status } = dbErrorResponse(error)
+    return c.json(body, status)
+  }
+})
+
+// ---------------------------------------------------------------- analytics
+type AnalyticsRow = { id: number; event: string; user_id: string; properties: Record<string, unknown>; occurred_at: string; attempts: number }
+
+/**
+ * POST /jobs/flush-analytics   header: X-Job-Secret   (called every minute by pg_cron, only when something is queued)
+ * Sends the funnel events the database queued (only for people who allowed Analytics, checked again when claimed) to PostHog EU
+ * in one batch, with the environment on every event. Nothing leaves the machine locally. Records its result in job_runs.
+ */
+jobs.post('/flush-analytics', async (c) => {
+  if (!(await safeEqual(c.req.header('x-job-secret') ?? '', c.env.JOB_SHARED_SECRET ?? ''))) {
+    return c.json({ error: 'unauthorized' }, 401)
+  }
+  const db = supabaseAdmin(c.env)
+  const record = (status: 'ok' | 'warning' | 'error' | 'skipped', detail: Record<string, unknown> | null, error?: string) =>
+    db.rpc('record_job_run', { p_job: 'flush-analytics', p_status: status, p_detail: detail, p_error: error ?? null }).catch(() => {})
+
+  try {
+    const local = c.env.ENVIRONMENT === 'local'
+    if (!local && !c.env.POSTHOG_API_KEY) {
+      await record('skipped', { reason: 'POSTHOG_API_KEY is not set' })
+      return c.json({ sent: 0, skipped: 'not configured' })
+    }
+    const rows = await db.rpc<AnalyticsRow[]>('claim_analytics_events', { p_limit: 50 })
+    if (rows.length === 0) {
+      await record('ok', { claimed: 0 })
+      return c.json({ claimed: 0, sent: 0 })
+    }
+
+    type Result = { id: number; outcome: 'sent' | 'retry' | 'failed' | 'skipped'; error?: string }
+    let results: Result[]
+    if (local) {
+      results = rows.map((r) => ({ id: r.id, outcome: 'skipped', error: 'local environment: nothing is sent' }))
+    } else {
+      const sent = await capture(
+        c.env.POSTHOG_API_KEY as string,
+        rows.map((r) => ({
+          event: r.event, distinct_id: r.user_id, timestamp: r.occurred_at,
+          properties: { ...r.properties, env: c.env.ENVIRONMENT, $lib: 'kollide-worker' },
+        })),
+      )
+      results = rows.map((r) => (sent.ok ? { id: r.id, outcome: 'sent' } : { id: r.id, outcome: sent.retry ? 'retry' : 'failed', error: sent.error }))
+    }
+    await db.rpc('finish_analytics_events', { p_results: results })
+
+    const count = (outcome: Result['outcome']) => results.filter((r) => r.outcome === outcome).length
+    const detail = { claimed: rows.length, sent: count('sent'), retry: count('retry'), failed: count('failed'), skipped: count('skipped') }
+    await record(detail.failed > 0 ? 'warning' : 'ok', detail)
+    return c.json(detail)
   } catch (error) {
     await record('error', null, error instanceof Error ? error.message : 'unknown error')
     const { body, status } = dbErrorResponse(error)

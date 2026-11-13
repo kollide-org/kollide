@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
           { path: 'styleguide', lazy: () => import('@/pages/dev/styleguide') },
           { path: 'how-it-works', element: <StubPage padded title="How it works" milestone={3} /> },
           { path: 'safety', element: <StubPage padded title="Safety and code of conduct" milestone={3} /> },
-          { path: 'privacy', element: <StubPage padded title="Privacy" milestone={3} /> },
+          { path: 'privacy', lazy: () => import('@/pages/public/privacy') },
           { path: 'terms', element: <StubPage padded title="Terms" milestone={3} /> },
           { path: 'sign-in', lazy: () => import('@/pages/public/sign-in') },
           { path: 'auth/callback', lazy: () => import('@/pages/public/auth-callback') },

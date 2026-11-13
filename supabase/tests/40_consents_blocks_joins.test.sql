@@ -23,21 +23,20 @@ begin
 end $$;
 
 -- ===== consents =====
+-- Since B8 nobody writes the table directly: record_consent validates the notice version and rate-limits.
 select pg_temp.act_as_anon();
-select lives_ok($$insert into public.consents (anonymous_id, purpose, notice_version, granted)
-  values ('11111111-1111-4111-8111-111111111111', 'analytics', 'v1', true)$$, 'a logged-out visitor CAN record a cookie choice');
+select lives_ok($$select public.record_consent('11111111-1111-4111-8111-111111111111', 'v1', true, true, false)$$, 'a logged-out visitor CAN record a cookie choice');
+select throws_ok($$insert into public.consents (anonymous_id, purpose, notice_version, granted)
+  values ('11111111-1111-4111-8111-111111111111', 'analytics', 'v1', true)$$, '42501', null, 'but CANNOT write the table directly');
 select throws_ok($$insert into public.consents (user_id, purpose, notice_version, granted)
   values ('00000000-0000-4000-8000-000000000003', 'analytics', 'v1', true)$$, '42501', null, 'a stranger CANNOT record consent as a member');
-select throws_ok($$insert into public.consents (purpose, notice_version, granted) values ('analytics', 'v1', true)$$, '42501',
-  null, 'a consent needs a user or an anonymous id');
 select throws_ok($$select * from public.consents$$, '42501', null, 'a stranger CANNOT read consents (not even their own)');
 
 reset role; select pg_temp.act_as(3);
-select lives_ok($$insert into public.consents (user_id, purpose, notice_version, granted)
-  values ('00000000-0000-4000-8000-000000000003', 'terms', 'v1', true)$$, 'a member CAN record their own consent');
+select lives_ok($$select public.record_consent(null, 'v1', false, false, false)$$, 'a member CAN record their own choice');
 select throws_ok($$insert into public.consents (user_id, purpose, notice_version, granted)
   values ('00000000-0000-4000-8000-000000000004', 'terms', 'v1', true)$$, '42501', null, 'a member CANNOT record consent for someone else');
-select is((select count(*)::int from public.consents), 1, 'a member CAN read only their own consents');
+select is((select count(*)::int from public.consents), 3, 'a member CAN read only their own consents');
 select throws_ok($$update public.consents set granted = false$$, '42501', null, 'consents CANNOT be edited (append-only)');
 select throws_ok($$delete from public.consents$$, '42501', null, 'consents CANNOT be deleted by the owner');
 
@@ -45,7 +44,7 @@ reset role; select pg_temp.act_as(5);
 select is((select count(*)::int from public.consents), 0, 'another member CANNOT read them');
 
 reset role; select pg_temp.act_as(1);
-select is((select count(*)::int from public.consents), 2, 'an admin CAN read all consents');
+select is((select count(*)::int from public.consents), 6, 'an admin CAN read all consents');
 
 -- ===== user_blocks =====
 reset role; select pg_temp.act_as(3);

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { pictureFile, GPS_MARKER } from './fixtures.ts'
-import { finishOnboarding, signInWithCode, uniqueEmail } from './helpers.ts'
+import { finishOnboarding, signInWithCode, uniqueEmail, newContext } from './helpers.ts'
 
 const WORKER = 'http://localhost:8787'
 
@@ -50,7 +50,7 @@ test('photos: stripped of location, shrunk to WebP, replaced and removed; selfie
   await expect(page.getByText('Your selfie is waiting for review')).toBeVisible()
 
   // An admin views the selfie and approves it.
-  const adminContext = await browser.newContext()
+  const adminContext = await newContext(browser)
   const admin = await adminContext.newPage()
   await signInWithCode(admin, 'asha.admin@kollide.test')
   await expect(admin).toHaveURL(/\/app$/)

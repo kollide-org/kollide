@@ -1,6 +1,8 @@
 import { BadgeCheck, CalendarClock, CalendarX, MapPin, ShieldCheck, Ticket, Users } from 'lucide-react'
-import { useParams } from 'react-router'
+import { useEffect, useRef } from 'react'
+import { useParams, useSearchParams } from 'react-router'
 
+import { useConsent } from '@/app/providers/consent-context'
 import { useSession } from '@/app/providers/session-context'
 import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -11,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useEvent, useEventAddress } from '@/hooks/use-events'
+import { track } from '@/lib/analytics'
 import { apiUrl } from '@/lib/api-url'
 import { formatWhen, priceText } from '@/lib/format'
 import { mediaUrl } from '@/lib/media'
@@ -20,6 +23,17 @@ export function Component() {
   const event = useEvent(id)
   const address = useEventAddress(id)
   const { user, role } = useSession()
+  const { choice } = useConsent()
+  const [params] = useSearchParams()
+  const hub = params.get('hub')
+  const viewed = useRef<string | null>(null)
+  useEffect(() => {
+    const d = event.data
+    if (!d || viewed.current === d.id) return
+    viewed.current = d.id
+    // interest only: ids and categories, never anything about the person
+    track('event_viewed', { event_id: d.id, category: d.categoryName, area: d.areaName, price_band: d.pricingMode, hub })
+  }, [event.data, hub])
 
   if (event.isPending) return <Skeleton className="h-96 w-full" />
   if (!event.data) {
@@ -75,7 +89,7 @@ export function Component() {
           {e.hostIsVerified ? <BadgeCheck aria-label="Verified host" className="size-4 text-primary" /> : null}
         </p>
 
-        <section aria-label="Address" className="grid gap-1 border-t border-border pt-4">
+        <section aria-label="Address" className="ph-no-capture grid gap-1 border-t border-border pt-4">
           <h2 className="text-h3">Where</h2>
           {address.data?.address ? (
             <>
@@ -90,7 +104,7 @@ export function Component() {
         {e.hasPartnerLink ? (
           <div className="grid gap-2">
             <Button asChild size="lg">
-              <a href={apiUrl(`/go/${e.id}`)} rel="noopener noreferrer" target="_blank">
+              <a href={apiUrl(`/go/${e.id}${user && choice?.analytics ? `?u=${user.id}` : ''}`)} rel="noopener noreferrer" target="_blank">
                 <Ticket /> Get tickets
               </a>
             </Button>

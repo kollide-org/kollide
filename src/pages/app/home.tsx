@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
 import { AppLink } from '@/components/shared/app-link'
@@ -11,9 +11,24 @@ import { Label } from '@/components/ui/label'
 import { useAppConfig } from '@/hooks/use-app-config'
 import { useEventSearch, useFeaturedEvents, useHubs } from '@/hooks/use-events'
 import { useReferenceData } from '@/hooks/use-reference-data'
+import { track } from '@/lib/analytics'
 import { PRICE_OPTIONS } from '@/lib/format'
 import { mediaUrl } from '@/lib/media'
+import { readPreference, writePreference } from '@/lib/preferences'
 import type { EventFilters, PricingMode } from '@/services'
+
+const FILTERS_KEY = 'kollide:filters'
+interface SavedFilters { area?: string; category?: string; pricing?: string; womenOnly?: boolean; groupSize?: string }
+
+/** The filters used last, when the person allows Preferences (otherwise they only last until the page is reloaded). */
+function readSavedFilters(): SavedFilters {
+  try {
+    const parsed = JSON.parse(readPreference(FILTERS_KEY) ?? '{}') as SavedFilters
+    return typeof parsed === 'object' && parsed !== null ? parsed : {}
+  } catch {
+    return {}
+  }
+}
 
 /** The feed: featured events, seasonal hubs, and every upcoming event with filters. */
 export function Component() {
@@ -23,11 +38,12 @@ export function Component() {
   const featured = useFeaturedEvents()
   const hubs = useHubs()
 
-  const [area, setArea] = useState('')
-  const [category, setCategory] = useState('')
-  const [pricing, setPricing] = useState('')
-  const [womenOnly, setWomenOnly] = useState(false)
-  const [groupSize, setGroupSize] = useState('')
+  const [saved] = useState(readSavedFilters)
+  const [area, setArea] = useState(saved.area ?? '')
+  const [category, setCategory] = useState(saved.category ?? '')
+  const [pricing, setPricing] = useState(saved.pricing ?? '')
+  const [womenOnly, setWomenOnly] = useState(saved.womenOnly === true)
+  const [groupSize, setGroupSize] = useState(saved.groupSize ?? '')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
 
@@ -43,6 +59,29 @@ export function Component() {
   const events = useEventSearch(filters)
   const hasFilters = Object.values(filters).some((value) => value !== undefined)
   const paymentsEnabled = config.data?.paymentsEnabled ?? false
+
+  // Remember the last filters (the browser only keeps them with Preferences consent).
+  useEffect(() => {
+    const empty = !area && !category && !pricing && !womenOnly && !groupSize
+    writePreference(FILTERS_KEY, empty ? null : JSON.stringify({ area, category, pricing, womenOnly, groupSize }))
+  }, [area, category, pricing, womenOnly, groupSize])
+
+  // Interest events: which filters people use, and that a filtered search ran. No values that identify anyone.
+  const activeKeys = Object.entries(filters).filter(([, value]) => value !== undefined).map(([key]) => key)
+  const filterSignature = activeKeys.join(',') + JSON.stringify(filters)
+  const lastFilters = useRef<string | null>(null)
+  useEffect(() => {
+    if (lastFilters.current !== null && lastFilters.current !== filterSignature && activeKeys.length > 0) {
+      track('filter_applied', { filters: activeKeys, active_count: activeKeys.length })
+    }
+    lastFilters.current = filterSignature
+  }, [filterSignature]) // eslint-disable-line react-hooks/exhaustive-deps
+  const lastSearch = useRef<string | null>(null)
+  useEffect(() => {
+    if (!events.data || events.isFetching || activeKeys.length === 0 || lastSearch.current === filterSignature) return
+    lastSearch.current = filterSignature
+    track('search_performed', { active_count: activeKeys.length, result_count: events.data.length })
+  }, [events.data, events.isFetching]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="grid gap-10">

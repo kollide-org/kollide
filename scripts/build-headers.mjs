@@ -34,13 +34,25 @@ const google = 'https://accounts.google.com'
 
 const join = (...parts) => parts.filter(Boolean).join(' ')
 
+// Advertising pixels (Marketing consent). Their hosts are in the policy ONLY when an id is configured: with no id, nothing is allowed.
+const meta = env.VITE_META_PIXEL_ID
+  ? { script: ['https://connect.facebook.net'], connect: ['https://www.facebook.com', 'https://connect.facebook.net'], img: ['https://www.facebook.com'] }
+  : { script: [], connect: [], img: [] }
+const ads = env.VITE_GOOGLE_ADS_ID
+  ? {
+      script: ['https://www.googletagmanager.com'],
+      connect: ['https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com', 'https://stats.g.doubleclick.net', 'https://googleads.g.doubleclick.net', 'https://www.google.com'],
+      img: ['https://www.googletagmanager.com', 'https://googleads.g.doubleclick.net', 'https://www.google.com'],
+    }
+  : { script: [], connect: [], img: [] }
+
 const csp = [
   "default-src 'self'",
-  join("script-src 'self'", posthog[1]),
+  join("script-src 'self'", posthog[1], ...meta.script, ...ads.script),
   "style-src 'self' 'unsafe-inline'", // React and Motion set inline style attributes
-  join("img-src 'self' data: blob:", media),
+  join("img-src 'self' data: blob:", media, ...meta.img, ...ads.img),
   "font-src 'self'",
-  join("connect-src 'self'", supabase, api, upload, ...posthog, google),
+  join("connect-src 'self'", supabase, api, upload, ...posthog, google, ...meta.connect, ...ads.connect),
   join('frame-src', google),
   "worker-src 'self' blob:",
   "object-src 'none'",
