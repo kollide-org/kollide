@@ -9,6 +9,7 @@
     "cn": "cn build --content \"src/**/*.{ts,tsx}\" -o src/lib/cn-tables.ts -q",
     "lint": "oxlint",
     "test": "vitest run",
+    "placeholders": "node scripts/generate-placeholders.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
