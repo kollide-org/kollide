@@ -30,7 +30,7 @@ const ARCHIVE_GUESTS: Record<string, string[]> = {
   'ev-past-07': ['u12', 'u13'],
 }
 /** People who booked a past event and then did not turn up. */
-const ARCHIVE_NO_SHOWS: Record<string, string[]> = { 'ev-past-05': ['u27'], 'ev-past-03': ['u35'] }
+const ARCHIVE_NO_SHOWS: Record<string, string[]> = { 'ev-past-05': ['u27'], 'ev-past-03': ['u35'], 'ev-past-09': ['u02'] }
 /** A trio who only ever review each other. The collusion check should flag them. */
 const CLOSED_TRIO = ['u14', 'u15', 'u16']
 

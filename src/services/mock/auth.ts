@@ -1,3 +1,4 @@
+import type { DevTools } from '../index'
 import type { AuthService } from '../interfaces'
 import type { Role, Session, User } from '../types'
 
@@ -105,7 +106,7 @@ export const mockAuthService: AuthService = {
  * Development helpers. They exist only in the mock layer and are reached
  * through `devTools` in `@/services`, never through a service interface.
  */
-export const mockDevTools = {
+export const mockDevTools: DevTools = {
   emailCode: MOCK_EMAIL_CODE,
 
   /** Signs in as the seeded account for a role, or signs out for "visitor". */
@@ -130,4 +131,3 @@ export const mockDevTools = {
   },
 }
 
-export type DevTools = typeof mockDevTools
