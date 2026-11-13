@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { authService } from '@/services'
 
@@ -8,10 +8,18 @@ import { SESSION_QUERY_KEY, SessionContext, type SessionContextValue } from './s
 /** Holds who is signed in. Everything it knows comes from `authService`. */
 export function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
+  // Ask once the first screen has painted, so the request never delays it.
+  const [painted, setPainted] = useState(false)
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setPainted(true))
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
   const { data, isPending } = useQuery({
     queryKey: SESSION_QUERY_KEY,
     queryFn: () => authService.getSession(),
     staleTime: Infinity,
+    enabled: painted,
   })
 
   const signOut = useCallback(async () => {
