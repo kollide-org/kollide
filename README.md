@@ -10,7 +10,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 |---|---|
 | 1. Foundations (tokens, theme, fonts, base components, layouts, role switcher) | Built |
 | 2. Mock layer (types, services, seed data, placeholder artwork) | Built |
-| 3. Landing page | Not started |
+| 3. Landing page and public pages (How it works, Safety, Privacy, Terms) | Built |
 | 4. Onboarding | Not started |
 | 5. Events | Not started |
 | 6. Requests and squads | Not started |
@@ -48,7 +48,7 @@ The site runs at `http://localhost:5173`.
 
 ## Stack
 
-Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. Icons are Lucide throughout. Zod, GSAP and Lenis are added in the milestones that first use them.
+Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. GSAP with ScrollTrigger and Lenis are used on the public pages only. Icons are Lucide throughout. Zod is added in the milestone that first uses it.
 
 ## Folder structure
 
@@ -103,11 +103,28 @@ The style guide at `/styleguide` shows every token and component in both themes.
 
 ## Motion
 
+Four tools, each with one job:
+
+| Tool | Used for | Where |
+|---|---|---|
+| CSS | Entrances at the top of a page (`rise-in`, `line-reveal`) and slow decorative loops | Everywhere |
+| Motion for React | Interface animation: staggered lists, scene changes, scroll-linked parallax | Everywhere |
+| GSAP with ScrollTrigger | The two scroll moments: the statement that comes into focus word by word, and the pinned "How it works" sequence | Landing page only |
+| Lenis | Smooth scrolling | Public pages only, never inside the app |
+
+Rules:
+
 - Use `m.*` components from `motion/react-m`, not `motion.*`. The animation engine is loaded after first paint through `LazyMotion`, and a full `motion.*` component throws an error in development.
-- Shared springs and the stagger presets are in `src/lib/motion.ts`.
+- Anything visible on first load animates with CSS, so it never waits for JavaScript.
 - Animate position, scale and opacity only. Interface feedback lasts 150 to 300 ms.
-- The operating system's "reduce motion" setting is respected for Motion, CSS animations and page transitions.
+- Shared springs and the stagger presets are in `src/lib/motion.ts`.
+- GSAP is fetched on the first scroll, through `useScrollMoment` in `src/pages/public/landing`. Lenis is fetched when the browser is idle.
+- The operating system's "reduce motion" setting is respected everywhere. With it on, the landing page shows the steps as a plain list, text is fully visible, and Lenis stops smoothing.
 - Links use the View Transitions API where the browser supports it. Use `AppLink` and `AppNavLink` from `src/components/shared/app-link.tsx` instead of React Router's `Link`.
+
+## Performance
+
+The first bundle holds the hero and nothing else from the landing page. The sections below it load once the hero has painted and mount one at a time. The mock backend, GSAP, Lenis, the mobile menu and toasts are all separate chunks, loaded when they are first needed.
 
 ## Roles
 
