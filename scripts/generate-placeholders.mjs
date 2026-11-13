@@ -140,12 +140,11 @@ function avatar(person, variant) {
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`,
-    `<defs><linearGradient id="g" gradientTransform="rotate(${45 + variant * 30} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient>${grain('n')}</defs>`,
+    `<defs><linearGradient id="g" gradientTransform="rotate(${45 + variant * 30} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>`,
     `<rect width="${size}" height="${size}" fill="url(#g)"/>`,
     `<circle cx="${round(cx)}" cy="${round(cy)}" r="${round(r)}" fill="${accent}" opacity=".3"/>`,
     variant === 2 ? `<circle cx="${round(size - cx)}" cy="${round(size - cy)}" r="${round(r * 0.7)}" fill="none" stroke="${ink}" stroke-width="1.5" opacity=".35"/>` : '',
     `<path transform="translate(${round(x)} ${round(y)}) scale(${round(scale * 1000) / 1000})" fill="${ink}" d="${glyph.d}"/>`,
-    `<rect width="${size}" height="${size}" filter="url(#n)" opacity=".4" style="mix-blend-mode:soft-light"/>`,
     `</svg>`,
   ].join('')
 }
