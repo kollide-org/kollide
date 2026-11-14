@@ -47,3 +47,18 @@ export function spotsLabel(spotsLeft: number): string {
   if (spotsLeft <= 0) return 'Full'
   return `${spotsLeft} ${spotsLeft === 1 ? 'spot' : 'spots'} left`
 }
+
+/** "7:30 pm to 10:30 pm" */
+export function formatTimeRange(startsAt: string, endsAt: string): string {
+  return `${formatTime(startsAt)} to ${formatTime(endsAt)}`
+}
+
+/** "18 and over" or "21 to 40". */
+export function ageRangeLabel(range: { min: number; max: number | null }): string {
+  return range.max ? `${range.min} to ${range.max}` : `${range.min} and over`
+}
+
+/** 0.96 becomes "96%". */
+export function percent(share: number): string {
+  return `${Math.round(share * 100)}%`
+}
