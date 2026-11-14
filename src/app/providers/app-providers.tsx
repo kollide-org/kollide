@@ -1,6 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { LazyMotion, MotionConfig } from 'motion/react'
-import { lazy, Suspense, useState, type ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
+
+import { queryClient } from '@/app/query-client'
 
 import { SessionProvider } from './session-provider'
 import { ThemeProvider } from './theme-provider'
@@ -9,21 +11,7 @@ import { ThemeProvider } from './theme-provider'
 const loadMotionFeatures = () => import('@/lib/motion-features').then((module) => module.default)
 const Toaster = lazy(() => import('@/components/ui/sonner').then((module) => ({ default: module.Toaster })))
 
-function createQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 30_000,
-        retry: 1,
-        refetchOnWindowFocus: false,
-      },
-    },
-  })
-}
-
 export function AppProviders({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(createQueryClient)
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

@@ -12,7 +12,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 2. Mock layer (types, services, seed data, placeholder artwork) | Built |
 | 3. Landing page and public pages (How it works, Safety, Privacy, Terms) | Built |
 | 4. Sign-in, onboarding and profile | Built |
-| 5. Events | Not started |
+| 5. Events (home, filters, hubs, event page, create event, admin approval) | Built |
 | 6. Requests and squads | Not started |
 | 7. Bookings | Not started |
 | 8. After the event | Not started |
@@ -126,6 +126,8 @@ Rules:
 
 The first bundle holds the hero and nothing else from the landing page. The sections below it load once the hero has painted and mount one at a time. The mock backend, GSAP, Lenis, the mobile menu and toasts are all separate chunks, loaded when they are first needed.
 
+A page that shows data, such as an event page, starts fetching its data in the route loader, at the same moment its code is requested. Its cover image still cannot start loading until that data has arrived, so on a slow phone the event page paints its largest element later than the landing page does.
+
 ## Roles
 
 There are four roles: visitor, member, host and admin. `RequireRole` in `src/app/guards` hides routes a role may not see. This is a courtesy in the interface; real enforcement belongs to the backend.
@@ -152,6 +154,15 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - The draft is saved to `localStorage` as it is typed, one per account, so a refresh loses nothing.
 - Photos are cropped to four by five in the browser and stored as WebP (JPEG where the browser cannot write WebP).
 - Validation rules live in `src/features/onboarding/schemas.ts` as Zod schemas, with tests. The mock service checks the same rules again.
+
+## Events
+
+- **Home (`/app`):** the active seasonal hub, squads forming, then the event feed.
+- **Filters:** date, area, kind of event, cost, group size and women-only. They live in the page address (`/app?price=free&areas=Indiranagar`), so a filtered view can be shared and the back button steps through changes. "Free" means no entry cost, so it includes pay-at-venue events.
+- **Hubs:** `HubSection` takes any hub: a title, artwork, an accent colour and its events. The accent arrives as a CSS variable, so nothing is styled for one season.
+- **Event page:** `/events/:slug` is the public preview and `/app/events/:slug` is the member's page. They share one view. The exact address is fetched separately, and only once the service says the viewer may see it. Guest names appear only to people who are going.
+- **The main button** depends on the kind of event: "Request to join" for community events, "Book" for Kollide's own, and "Get tickets" (an outbound link) with "Join a squad" for partner events.
+- **Creating an event (`/app/host/new`):** seven steps, saved as they are written. House parties are capped at 25 guests. Every new event waits for approval at `/admin/events` before it is listed.
 
 ## Mock and real services
 
