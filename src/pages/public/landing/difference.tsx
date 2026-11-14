@@ -9,7 +9,7 @@ import { useCountUp } from '@/lib/use-count-up'
 import { cn } from '@/lib/utils'
 import { POSITIVE_TAGS } from '@/services/types/review'
 
-import { SquadRing } from './squad-ring'
+import { SquadRing } from '@/components/people/squad-ring'
 
 const avatar = (id: string) => `/assets/avatars/${id}-1.svg`
 

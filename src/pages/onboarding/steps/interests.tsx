@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { interestsSchema, languagesSchema, MAX_INTERESTS, MIN_INTERESTS } from '@/features/onboarding/schemas'
 import { INTERESTS, LANGUAGES } from '@/services/types/common'
 
-import { ChoiceChips } from '../choice'
-import { FieldError, StepForm } from '../step-form'
+import { ChoiceChips } from '@/components/forms/choice'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 
