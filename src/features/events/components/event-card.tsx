@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react'
 
+import { useSession } from '@/app/providers/session-context'
 import { AvatarStack } from '@/components/people/avatar-stack'
 import { VerifiedBadge } from '@/components/people/verified-badge'
 import { AppLink } from '@/components/shared/app-link'
@@ -21,7 +22,10 @@ interface EventCardProps {
  * It shows the area, never the address.
  */
 export function EventCard({ event, priority = false, className }: EventCardProps) {
+  const { role } = useSession()
   const [weekday, ...date] = formatDay(event.startsAt).split(' ')
+  // Visitors get the public preview. Members get the full event page.
+  const href = role === 'visitor' ? `/events/${event.slug}` : `/app/events/${event.slug}`
 
   return (
     <article
@@ -58,7 +62,7 @@ export function EventCard({ event, priority = false, className }: EventCardProps
           {formatTime(event.startsAt)}
         </p>
         <h3 className="mt-2 text-h4">
-          <AppLink to={`/events/${event.slug}`} className="outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ring">
+          <AppLink to={href} className="outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ring">
             {event.title}
           </AppLink>
         </h3>
