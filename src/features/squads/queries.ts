@@ -14,3 +14,7 @@ export const squadKeys = {
 export function useSquadsForming() {
   return useQuery({ queryKey: squadKeys.forming, queryFn: () => squadService.listSquadsForming() })
 }
+
+export function useSquadsForEvent(eventId: string, enabled = true) {
+  return useQuery({ queryKey: squadKeys.forEvent(eventId), queryFn: () => squadService.listSquadsForEvent(eventId), enabled })
+}
