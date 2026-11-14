@@ -4,7 +4,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { squareThumbnail } from '@/lib/image'
 
-import { StepForm } from '../step-form'
+import { StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

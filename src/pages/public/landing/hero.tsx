@@ -6,7 +6,7 @@ import { useRef, type CSSProperties } from 'react'
 import { AppLink } from '@/components/shared/app-link'
 import { Button } from '@/components/ui/button'
 
-import { SquadRing } from './squad-ring'
+import { SquadRing } from '@/components/people/squad-ring'
 
 const step = (index: number) => ({ '--i': index }) as CSSProperties
 

@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { MAX_PROMPTS, MIN_PROMPTS, PROMPT_MAX_LENGTH, promptsSchema } from '@/features/onboarding/schemas'
 import { PROFILE_PROMPTS } from '@/services/types/common'
 
-import { FieldError, StepForm } from '../step-form'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

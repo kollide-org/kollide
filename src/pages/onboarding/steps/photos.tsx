@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent } from 'r
 import { PHOTO_COUNT, photosSchema } from '@/features/onboarding/schemas'
 import { cn } from '@/lib/utils'
 
-import { FieldError, StepForm } from '../step-form'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

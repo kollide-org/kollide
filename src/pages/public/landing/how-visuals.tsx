@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
-import { SquadRing } from './squad-ring'
+import { SquadRing } from '@/components/people/squad-ring'
 
 /**
  * Four small product scenes, one for each step of "How it works".

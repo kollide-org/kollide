@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useCompleteOnboarding } from '@/features/onboarding/hooks'
 import { consentSchema } from '@/features/onboarding/schemas'
 
-import { StepForm } from '../step-form'
+import { StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

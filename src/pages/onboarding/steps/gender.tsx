@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { genderSchema } from '@/features/onboarding/schemas'
 import { GENDER_OPTIONS } from '@/services/types/common'
 
-import { ChoiceCard } from '../choice'
-import { FieldError, StepForm } from '../step-form'
+import { ChoiceCard } from '@/components/forms/choice'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

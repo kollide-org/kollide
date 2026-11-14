@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { areaSchema } from '@/features/onboarding/schemas'
 import { AREAS } from '@/services/types/common'
 
-import { ChoiceChips } from '../choice'
-import { FieldError, StepForm } from '../step-form'
+import { ChoiceChips } from '@/components/forms/choice'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 

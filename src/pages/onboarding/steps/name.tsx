@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { nameSchema } from '@/features/onboarding/schemas'
 
-import { FieldError, StepForm } from '../step-form'
+import { FieldError, StepForm } from '@/components/forms/step-form'
 
 import type { StepProps } from './types'
 
