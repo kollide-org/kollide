@@ -4,6 +4,7 @@ export type NotificationKind =
   | 'request_received'
   | 'request_approved'
   | 'request_declined'
+  | 'request_waitlisted'
   | 'waitlist_promoted'
   | 'reconfirm'
   | 'squad_request'

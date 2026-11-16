@@ -237,6 +237,7 @@ describe('bookings', () => {
     db.sessionUserId = leaver.userId
     const { promotion } = await bookingService.cancelBooking(leaver.id)
     expect(promotion?.person.userId).toBe('u02')
+    expect(promotion?.promoted.promotedAt).not.toBeNull()
     expect(db.bookings.find((booking) => booking.eventId === walk.id && booking.userId === 'u31')?.waitlistPosition).toBe(1)
   })
 
@@ -267,13 +268,40 @@ describe('payments (simulated)', () => {
     expect((await eventService.getEventAddress('ev-clay-evening')).exactAddress).toContain('Slow Clay Studio')
   })
 
+  it('books with credit alone only when credit covers the whole price', async () => {
+    await mockDevTools.signInAs('member')
+    const owing = await paymentService.startCheckout('ev-clay-evening')
+    expect(await rejection(paymentService.pay(owing.booking.id, { method: 'credit' }))).toBe('validation')
+
+    // Cancelling the trek inside 72 hours adds ₹1,200 of credit, so ₹2,100 covers the ₹1,500 evening.
+    const trek = (await bookingService.listMyBookings()).find((plan) => plan.eventId === 'ev-sunrise-trek')!
+    await paymentService.cancelAndRefund(trek.id)
+    const covered = await paymentService.startCheckout('ev-clay-evening')
+    expect(covered).toMatchObject({ creditAvailableInr: 2100, creditAppliedInr: 1500, payableInr: 0 })
+    const result = await paymentService.pay(covered.booking.id, { method: 'credit' })
+    expect(result.payment).toMatchObject({ amountInr: 0, creditAppliedInr: 1500, method: 'credit' })
+    const left = (await paymentService.listMyCredits()).filter((credit) => !credit.usedAt)
+    expect(left.reduce((sum, credit) => sum + credit.amountInr, 0)).toBe(600)
+  })
+
+  it('returns money to where it came from, and credit as credit', async () => {
+    await mockDevTools.signInAs('member')
+    const checkout = await paymentService.startCheckout('ev-clay-evening')
+    await paymentService.pay(checkout.booking.id, { method: 'card', cardNumber: '4111 1111 1111 1111', expiry: '12/30', cvv: '123', nameOnCard: 'Ananya Rao' })
+    // The clay evening is more than 72 hours away.
+    expect(await paymentService.getRefundQuote(checkout.booking.id)).toMatchObject({ outcome: 'full', amountInr: 1500, moneyBackInr: 600, creditBackInr: 900 })
+    const { credit } = await paymentService.cancelAndRefund(checkout.booking.id)
+    expect(credit?.amountInr).toBe(900)
+    expect(getDb().bookings.find((booking) => booking.id === checkout.booking.id)?.status).toBe('refunded')
+  })
+
   it('follows the refund rules', async () => {
     await mockDevTools.signInAs('member')
     const plans = await bookingService.listMyBookings()
     const supper = plans.find((plan) => plan.eventId === 'ev-supper-club')!
     const trek = plans.find((plan) => plan.eventId === 'ev-sunrise-trek')!
-    expect(await paymentService.getRefundQuote(supper.id)).toMatchObject({ outcome: 'full', amountInr: 1800 })
-    expect(await paymentService.getRefundQuote(trek.id)).toMatchObject({ outcome: 'credit', amountInr: 1200 })
+    expect(await paymentService.getRefundQuote(supper.id)).toMatchObject({ outcome: 'full', amountInr: 1800, moneyBackInr: 1800, creditBackInr: 0 })
+    expect(await paymentService.getRefundQuote(trek.id)).toMatchObject({ outcome: 'credit', amountInr: 1200, moneyBackInr: 0, creditBackInr: 1200 })
 
     const { refund, credit } = await paymentService.cancelAndRefund(trek.id)
     expect(refund?.kind).toBe('credit')

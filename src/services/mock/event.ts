@@ -262,16 +262,29 @@ export const mockEventService: EventService = {
         // When Kollide cancels, every payment is refunded in full without anyone asking.
         payment.status = 'refunded'
         booking.status = 'refunded'
+        const refundId = newId('rf')
         db.refunds.push({
-          id: newId('rf'),
+          id: refundId,
           paymentId: payment.id,
           bookingId: booking.id,
           userId: booking.userId,
           kind: 'cancelled_by_kollide',
-          amountInr: payment.amountInr,
+          amountInr: payment.amountInr + payment.creditAppliedInr,
           createdAt: nowIso(),
         })
-        notify(db, booking.userId, 'refund', `${event.title} was cancelled`, `Your ₹${payment.amountInr} has been refunded in full.`, '/app/plans')
+        // Any credit that was used comes back as credit.
+        if (payment.creditAppliedInr > 0) {
+          db.credits.push({
+            id: newId('cr'),
+            userId: booking.userId,
+            amountInr: payment.creditAppliedInr,
+            reason: `Credit you used on “${event.title}”, returned`,
+            refundId,
+            createdAt: nowIso(),
+            usedAt: null,
+          })
+        }
+        notify(db, booking.userId, 'refund', `${event.title} was cancelled`, 'Everything you paid is coming back to you in full.', '/app/plans')
       } else if (['requested', 'approved', 'waitlisted', 'confirmed', 'pending_payment'].includes(booking.status)) {
         booking.status = 'cancelled'
         notify(db, booking.userId, 'account', `${event.title} was cancelled`, 'The host had to cancel. Here are similar events.', '/app')

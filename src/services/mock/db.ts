@@ -63,7 +63,7 @@ export interface Db {
 }
 
 /** Raise this whenever the shape or the seed changes, so stale browsers reseed. */
-export const DB_VERSION = 3
+export const DB_VERSION = 4
 const STORAGE_KEY = 'kollide:mock-db'
 
 let memory: Db | null = null

@@ -1,7 +1,8 @@
 import type { Booking } from './booking'
 import type { ID, ISODateTime } from './common'
 
-export type PaymentMethodType = 'upi' | 'card'
+/** `credit` is only for a booking that Kollide credit pays for in full. */
+export type PaymentMethodType = 'upi' | 'card' | 'credit'
 export type PaymentStatus = 'processing' | 'succeeded' | 'failed' | 'refunded'
 
 export interface Payment {
@@ -52,6 +53,10 @@ export interface RefundQuote {
   /** `none` for no-shows and for bookings that were never paid. */
   outcome: RefundKind | 'none'
   amountInr: number
+  /** The part that goes back to the card or UPI account it came from. */
+  moneyBackInr: number
+  /** The part that comes back as Kollide credit. */
+  creditBackInr: number
   explanation: string
 }
 
@@ -68,6 +73,7 @@ export interface Checkout {
 export type PaymentInput =
   | { method: 'upi'; upiId: string }
   | { method: 'card'; cardNumber: string; expiry: string; cvv: string; nameOnCard: string }
+  | { method: 'credit' }
 
 export interface PaymentResult {
   payment: Payment

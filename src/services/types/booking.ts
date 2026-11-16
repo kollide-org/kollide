@@ -32,6 +32,8 @@ export interface Booking {
   /** When the member answered "Still coming?". */
   reconfirmedAt: ISODateTime | null
   paymentId: ID | null
+  /** When a place opened up and this booking moved up from the waitlist. */
+  promotedAt: ISODateTime | null
   createdAt: ISODateTime
   updatedAt: ISODateTime
 }

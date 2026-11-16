@@ -179,6 +179,7 @@ export function buildSeed(now: Date): Db {
       waitlistPosition: options.waitlistPosition ?? null,
       reconfirmedAt: options.reconfirmed ? iso(startOf(eventId) - 12 * HOUR) : null,
       paymentId: null,
+      promotedAt: null,
       createdAt: iso(createdAt),
       updatedAt: iso(options.updatedAt ?? createdAt + 2 * HOUR),
     }

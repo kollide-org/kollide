@@ -3,7 +3,7 @@ import { decideRefund } from '@/domain/refunds'
 
 import { ServiceError } from '../errors'
 import type { PaymentService } from '../interfaces'
-import type { Booking, Checkout, Credit, ID, Payment, PaymentInput, Refund } from '../types'
+import type { Booking, Checkout, Credit, ID, Payment, PaymentInput, Refund, RefundKind } from '../types'
 
 import { promoteFromWaitlist } from './booking'
 import { getDb, saveDb, type Db, type EventRecord } from './db'
@@ -54,7 +54,11 @@ function spendCredit(db: Db, userId: ID, amountInr: number): void {
   }
 }
 
-function validatePayment(input: PaymentInput): void {
+function validatePayment(input: PaymentInput, payableInr: number): void {
+  if (input.method === 'credit') {
+    if (payableInr > 0) throw invalid(`There is still ₹${payableInr} to pay. Choose UPI or a card.`)
+    return
+  }
   if (input.method === 'upi') {
     if (!UPI_PATTERN.test(input.upiId.trim())) throw invalid('Enter a UPI ID, such as name@bank.')
     return
@@ -69,7 +73,18 @@ function validatePayment(input: PaymentInput): void {
 }
 
 function shouldFail(input: PaymentInput): boolean {
+  if (input.method === 'credit') return false
   return input.method === 'upi' ? input.upiId.trim().toLowerCase().endsWith('@fail') : input.cardNumber.replace(/\s/g, '').endsWith('0002')
+}
+
+/**
+ * Where a refund goes. Money goes back to where it came from, and any credit
+ * that was used comes back as credit. Inside 72 hours all of it is credit.
+ */
+function splitRefund(outcome: RefundKind | 'none', payment: Payment | undefined): { moneyBackInr: number; creditBackInr: number } {
+  if (!payment || outcome === 'none') return { moneyBackInr: 0, creditBackInr: 0 }
+  if (outcome === 'credit') return { moneyBackInr: 0, creditBackInr: payment.amountInr + payment.creditAppliedInr }
+  return { moneyBackInr: payment.amountInr, creditBackInr: payment.creditAppliedInr }
 }
 
 export const mockPaymentService: PaymentService = {
@@ -99,6 +114,7 @@ export const mockPaymentService: PaymentService = {
         waitlistPosition: null,
         reconfirmedAt: null,
         paymentId: null,
+        promotedAt: null,
         createdAt: nowIso(),
         updatedAt: nowIso(),
       }
@@ -115,9 +131,9 @@ export const mockPaymentService: PaymentService = {
     const user = requireActiveMember(db)
     const booking = ownBooking(db, bookingId, user.id)
     if (booking.status !== 'pending_payment') throw new ServiceError('conflict', 'This booking is not waiting for payment.')
-    validatePayment(input)
     const event = eventOf(db, booking.eventId)
     const checkout = checkoutFor(db, booking, event)
+    validatePayment(input, checkout.payableInr)
 
     const payment: Payment = {
       id: newId('pay'),
@@ -163,7 +179,7 @@ export const mockPaymentService: PaymentService = {
       eventCancelledByKollide: event.cancelledByKollide,
       now: now(),
     })
-    return { bookingId, ...decision }
+    return { bookingId, ...decision, ...splitRefund(decision.outcome, payment) }
   },
 
   async cancelAndRefund(bookingId) {
@@ -198,23 +214,30 @@ export const mockPaymentService: PaymentService = {
     payment.status = 'refunded'
     booking.updatedAt = refund.createdAt
 
+    const { moneyBackInr, creditBackInr } = splitRefund(decision.outcome, payment)
+    booking.status = decision.outcome === 'credit' ? 'cancelled' : 'refunded'
+
     let credit: Credit | null = null
-    if (decision.outcome === 'credit') {
-      booking.status = 'cancelled'
+    if (creditBackInr > 0) {
       credit = {
         id: newId('cr'),
         userId: user.id,
-        amountInr: decision.amountInr,
-        reason: `Credit for cancelling “${event.title}” inside 72 hours`,
+        amountInr: creditBackInr,
+        reason:
+          decision.outcome === 'credit'
+            ? `Credit for cancelling “${event.title}” inside 72 hours`
+            : `Credit you used on “${event.title}”, returned`,
         refundId: refund.id,
         createdAt: refund.createdAt,
         usedAt: null,
       }
       db.credits.push(credit)
-      notify(db, user.id, 'refund', `₹${credit.amountInr} added as Kollide credit`, 'It will be used automatically on your next paid booking.', '/app/plans')
-    } else {
-      booking.status = 'refunded'
-      notify(db, user.id, 'refund', `₹${refund.amountInr} refunded`, `For ${event.title}. It can take a few days to reach your account.`, '/app/plans')
+    }
+    if (moneyBackInr > 0) {
+      notify(db, user.id, 'refund', `₹${moneyBackInr} refunded`, `For ${event.title}. It can take a few days to reach your account.`, '/app/plans')
+    }
+    if (creditBackInr > 0) {
+      notify(db, user.id, 'refund', `₹${creditBackInr} added as Kollide credit`, 'It is used automatically on your next paid booking.', '/app/plans')
     }
     promoteFromWaitlist(db, event)
     saveDb()
