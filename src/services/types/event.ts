@@ -104,6 +104,13 @@ export interface EventListItem extends Event {
   squadsForming: number
 }
 
+/** An event on the host's own list, with what is waiting for them. */
+export interface HostedEvent extends EventListItem {
+  /** Requests waiting for an answer. */
+  requested: number
+  waitlisted: number
+}
+
 export interface EventViewerState {
   booking: Booking | null
   canSeeAddress: boolean

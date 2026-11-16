@@ -1,4 +1,4 @@
-import type { Event, EventAddress, EventDetail, EventDraft, EventFilters, EventListItem, Hub, HubWithEvents, ID } from '../types'
+import type { Event, EventAddress, EventDetail, EventDraft, EventFilters, EventListItem, HostedEvent, Hub, HubWithEvents, ID } from '../types'
 
 export interface EventService {
   /** Published, upcoming events, soonest first. */
@@ -11,7 +11,7 @@ export interface EventService {
   listHubs(): Promise<Hub[]>
   getActiveHub(): Promise<HubWithEvents | null>
   /** Events the signed-in host created, in every status. */
-  listHostedEvents(): Promise<EventListItem[]>
+  listHostedEvents(): Promise<HostedEvent[]>
   /** Hosts only. The new event waits for admin approval. */
   createEvent(draft: EventDraft): Promise<Event>
   updateEvent(eventId: ID, patch: Partial<EventDraft>): Promise<Event>

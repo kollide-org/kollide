@@ -551,6 +551,13 @@ export function buildSeed(now: Date): Db {
     ['u24', 'approved'],
     ['u02', 'requested'],
   ])
+  // Ananya started a squad for the trek she booked. Two people are waiting for her answer.
+  squad('sq-sunrise', 'ev-sunrise-trek', 'Early birds', 'Third Wave Coffee, Hebbal', 5, false, [
+    ['u02', 'approved'],
+    ['u22', 'approved'],
+    ['u20', 'requested'],
+    ['u26', 'requested'],
+  ])
 
   // Connections: every pair who both said yes after the same event, once its reviews are revealed.
   const closed = db.tagReviews.filter((r) => endOf(r.eventId) + 72 * HOUR <= now.getTime())
