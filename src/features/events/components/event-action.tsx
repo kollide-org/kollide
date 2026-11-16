@@ -129,6 +129,7 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
   const [openedAt] = useState(() => Date.now())
   const finished = event.status === 'completed' || new Date(event.endsAt).getTime() < openedAt
   const hasPlace = status === 'approved' || status === 'confirmed' || status === 'paid'
+  const started = new Date(event.startsAt).getTime() <= openedAt
 
   const send = (note: string) => {
     setAsking(false)
@@ -172,6 +173,15 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
         </Button>
       </>
     )
+  } else if (status === 'attended') {
+    action = (
+      <>
+        <StatusPill tone="success" icon={<Check className="size-4.5" strokeWidth={2.5} aria-hidden="true" />}>You’re checked in</StatusPill>
+        <Note>Enjoy it. Feedback opens when the host closes the event, so you can tag the people you meet.</Note>
+      </>
+    )
+  } else if (started && !hasPlace) {
+    action = <Note>This event has already started, so it isn’t taking new people.</Note>
   } else if (role === 'visitor') {
     action = (
       <>
@@ -228,9 +238,11 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
           <Ticket aria-hidden="true" />
           Show my ticket
         </Button>
-        <Button variant="ghost" size="sm" className="-ml-3 w-fit" onClick={() => setGivingUp(true)}>
-          I can’t make it
-        </Button>
+        {started ? null : (
+          <Button variant="ghost" size="sm" className="-ml-3 w-fit" onClick={() => setGivingUp(true)}>
+            I can’t make it
+          </Button>
+        )}
       </>
     )
   } else if (status === 'paid') {

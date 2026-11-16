@@ -15,11 +15,22 @@ interface PlanCardProps {
   payment?: Payment
   onAction: (plan: BookingWithEvent, action: PlanAction) => void
   onShowTicket: (plan: BookingWithEvent) => void
+  /** When the page opened, so "happening now" and "over" read the same everywhere on it. */
+  now: number
 }
 
 /** What a booking means right now, in a sentence, and what the member can do about it. */
-function describe(plan: BookingWithEvent, payment: Payment | undefined): { text: string; actions: ReactNode[] } {
+function describe(plan: BookingWithEvent, payment: Payment | undefined, now: number): { text: string; actions: ReactNode[] } {
   const host = plan.event.host?.firstName ?? 'The host'
+  const started = new Date(plan.event.startsAt).getTime() <= now
+  const over = new Date(plan.event.endsAt).getTime() <= now
+  const holdsPlace = plan.status === 'approved' || plan.status === 'confirmed' || plan.status === 'paid'
+  // The event has ended but the host hasn't closed it out yet.
+  if (over && holdsPlace) return { text: 'This has finished. It moves to your history once the host closes it out.', actions: [] }
+  if (started && holdsPlace) return { text: 'Happening now. Show your ticket at the door.', actions: ['ticket'] }
+  if (plan.status === 'attended' && !over && !plan.feedbackOpen) {
+    return { text: 'You’re checked in. Feedback opens when the host closes the event.', actions: [] }
+  }
   switch (plan.status) {
     case 'requested':
       return { text: `Waiting for ${host}’s answer. Most hosts reply within a day.`, actions: ['withdraw'] }
@@ -58,9 +69,9 @@ function describe(plan: BookingWithEvent, payment: Payment | undefined): { text:
 }
 
 /** One booking on "My plans". */
-export function PlanCard({ plan, payment, onAction, onShowTicket }: PlanCardProps) {
+export function PlanCard({ plan, payment, onAction, onShowTicket, now }: PlanCardProps) {
   const status = BOOKING_STATUS[plan.status]
-  const { text, actions } = describe(plan, payment)
+  const { text, actions } = describe(plan, payment, now)
   const eventPath = `/app/events/${plan.event.slug}`
 
   const button = (action: ReactNode) => {

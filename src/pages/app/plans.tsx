@@ -38,7 +38,8 @@ const MEMBER_UPDATES: NotificationKind[] = [
   'refund',
   'account',
 ]
-const ENDED = new Set(['attended', 'no_show', 'cancelled', 'refunded'])
+/** Plans that are over whatever the clock says. Anything else stays upcoming until its event ends. */
+const ENDED = new Set(['no_show', 'cancelled', 'refunded'])
 
 const CONFIRM: Record<PlanAction, { title: string; body: string; button: string; done: string }> = {
   withdraw: {
@@ -390,6 +391,7 @@ export function Component() {
                       payment={payments.data?.find((payment) => payment.id === plan.paymentId)}
                       onAction={(target, action) => setPending({ plan: target, action })}
                       onShowTicket={setTicketFor}
+                      now={openedAt}
                     />
                   </m.li>
                 ))}
