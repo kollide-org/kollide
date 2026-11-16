@@ -4,6 +4,7 @@ import {
   canSeeAddress,
   canTransition,
   holdsPlace,
+  isCheckInOpen,
   needsReconfirmation,
   nextOnWaitlist,
 } from '@/domain/bookings'
@@ -75,6 +76,9 @@ export function promoteFromWaitlist(db: Db, event: EventRecord): WaitlistPromoti
 }
 
 function recordCheckIn(db: Db, event: EventRecord, userId: ID, method: CheckInMethod, by: ID): CheckIn {
+  if (!isCheckInOpen(event.startsAt, event.status, now())) {
+    throw invalid(event.status === 'completed' ? 'This event has been closed out.' : 'Check-in opens two hours before the start.')
+  }
   const existing = db.checkIns.find((checkIn) => checkIn.eventId === event.id && checkIn.userId === userId)
   if (existing) return existing
   const booking = db.bookings.find(
@@ -89,7 +93,7 @@ function recordCheckIn(db: Db, event: EventRecord, userId: ID, method: CheckInMe
 }
 
 function feedbackOwed(db: Db, booking: Booking, event: EventRecord, at: Date): boolean {
-  if (booking.status !== 'attended' || !isReviewWindowOpen(event.endsAt, at)) return false
+  if (booking.status !== 'attended' || !isReviewWindowOpen(event.endsAt, at, event.closedOutAt)) return false
   const others = db.checkIns.filter((checkIn) => checkIn.eventId === event.id && checkIn.userId !== booking.userId)
   const reviewed = db.tagReviews.filter((review) => review.eventId === event.id && review.reviewerId === booking.userId)
   const hostRated =
@@ -332,6 +336,7 @@ export const mockBookingService: BookingService = {
       }
     }
     event.status = 'completed'
+    event.closedOutAt = nowIso()
     saveDb()
     return { attended: db.checkIns.filter((checkIn) => checkIn.eventId === eventId).length, noShows }
   },

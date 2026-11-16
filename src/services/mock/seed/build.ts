@@ -411,6 +411,15 @@ export function buildSeed(now: Date): Db {
   rateHost(sketch, 'u17')
   rateHost(sketch, 'u18')
 
+  // The quiz night is on now. Arjun has checked three people in, and Ananya is on her way.
+  const quiz = 'ev-quiz-night'
+  const quizGuests = ['u02', 'u20', 'u24', 'u10', 'u30', 'u36', 'u21', 'u37']
+  const arrived = ['u20', 'u24', 'u10']
+  for (const userId of quizGuests) {
+    book(quiz, userId, arrived.includes(userId) ? 'attended' : 'confirmed', { createdAt: startOf(quiz) - 4 * DAY, reconfirmed: true })
+  }
+  for (const userId of arrived) checkIn(quiz, userId)
+
   // Upcoming events.
   const eligibleFor = (eventId: string, exclude: string[]) => {
     const record = event(eventId)

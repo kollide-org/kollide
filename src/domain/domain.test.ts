@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import type { PrivateFeedback, TagReview } from '@/services/types'
 
-import { approvalLimit, canApproveAnother, canTransition, needsReconfirmation, nextOnWaitlist, spotsLeft } from './bookings'
+import { approvalLimit, canApproveAnother, canTransition, isCheckInOpen, needsReconfirmation, nextOnWaitlist, spotsLeft } from './bookings'
 import { findCollusionGroups } from './collusion'
 import { completesConnection, mutualPairs, repeatGroups } from './connections'
 import { activeTipCategories, decayFactor, effectiveWeight, reviewerWeight, type FeedbackContext } from './private-feedback'
 import { decideRefund } from './refunds'
 import { buildReputation, computeReliability } from './reliability'
-import { isReviewRevealed, reviewBlocker, topTags } from './reviews'
+import { isReviewRevealed, isReviewWindowOpen, reviewBlocker, topTags } from './reviews'
 import { ageFromDateOfBirth, isAdult } from './time'
 
 const NOW = new Date('2026-11-13T12:00:00.000Z')
@@ -239,5 +239,26 @@ describe('meet again', () => {
       { eventId: 'e1', userIds: ['a', 'b', 'c'] },
     ])
     expect(repeatGroups([vote('a', 'b'), vote('b', 'a')])).toEqual([])
+  })
+})
+
+describe('after the event', () => {
+  const startsAt = '2026-11-20T14:00:00.000Z'
+  const endsAt = '2026-11-20T17:00:00.000Z'
+
+  it('opens check-in two hours before the start, until the event is closed out', () => {
+    expect(isCheckInOpen(startsAt, 'published', new Date('2026-11-20T11:59:00.000Z'))).toBe(false)
+    expect(isCheckInOpen(startsAt, 'published', new Date('2026-11-20T12:00:00.000Z'))).toBe(true)
+    expect(isCheckInOpen(startsAt, 'published', new Date('2026-11-20T18:00:00.000Z'))).toBe(true)
+    expect(isCheckInOpen(startsAt, 'completed', new Date('2026-11-20T15:00:00.000Z'))).toBe(false)
+  })
+
+  it('opens feedback at the end, or as soon as the host closes the event out', () => {
+    const during = new Date('2026-11-20T16:00:00.000Z')
+    expect(isReviewWindowOpen(endsAt, during)).toBe(false)
+    expect(isReviewWindowOpen(endsAt, during, '2026-11-20T15:50:00.000Z')).toBe(true)
+    // Closing out early does not stretch the window: it still closes 72 hours after the end.
+    expect(isReviewWindowOpen(endsAt, new Date('2026-11-23T16:59:00.000Z'), '2026-11-20T15:50:00.000Z')).toBe(true)
+    expect(isReviewWindowOpen(endsAt, new Date('2026-11-23T17:00:00.000Z'), '2026-11-20T15:50:00.000Z')).toBe(false)
   })
 })

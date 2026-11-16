@@ -345,6 +345,29 @@ function primarySpecs(now: Date): EventSpec[] {
       houseRules: BASE_RULES,
       createdDaysAgo: 16,
     },
+    // Happening right now, so check-in and closing out can be tried. "Reset demo data" makes it live again.
+    {
+      id: 'ev-quiz-night',
+      slug: 'pub-quiz-team-of-strangers',
+      type: 'community',
+      title: 'Pub quiz, team of strangers',
+      summary: 'Six rounds of questions, and one team made of people who met at the door.',
+      description:
+        'We make one team out of whoever turns up and take on the regulars. Nobody needs to know anything about cricket. Come for the picture round, stay for the arguing.',
+      category: 'games',
+      coverAlt: 'A pub table with answer sheets, pencils and glasses of lime soda.',
+      hostId: 'u03',
+      start: inHours(now, -1),
+      hours: 3,
+      area: 'Koramangala',
+      venueName: 'The Quiz Room',
+      exactAddress: 'The Quiz Room, 5th Block, 80 Feet Road, Koramangala, Bengaluru 560095',
+      directions: 'Upstairs, past the bar. Look for the table with the Kollide card.',
+      pricing: payAtVenue('Pay for what you order.'),
+      capacity: 10,
+      houseRules: ['Phones face down during rounds.', ...BASE_RULES],
+      createdDaysAgo: 9,
+    },
     {
       id: 'ev-karaoke-at-mine',
       slug: 'karaoke-night-at-mine',
@@ -534,6 +557,7 @@ function toRecord(spec: EventSpec, now: Date, isArchive: boolean): EventRecord {
     exactAddress: spec.exactAddress,
     directions: spec.directions ?? null,
     cancelledByKollide: false,
+    closedOutAt: (spec.status ?? 'published') === 'completed' ? new Date(spec.start.getTime() + spec.hours * HOUR).toISOString() : null,
   }
 }
 
