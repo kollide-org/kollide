@@ -66,7 +66,7 @@ describe('seed data', () => {
     const db = getDb()
     expect(db.profiles).toHaveLength(40)
     expect(db.events.filter((event) => !event.id.startsWith('ev-past-'))).toHaveLength(16)
-    expect(db.squads).toHaveLength(3)
+    expect(db.squads).toHaveLength(4)
     expect(db.tagReviews.length).toBeGreaterThan(100)
   })
 
@@ -291,15 +291,42 @@ describe('squads', () => {
   it('lists squads forming and lets the creator approve requests', async () => {
     await mockDevTools.signInAs('member')
     const forming = await squadService.listSquadsForming()
-    expect(forming.map((squad) => `${squad.members.length} of ${squad.size}`)).toEqual(['3 of 6', '2 of 4', '4 of 5'])
-    expect(forming.every((squad) => squad.pendingRequests.length === 0)).toBe(true)
-    expect((await squadService.listMySquads()).map((squad) => squad.viewerStatus)).toEqual(['requested', 'approved'])
+    expect(forming.map((squad) => `${squad.members.length} of ${squad.size}`)).toEqual(['2 of 5', '3 of 6', '2 of 4', '4 of 5'])
+    expect(forming.filter((squad) => !squad.viewerIsCreator).every((squad) => squad.pendingRequests.length === 0)).toBe(true)
+    expect((await squadService.listMySquads()).map((squad) => squad.viewerStatus)).toEqual(['approved', 'requested', 'approved'])
 
     getDb().sessionUserId = 'u12'
     const mine = await squadService.getSquad('sq-open-mic')
     expect(mine.pendingRequests.map((person) => person.userId)).toEqual(['u02'])
     await squadService.decideRequest('sq-open-mic', 'u02', 'approve')
     expect((await squadService.getSquad('sq-open-mic')).spotsLeft).toBe(1)
+  })
+
+  it('shows pending requests only to the creator, and hands a squad on when its creator leaves', async () => {
+    await mockDevTools.signInAs('member')
+    const own = await squadService.getSquad('sq-sunrise')
+    expect(own.viewerIsCreator).toBe(true)
+    expect(own.pendingRequests.map((person) => person.firstName)).toEqual(['Farah', 'Riya'])
+    await squadService.decideRequest('sq-sunrise', 'u26', 'decline')
+
+    getDb().sessionUserId = 'u26'
+    const seen = await squadService.getSquad('sq-sunrise')
+    expect(seen.pendingRequests).toEqual([])
+    expect(seen.viewerStatus).toBe('declined')
+    // A gentle decline is not final: she can ask again.
+    await squadService.requestToJoin('sq-sunrise')
+    expect((await squadService.getSquad('sq-sunrise')).viewerStatus).toBe('requested')
+
+    getDb().sessionUserId = 'u02'
+    await squadService.leaveSquad('sq-sunrise')
+    const after = await squadService.getSquad('sq-sunrise')
+    expect(after.creatorId).toBe('u22')
+    expect(after.viewerStatus).toBeNull()
+  })
+
+  it('keeps women-only squads for women', async () => {
+    await mockDevTools.signInAs('host')
+    await expect(squadService.requestToJoin('sq-open-mic')).rejects.toMatchObject({ code: 'forbidden' })
   })
 })
 

@@ -191,7 +191,11 @@ export const mockEventService: EventService = {
       db.events
         .filter((event) => event.hostId === host.id)
         .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
-        .map((event) => eventListItem(db, event)),
+        .map((event) => {
+          const count = (status: string) =>
+            db.bookings.filter((booking) => booking.eventId === event.id && booking.status === status).length
+          return { ...eventListItem(db, event), requested: count('requested'), waitlisted: count('waitlisted') }
+        }),
     )
   },
 
