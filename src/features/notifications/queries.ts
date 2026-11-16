@@ -4,8 +4,8 @@ import { notificationService } from '@/services'
 
 export const notificationKeys = { all: ['notifications'] as const }
 
-export function useNotifications() {
-  return useQuery({ queryKey: notificationKeys.all, queryFn: () => notificationService.listNotifications() })
+export function useNotifications(enabled = true) {
+  return useQuery({ queryKey: notificationKeys.all, queryFn: () => notificationService.listNotifications(), enabled })
 }
 
 export function useMarkAllRead() {
