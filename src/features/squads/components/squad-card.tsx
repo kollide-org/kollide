@@ -16,7 +16,7 @@ export function SquadCard({ squad }: { squad: SquadWithMembers }) {
         <div className="min-w-0">
           <h3 className="truncate text-h4">
             <AppLink
-              to="/app/squads"
+              to={`/app/squads/${squad.id}`}
               className="outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-ring"
             >
               {squad.name}
@@ -41,7 +41,11 @@ export function SquadCard({ squad }: { squad: SquadWithMembers }) {
               Women only
             </Badge>
           ) : null}
-          {squad.viewerStatus === 'approved' ? (
+          {squad.viewerIsCreator && squad.pendingRequests.length > 0 ? (
+            <Badge variant="default" size="sm">
+              {squad.pendingRequests.length} waiting
+            </Badge>
+          ) : squad.viewerStatus === 'approved' ? (
             <Badge variant="success" size="sm">
               You’re in
             </Badge>

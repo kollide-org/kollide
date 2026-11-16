@@ -1,5 +1,5 @@
-import { ArrowLeft, CalendarDays, CalendarX, HandCoins, Home, Lock, MapPin, ShieldCheck, UsersRound } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { ArrowLeft, ArrowRight, CalendarDays, CalendarX, HandCoins, Home, Lock, MapPin, Plus, ShieldCheck, UsersRound } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
 import { AvatarStack } from '@/components/people/avatar-stack'
@@ -9,8 +9,10 @@ import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ErrorState } from '@/components/shared/error-state'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SquadCard } from '@/features/squads/components/squad-card'
+import { StartSquadDialog } from '@/features/squads/components/start-squad-dialog'
 import { useSquadsForEvent } from '@/features/squads/queries'
 import { ageRangeLabel, formatDay, formatTimeRange, priceLabel } from '@/lib/format'
 import { useMediaQuery } from '@/lib/use-media-query'
@@ -102,24 +104,73 @@ function Address({ event }: { event: EventDetail }) {
 }
 
 function Squads({ event }: { event: EventDetail }) {
+  const { role, session } = useSession()
+  const [starting, setStarting] = useState(false)
+  const [openedAt] = useState(() => Date.now())
   const { data: squads, isPending } = useSquadsForEvent(event.id)
-  if (isPending) return <Skeleton className="h-52 w-full rounded-2xl" />
-  if (!squads || squads.length === 0) {
-    return (
-      <p className="text-muted-foreground">
-        Nobody has started a squad for this one yet. A squad is four to six people who meet nearby first and walk in
-        together.
-      </p>
+  const upcoming = event.status === 'published' && new Date(event.startsAt).getTime() > openedAt
+  const isWoman = session?.profile?.gender === 'woman'
+
+  let start: ReactNode = null
+  let canStart = false
+  if (!upcoming || event.viewer.isHost) start = null
+  else if (role === 'visitor') {
+    start = (
+      <Button asChild variant="outline">
+        <AppLink to="/sign-in" state={{ from: `/app/events/${event.slug}` }}>
+          Join Kollide to start a squad
+        </AppLink>
+      </Button>
+    )
+  } else if (event.viewer.squadId) {
+    start = (
+      <Button asChild variant="outline">
+        <AppLink to={`/app/squads/${event.viewer.squadId}`}>
+          Open your squad
+          <ArrowRight aria-hidden="true" />
+        </AppLink>
+      </Button>
+    )
+  } else if (event.womenOnly && !isWoman) {
+    start = <p className="text-sm text-muted-foreground">Squads for this event are for women only.</p>
+  } else {
+    canStart = true
+    start = (
+      <Button variant="outline" onClick={() => setStarting(true)}>
+        <Plus aria-hidden="true" />
+        Start a squad
+      </Button>
     )
   }
+
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
-      {squads.map((squad) => (
-        <li key={squad.id}>
-          <SquadCard squad={squad} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <p className="max-w-2xl text-muted-foreground">
+        A squad is four to six people who meet somewhere public nearby, then walk in together. Whoever starts one approves
+        each person who asks.
+      </p>
+      <div className="mt-6">
+        {isPending ? (
+          <Skeleton className="h-52 w-full rounded-2xl" />
+        ) : squads && squads.length > 0 ? (
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
+            {squads.map((squad) => (
+              <li key={squad.id}>
+                <SquadCard squad={squad} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-foreground/20 px-5 py-6 text-muted-foreground">
+            Nobody has started a squad for this one yet.
+          </p>
+        )}
+      </div>
+      {start ? <div className="mt-5">{start}</div> : null}
+      {canStart ? (
+        <StartSquadDialog event={event} canChooseWomenOnly={isWoman} open={starting} onOpenChange={setStarting} />
+      ) : null}
+    </>
   )
 }
 
@@ -313,7 +364,7 @@ export function EventView({ slug, back }: EventViewProps) {
               )}
             </Block>
 
-            {event.type === 'partner' || event.squadsForming > 0 ? (
+            {event.status === 'published' ? (
               <Block id="squads" title="Squads for this event">
                 <Squads event={event} />
               </Block>
