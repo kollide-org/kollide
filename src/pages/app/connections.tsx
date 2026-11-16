@@ -15,7 +15,7 @@ import { useConnections, useRepeatSuggestions } from '@/features/reviews/queries
 import { formatAgo } from '@/lib/format'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 import { hasRole } from '@/services/types/role'
-import type { RepeatSuggestion } from '@/services'
+import type { ConnectionWithPerson, RepeatSuggestion } from '@/services'
 
 /** Three or more people who all said yes to each other: a nudge, never a group chat. */
 function Repeat({ suggestion, isHost }: { suggestion: RepeatSuggestion; isHost: boolean }) {
@@ -65,6 +65,15 @@ export function Component() {
   const { role } = useSession()
   const connections = useConnections()
   const repeats = useRepeatSuggestions()
+  // Two people can connect at more than one event. Each person is listed once, newest first.
+  const byPerson = new Map<string, ConnectionWithPerson[]>()
+  for (const connection of connections.data ?? []) {
+    byPerson.set(connection.person.userId, [...(byPerson.get(connection.person.userId) ?? []), connection])
+  }
+  const people = [...byPerson.values()].map((group) => ({
+    ...group[0],
+    eventTitles: [...new Set(group.map((connection) => connection.eventTitle))],
+  }))
 
   return (
     <>
@@ -93,7 +102,7 @@ export function Component() {
               </div>
             ) : connections.isError ? (
               <ErrorState onRetry={() => void connections.refetch()} />
-            ) : connections.data.length === 0 ? (
+            ) : people.length === 0 ? (
               <EmptyState
                 icon={Handshake}
                 title="No connections yet"
@@ -107,7 +116,7 @@ export function Component() {
               />
             ) : (
               <m.ul variants={staggerContainer} initial="hidden" animate="visible" className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {connections.data.map((connection) => (
+                {people.map((connection) => (
                   <m.li key={connection.id} variants={staggerItem}>
                     <AppLink
                       to={`/app/people/${connection.person.userId}`}
@@ -119,7 +128,11 @@ export function Component() {
                           <span className="truncate">{connection.person.firstName}</span>
                           {connection.person.verified ? <VerifiedBadge /> : null}
                         </span>
-                        <span className="block truncate text-sm text-muted-foreground">Met at {connection.eventTitle}</span>
+                        <span className="block truncate text-sm text-muted-foreground">
+                          {connection.eventTitles.length > 1
+                            ? `Met at ${connection.eventTitles.length} events`
+                            : `Met at ${connection.eventTitles[0]}`}
+                        </span>
                         <span className="block text-sm text-muted-foreground">Connected {formatAgo(connection.createdAt)}</span>
                       </span>
                     </AppLink>

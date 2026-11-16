@@ -15,7 +15,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 5. Events (home, filters, hubs, event page, create event, admin approval) | Built |
 | 6. Requests and squads (host inbox, waitlist, squads) | Built |
 | 7. Bookings (checkout, reconfirmation, refunds and credit, My plans) | Built |
-| 8. After the event | Not started |
+| 8. After the event (check-in, feedback, reports, reliability, meet again) | Built |
 | 9. Admin and polish | Not started |
 
 Routes for later milestones exist as placeholders, so the navigation and role guards can be reviewed now.
@@ -137,7 +137,7 @@ In development, a floating button in the bottom-right corner signs you in as the
 | Role | Signed in as | What their account shows |
 |---|---|---|
 | Member | Ananya | A plan to reconfirm, a pending request, a waitlist place, a gentle decline, two paid bookings, ₹900 credit, feedback to give, and a squad she started with two people waiting for her answer |
-| Host | Arjun | Two events with requests: six requests and two on the waitlist for board games, four requests for New Year’s Eve |
+| Host | Arjun | Two events with requests: six requests and two on the waitlist for board games, four requests for New Year’s Eve. His quiz night is on right now, ready for check-in |
 | Admin | Meera | Host applications, an event to approve, open reports, an appeal and a collusion flag |
 
 ## Sign-in and onboarding
@@ -183,6 +183,17 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **The waitlist:** when someone gives up a place, the next person on the waitlist gets it. They see "Moved up" on My plans and on the event page, and the host sees "Moved up from the waitlist" on the guest list. The person who left is told their place has gone to the next person, but not who.
 - **My plans (`/app/plans`):** "Still coming?" cards, new updates, Kollide credit, upcoming and past plans with each one’s status and the address once it’s yours, and a payment history.
 
+## After the event
+
+- **Tickets:** anyone with a place has a QR ticket on My plans and on the event page. The code is drawn by `qrcode-generator` (free, MIT licence), loaded only when a ticket is opened.
+- **Check-in (the host's "Going and check-in" tab):** opens two hours before the start. The host taps names as people arrive, or scans a ticket. The camera is simulated in this version, so the scanner takes the code shown under the QR. "Close out" lists everyone not checked in before marking them as missed.
+- **The live quiz night:** Arjun’s "Pub quiz, team of strangers" starts an hour before the demo data is created, with Ananya booked, so the whole loop can be tried. "Reset demo data" in the role switcher makes it live again.
+- **Feedback (`/app/feedback/:eventId`):** opens when the event ends, or as soon as the host closes it out, and closes 72 hours after the end. Only people who were checked in can give it. For each person: up to three tags from the fixed list, "I’d like to meet them again", and an optional private "Something felt off?". Then three yes-or-no questions about the host. Reviews stay hidden until both people have answered, or the window closes.
+- **Reliability:** "Shows up: X of Y" is worked out from check-ins. Giving up a place in advance never counts against anyone. Your own profile explains your score.
+- **Gentle tips:** shown only on your own profile, once several people said the same thing at more than one event. You can ask us to look again, and the tip shows "Under review".
+- **Safety reports:** on every other member’s profile, every event page and the feedback screen. A report about a person puts them on hold: they can’t send requests, and their profile says so, with a way to appeal. The emergency number is in `src/lib/safety.ts`.
+- **Connections (`/app/connections`):** people who both said yes. When three or more all said yes to each other, Kollide suggests a repeat. There are no messages, by design.
+
 ## Mock and real services
 
 Components never talk to a backend directly. They call TanStack Query hooks in `src/features`, the hooks call the service interfaces, and one file decides which implementation answers.
@@ -203,7 +214,7 @@ Put the flag in a `.env.local` file or in the build environment. To connect a re
 **The mock backend.**
 
 - It keeps its data in memory and mirrors it to `localStorage` under `kollide:mock-db`, so changes survive a refresh. "Reset demo data" in the role switcher starts again from the seed.
-- The seed is built relative to today, so there are always events coming up. It has 40 members, 16 events (14 of them live), 4 squads, 12 finished events that give reliability a history, and one event from yesterday whose feedback window is open.
+- The seed is built relative to today, so there are always events coming up. It has 40 members, 17 events (14 in the feed, and one happening right now), 4 squads, 12 finished events that give reliability a history, and one event from yesterday whose feedback window is open.
 - Calls take about 450 ms, so loading states are visible. Set `VITE_MOCK_DELAY_MS` to change this.
 - The email sign-in code is always `123456`.
 - To see a failed payment, pay with a UPI ID ending in `@fail` or a card number ending in `0002`.
