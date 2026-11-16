@@ -14,7 +14,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 4. Sign-in, onboarding and profile | Built |
 | 5. Events (home, filters, hubs, event page, create event, admin approval) | Built |
 | 6. Requests and squads (host inbox, waitlist, squads) | Built |
-| 7. Bookings | Not started |
+| 7. Bookings (checkout, reconfirmation, refunds and credit, My plans) | Built |
 | 8. After the event | Not started |
 | 9. Admin and polish | Not started |
 
@@ -173,6 +173,15 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **Squads (`/app/squads`):** your squads, then squads forming, with a women-only filter. A squad’s page (`/app/squads/:id`) shows who is in, the public place where the squad meets and at what time, and what the viewer can do. The creator opens each person’s profile card before answering.
 - **Starting a squad:** every upcoming event has a "Start a squad" button. A squad has a name, a public meeting place, a meeting time (15 to 60 minutes before the start) and a size of 4 to 6. Women can make a squad women-only, and every squad for a women-only event is women-only.
 - **No chat.** A squad page has no messages, notes or contact details, by design.
+
+## Bookings
+
+- **Checkout (`/app/events/:slug/book`):** for Kollide’s own events. A summary with the price, any Kollide credit (used first, automatically) and what is left to pay, then a checkout sheet with UPI and card. The sheet shows "processing", then success with a reference, or a failure that says nothing was charged. If credit covers the whole price, it books with credit alone.
+- **The checkout is simulated.** Everything goes through `paymentService`; no payment SDK is called. Payment details are used once and never stored. In mock mode, a UPI ID ending in `@fail` or a card number ending in `0002` shows the failure screen.
+- **Refunds (`/app/plans/:bookingId/cancel`):** the four rules, with the one that applies now drawn forward, and exactly what cancelling would give back. More than 72 hours before: money back to where it came from, and any credit used comes back as credit. Inside 72 hours: the full amount as credit. A no-show gets nothing. If Kollide cancels, everyone is refunded automatically.
+- **"Still coming?":** in the 24 hours before a free event, My plans asks. "Yes" shows on the host’s guest list as "Still coming". "I can’t make it" frees the place.
+- **The waitlist:** when someone gives up a place, the next person on the waitlist gets it. They see "Moved up" on My plans and on the event page, and the host sees "Moved up from the waitlist" on the guest list. The person who left is told their place has gone to the next person, but not who.
+- **My plans (`/app/plans`):** "Still coming?" cards, new updates, Kollide credit, upcoming and past plans with each one’s status and the address once it’s yours, and a payment history.
 
 ## Mock and real services
 
