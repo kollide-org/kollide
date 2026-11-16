@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Check, KeyRound, MapPin, Ticket, UsersRound } from 'lucide-react'
 import * as m from 'motion/react-m'
-import { useState, type CSSProperties } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import { Navigate, useParams } from 'react-router'
 
 import { AppLink } from '@/components/shared/app-link'
@@ -163,6 +163,7 @@ export function Component() {
   const [result, setResult] = useState<PaymentResult | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const pay = usePay()
+  const paying = useRef(false)
 
   const data = event.data
   const bookable = data && data.type === 'kollide' && data.pricing.mode === 'paid' && data.viewer.booking?.status !== 'paid'
@@ -204,7 +205,10 @@ export function Component() {
     return <>{back}<ErrorState className="mt-8" headingLevel="h1" onRetry={() => void checkout.refetch()} /></>
   }
 
-  const onPay = (input: PaymentInput) =>
+  const onPay = (input: PaymentInput) => {
+    // A second tap while the first payment is on its way is ignored.
+    if (paying.current) return
+    paying.current = true
     pay.mutate(
       { bookingId: checkout.data.booking.id, input },
       {
@@ -212,8 +216,12 @@ export function Component() {
           setSheetOpen(false)
           setResult(paid)
         },
+        onSettled: () => {
+          paying.current = false
+        },
       },
     )
+  }
   const failure =
     pay.error && (isServiceError(pay.error, 'payment_failed') || isServiceError(pay.error, 'validation'))
       ? pay.error.message

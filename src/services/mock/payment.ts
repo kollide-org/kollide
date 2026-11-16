@@ -15,6 +15,9 @@ import { copy, invalid, latency, newId, notFound, now, nowIso, requireActiveMemb
  * To see the failure screen, pay with a UPI ID ending in "@fail" or a card
  * number ending in 0002.
  */
+/** "₹1,800", written the way the rest of the product writes money. */
+const rupees = (amount: number) => `₹${amount.toLocaleString('en-IN')}`
+
 const UPI_PATTERN = /^[a-z0-9._-]{2,}@[a-z]{2,}$/i
 
 function eventOf(db: Db, eventId: ID): EventRecord {
@@ -56,7 +59,7 @@ function spendCredit(db: Db, userId: ID, amountInr: number): void {
 
 function validatePayment(input: PaymentInput, payableInr: number): void {
   if (input.method === 'credit') {
-    if (payableInr > 0) throw invalid(`There is still ₹${payableInr} to pay. Choose UPI or a card.`)
+    if (payableInr > 0) throw invalid(`There is still ${rupees(payableInr)} to pay. Choose UPI or a card.`)
     return
   }
   if (input.method === 'upi') {
@@ -234,10 +237,10 @@ export const mockPaymentService: PaymentService = {
       db.credits.push(credit)
     }
     if (moneyBackInr > 0) {
-      notify(db, user.id, 'refund', `₹${moneyBackInr} refunded`, `For ${event.title}. It can take a few days to reach your account.`, '/app/plans')
+      notify(db, user.id, 'refund', `${rupees(moneyBackInr)} refunded`, `For ${event.title}. It can take a few days to reach your account.`, '/app/plans')
     }
     if (creditBackInr > 0) {
-      notify(db, user.id, 'refund', `₹${creditBackInr} added as Kollide credit`, 'It is used automatically on your next paid booking.', '/app/plans')
+      notify(db, user.id, 'refund', `${rupees(creditBackInr)} added as Kollide credit`, 'It is used automatically on your next paid booking.', '/app/plans')
     }
     promoteFromWaitlist(db, event)
     saveDb()

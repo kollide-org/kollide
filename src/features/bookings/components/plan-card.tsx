@@ -42,7 +42,7 @@ function describe(plan: BookingWithEvent, payment: Payment | undefined): { text:
         actions: ['cancel_paid'],
       }
     case 'pending_payment':
-      return { text: 'You started booking but haven’t paid yet.', actions: ['finish', 'remove_unpaid'] }
+      return { text: 'You started booking but haven’t paid yet. Places aren’t held until you pay.', actions: ['finish', 'remove_unpaid'] }
     case 'declined':
       return { text: `${host} couldn’t fit everyone in this time.`, actions: ['similar'] }
     case 'attended':
@@ -50,7 +50,7 @@ function describe(plan: BookingWithEvent, payment: Payment | undefined): { text:
     case 'no_show':
       return { text: 'You were booked but didn’t make it.', actions: [] }
     case 'cancelled':
-      return { text: plan.flow === 'paid' ? 'Cancelled. The amount came back as Kollide credit.' : 'Cancelled.', actions: [] }
+      return { text: plan.paymentId ? 'Cancelled. The amount came back as Kollide credit.' : 'Cancelled.', actions: [] }
     case 'refunded':
       return { text: 'Cancelled and refunded.', actions: [] }
   }
