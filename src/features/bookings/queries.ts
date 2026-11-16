@@ -16,6 +16,27 @@ export function useMyBookings(enabled = true) {
   return useQuery({ queryKey: bookingKeys.mine, queryFn: () => bookingService.listMyBookings(), enabled })
 }
 
+function useRefreshPlans() {
+  const queryClient = useQueryClient()
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: ['bookings'] })
+    void queryClient.invalidateQueries({ queryKey: ['events'] })
+    void queryClient.invalidateQueries({ queryKey: ['notifications'] })
+  }
+}
+
+/** "Still coming?": yes. */
+export function useReconfirm() {
+  const refresh = useRefreshPlans()
+  return useMutation({ mutationFn: (bookingId: string) => bookingService.reconfirm(bookingId), onSettled: refresh })
+}
+
+/** Gives up a free place, a request or a waitlist place. The next person on the waitlist moves up. */
+export function useCancelPlan() {
+  const refresh = useRefreshPlans()
+  return useMutation({ mutationFn: (bookingId: string) => bookingService.cancelBooking(bookingId), onSettled: refresh })
+}
+
 /** Host: requests and waitlist places for one event, as profile cards. */
 export function useJoinRequests(eventId: string, enabled = true) {
   return useQuery({ queryKey: bookingKeys.requests(eventId), queryFn: () => bookingService.listRequests(eventId), enabled })
