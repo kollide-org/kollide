@@ -128,6 +128,13 @@ export function Component() {
           </section>
         ) : null}
 
+        {data.people.length === 0 && !closed ? (
+          <p className="rounded-3xl border border-dashed border-foreground/20 p-6 text-muted-foreground">
+            Nobody else was checked in at this one, so there’s nobody to tag.
+            {data.host ? ' You can still tell us about the host.' : ''}
+          </p>
+        ) : null}
+
         {data.host && !closed ? (
           <section aria-labelledby="host-heading" className="grid gap-4">
             <h2 id="host-heading" className="text-h3">

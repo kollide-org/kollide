@@ -44,7 +44,8 @@ export function PersonFeedback({ eventId, person, onReport }: { eventId: string;
         subjectId: person.userId,
         tags,
         wantsToMeetAgain: meetAgain,
-        privateFeedback: feltOff && category ? { category, note: note.trim() || undefined } : undefined,
+        // Sent whenever a category is chosen, even if the panel was closed again afterwards.
+        privateFeedback: category ? { category, note: note.trim() || undefined } : undefined,
       },
       {
         onSuccess: ({ connected }) => {
@@ -145,6 +146,7 @@ export function PersonFeedback({ eventId, person, onReport }: { eventId: string;
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
               >
                 Something felt off?
+                {category && !feltOff ? <span className="font-normal">· {PRIVATE_FEEDBACK_LABELS[category]}</span> : null}
                 <ChevronDown className={cn('size-4 transition-transform', feltOff && 'rotate-180')} aria-hidden="true" />
               </button>
               {feltOff ? (
@@ -179,7 +181,7 @@ export function PersonFeedback({ eventId, person, onReport }: { eventId: string;
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">You can’t change this once it’s saved.</p>
-              <Button variant="soft" onClick={save} disabled={submit.isPending || (feltOff && !category && note.trim().length > 0)}>
+              <Button variant="soft" onClick={save} disabled={submit.isPending || (!category && note.trim().length > 0)}>
                 {submit.isPending ? 'Saving…' : `Save for ${person.firstName}`}
               </Button>
             </div>
