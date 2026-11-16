@@ -1,4 +1,4 @@
-import { ArrowUpRight, MapPin } from 'lucide-react'
+import { ArrowUpRight, MapPin, MessageCircleHeart, Ticket } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { AppLink } from '@/components/shared/app-link'
@@ -14,6 +14,7 @@ interface PlanCardProps {
   plan: BookingWithEvent
   payment?: Payment
   onAction: (plan: BookingWithEvent, action: PlanAction) => void
+  onShowTicket: (plan: BookingWithEvent) => void
 }
 
 /** What a booking means right now, in a sentence, and what the member can do about it. */
@@ -30,23 +31,23 @@ function describe(plan: BookingWithEvent, payment: Payment | undefined): { text:
     case 'approved':
       return {
         text: plan.promotedAt ? 'A place opened up, and you moved up from the waitlist. You’re in.' : 'You’re in.',
-        actions: ['cant_make_it'],
+        actions: ['ticket', 'cant_make_it'],
       }
     case 'confirmed':
-      return { text: 'You’re in, and you’ve said you’re still coming.', actions: ['cant_make_it'] }
+      return { text: 'You’re in, and you’ve said you’re still coming.', actions: ['ticket', 'cant_make_it'] }
     case 'paid':
       return {
         text: payment
           ? `Booked. You paid ${payment.method === 'credit' ? `${formatInr(payment.creditAppliedInr)} in credit` : formatInr(payment.amountInr + payment.creditAppliedInr)}.`
           : 'Booked.',
-        actions: ['cancel_paid'],
+        actions: ['ticket', 'cancel_paid'],
       }
     case 'pending_payment':
       return { text: 'You started booking but haven’t paid yet. Places aren’t held until you pay.', actions: ['finish', 'remove_unpaid'] }
     case 'declined':
       return { text: `${host} couldn’t fit everyone in this time.`, actions: ['similar'] }
     case 'attended':
-      return { text: 'You went.', actions: [] }
+      return { text: 'You went.', actions: plan.feedbackOpen ? ['feedback'] : [] }
     case 'no_show':
       return { text: 'You were booked but didn’t make it.', actions: [] }
     case 'cancelled':
@@ -57,13 +58,29 @@ function describe(plan: BookingWithEvent, payment: Payment | undefined): { text:
 }
 
 /** One booking on "My plans". */
-export function PlanCard({ plan, payment, onAction }: PlanCardProps) {
+export function PlanCard({ plan, payment, onAction, onShowTicket }: PlanCardProps) {
   const status = BOOKING_STATUS[plan.status]
   const { text, actions } = describe(plan, payment)
   const eventPath = `/app/events/${plan.event.slug}`
 
   const button = (action: ReactNode) => {
     switch (action) {
+      case 'ticket':
+        return (
+          <Button key="ticket" variant="soft" size="sm" className="ml-3" onClick={() => onShowTicket(plan)}>
+            <Ticket aria-hidden="true" />
+            Show ticket
+          </Button>
+        )
+      case 'feedback':
+        return (
+          <Button key="feedback" asChild variant="soft" size="sm" className="ml-3">
+            <AppLink to={`/app/feedback/${plan.event.id}`}>
+              <MessageCircleHeart aria-hidden="true" />
+              Give feedback
+            </AppLink>
+          </Button>
+        )
       case 'withdraw':
         return <Button key="withdraw" variant="ghost" size="sm" onClick={() => onAction(plan, 'withdraw')}>Withdraw my request</Button>
       case 'leave_waitlist':

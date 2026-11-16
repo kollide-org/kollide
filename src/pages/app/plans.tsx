@@ -1,7 +1,7 @@
-import { ArrowUpRight, Bell, CalendarHeart, Check, Clock, CreditCard, Smartphone, Wallet } from 'lucide-react'
+import { ArrowUpRight, Bell, CalendarHeart, Check, Clock, CreditCard, MessageCircleHeart, Smartphone, Wallet } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
 import * as m from 'motion/react-m'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 
@@ -21,6 +21,11 @@ import { formatAgo, formatDay, formatInr, formatTime } from '@/lib/format'
 import { spring, staggerContainer, staggerItem } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { BookingWithEvent, NotificationKind } from '@/services'
+
+// The ticket and its QR encoder load only when someone opens a ticket.
+const TicketDialog = lazy(() =>
+  import('@/features/bookings/components/ticket-dialog').then((module) => ({ default: module.TicketDialog })),
+)
 
 /** Updates a member cares about. Host and admin notices live on their own pages. */
 const MEMBER_UPDATES: NotificationKind[] = [
@@ -109,6 +114,33 @@ function StillComing({ plan, onCantMakeIt }: { plan: BookingWithEvent; onCantMak
         </div>
       </div>
     </m.section>
+  )
+}
+
+/** "How was it?": shown while the 72-hour feedback window is open. */
+function FeedbackPrompt({ plan }: { plan: BookingWithEvent }) {
+  return (
+    <section
+      aria-labelledby={`feedback-${plan.id}`}
+      className="flex flex-col gap-5 rounded-3xl border border-border/70 bg-card p-6 shadow-card sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div className="flex items-center gap-4">
+        <img src={plan.event.coverUrl} alt="" className="size-16 shrink-0 rounded-2xl object-cover" />
+        <div>
+          <p className="eyebrow text-primary">How was it?</p>
+          <h2 id={`feedback-${plan.id}`} className="mt-1 text-h4">
+            {plan.event.title}
+          </h2>
+          <p className="text-sm text-muted-foreground">Tag the people you met, and say if you’d like to meet again.</p>
+        </div>
+      </div>
+      <Button asChild variant="soft" className="shrink-0">
+        <AppLink to={`/app/feedback/${plan.event.id}`}>
+          <MessageCircleHeart aria-hidden="true" />
+          Give feedback
+        </AppLink>
+      </Button>
+    </section>
   )
 }
 
@@ -222,6 +254,7 @@ export function Component() {
   const payments = useMyPayments()
   const cancel = useCancelPlan()
   const [pending, setPending] = useState<{ plan: BookingWithEvent; action: PlanAction } | null>(null)
+  const [ticketFor, setTicketFor] = useState<BookingWithEvent | null>(null)
   const [openedAt] = useState(() => Date.now())
 
   const all = plans.data ?? []
@@ -269,6 +302,12 @@ export function Component() {
             <StillComing key={plan.id} plan={plan} onCantMakeIt={() => setPending({ plan, action: 'cant_make_it' })} />
           ))}
         </AnimatePresence>
+
+        {all
+          .filter((plan) => plan.feedbackOpen)
+          .map((plan) => (
+            <FeedbackPrompt key={plan.id} plan={plan} />
+          ))}
 
         <Updates />
         <CreditCardSummary />
@@ -350,6 +389,7 @@ export function Component() {
                       plan={plan}
                       payment={payments.data?.find((payment) => payment.id === plan.paymentId)}
                       onAction={(target, action) => setPending({ plan: target, action })}
+                      onShowTicket={setTicketFor}
                     />
                   </m.li>
                 ))}
@@ -360,6 +400,17 @@ export function Component() {
 
         <Payments plans={all} />
       </div>
+
+      {ticketFor ? (
+        <Suspense fallback={null}>
+          <TicketDialog
+            bookingId={ticketFor.id}
+            event={ticketFor.event}
+            open
+            onOpenChange={(open) => !open && setTicketFor(null)}
+          />
+        </Suspense>
+      ) : null}
 
       <Dialog open={Boolean(pending)} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>

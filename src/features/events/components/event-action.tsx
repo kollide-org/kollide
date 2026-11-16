@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, Hourglass, Send, Ticket, UsersRound } from 'lucide-react'
 import { LayoutGroup } from 'motion/react'
 import * as m from 'motion/react-m'
-import { useState, type ReactNode } from 'react'
+import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { useSession } from '@/app/providers/session-context'
@@ -16,6 +16,11 @@ import { shareOrCopy } from '@/lib/share'
 import type { EventDetail } from '@/services'
 
 import { useCancelBooking, useRequestToJoin } from '../queries'
+
+// The ticket and its QR encoder load only when someone opens a ticket.
+const TicketDialog = lazy(() =>
+  import('@/features/bookings/components/ticket-dialog').then((module) => ({ default: module.TicketDialog })),
+)
 
 const NOTE_MAX = 200
 
@@ -115,6 +120,7 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
   const { session, role } = useSession()
   const [asking, setAsking] = useState(false)
   const [givingUp, setGivingUp] = useState(false)
+  const [showTicket, setShowTicket] = useState(false)
   const request = useRequestToJoin(event.slug)
   const cancel = useCancelBooking(event.slug)
 
@@ -218,6 +224,10 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
           {booking?.promotedAt ? 'A place opened up and you moved up from the waitlist. ' : ''}The address and directions are on this
           page now.
         </Note>
+        <Button variant="soft" className="w-full" onClick={() => setShowTicket(true)}>
+          <Ticket aria-hidden="true" />
+          Show my ticket
+        </Button>
         <Button variant="ghost" size="sm" className="-ml-3 w-fit" onClick={() => setGivingUp(true)}>
           I can’t make it
         </Button>
@@ -228,6 +238,10 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
       <>
         <StatusPill tone="success" icon={<Check className="size-4.5" strokeWidth={2.5} aria-hidden="true" />}>You’re booked</StatusPill>
         <Note>The address and directions are on this page now.</Note>
+        <Button variant="soft" className="w-full" onClick={() => setShowTicket(true)}>
+          <Ticket aria-hidden="true" />
+          Show my ticket
+        </Button>
         {booking ? (
           <Button asChild variant="ghost" size="sm" className="-ml-3 w-fit">
             <AppLink to={`/app/plans/${booking.id}/cancel`}>Cancel booking</AppLink>
@@ -358,6 +372,11 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
       ) : null}
 
       <RequestDialog event={event} open={asking} onOpenChange={setAsking} onSend={send} />
+      {showTicket && booking ? (
+        <Suspense fallback={null}>
+          <TicketDialog bookingId={booking.id} event={event} open onOpenChange={setShowTicket} />
+        </Suspense>
+      ) : null}
       <Dialog open={givingUp} onOpenChange={setGivingUp}>
         <DialogContent>
           <DialogHeader>

@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { bookingService } from '@/services'
-import type { JoinRequest, RequestDecision } from '@/services'
+import type { Attendee, JoinRequest, RequestDecision } from '@/services'
 
 export const bookingKeys = {
   all: ['bookings'] as const,
+  ticket: (bookingId: string) => ['bookings', 'ticket', bookingId] as const,
   mine: ['bookings', 'mine'] as const,
   requests: (eventId: string) => ['bookings', 'requests', eventId] as const,
   capacity: (eventId: string) => ['bookings', 'capacity', eventId] as const,
@@ -85,4 +86,60 @@ export function useDecideRequest(eventId: string) {
       void queryClient.invalidateQueries({ queryKey: ['events'] })
     },
   })
+}
+
+/** The member's ticket for a place they hold. */
+export function useTicket(bookingId: string, enabled = true) {
+  return useQuery({ queryKey: bookingKeys.ticket(bookingId), queryFn: () => bookingService.getTicket(bookingId), enabled })
+}
+
+function useRefreshCheckIn(eventId: string) {
+  const queryClient = useQueryClient()
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: bookingKeys.attendees(eventId) })
+    void queryClient.invalidateQueries({ queryKey: bookingKeys.capacity(eventId) })
+    void queryClient.invalidateQueries({ queryKey: ['events'] })
+  }
+}
+
+/** Host: tap to check someone in. Their row turns green at once. */
+export function useCheckIn(eventId: string) {
+  const queryClient = useQueryClient()
+  const refresh = useRefreshCheckIn(eventId)
+  const key = bookingKeys.attendees(eventId)
+  return useMutation({
+    mutationFn: (userId: string) => bookingService.checkIn(eventId, userId, 'manual'),
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: key })
+      const previous = queryClient.getQueryData<Attendee[]>(key)
+      if (previous) {
+        const now = new Date().toISOString()
+        queryClient.setQueryData<Attendee[]>(
+          key,
+          previous.map((attendee) =>
+            attendee.person.userId === userId && !attendee.checkIn
+              ? { ...attendee, checkIn: { id: 'pending', eventId, userId, method: 'manual', checkedInAt: now, checkedInBy: 'me' } }
+              : attendee,
+          ),
+        )
+      }
+      return { previous }
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previous) queryClient.setQueryData(key, context.previous)
+    },
+    onSettled: refresh,
+  })
+}
+
+/** Host: the result of scanning a ticket. */
+export function useCheckInWithTicket(eventId: string) {
+  const refresh = useRefreshCheckIn(eventId)
+  return useMutation({ mutationFn: (code: string) => bookingService.checkInWithTicket(eventId, code), onSettled: refresh })
+}
+
+/** Host: ends the event. Anyone with a place who was not checked in becomes a no-show. */
+export function useCloseOut(eventId: string) {
+  const refresh = useRefreshCheckIn(eventId)
+  return useMutation({ mutationFn: () => bookingService.closeOutEvent(eventId), onSettled: refresh })
 }
