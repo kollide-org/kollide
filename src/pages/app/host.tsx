@@ -20,7 +20,7 @@ function EventRow({ event }: { event: HostedEvent }) {
       <div className="min-w-0 flex-1 basis-48">
         <h2 className="truncate font-display text-h4">
           <AppLink
-            to={event.status === 'published' ? `/app/host/events/${event.slug}` : `/app/events/${event.slug}`}
+            to={event.status === 'published' || event.status === 'completed' ? `/app/host/events/${event.slug}` : `/app/events/${event.slug}`}
             className="outline-none after:absolute after:inset-0 focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring"
           >
             {event.title}

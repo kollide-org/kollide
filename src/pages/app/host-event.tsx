@@ -1,20 +1,17 @@
-import { ArrowLeft, ArrowUpRight, Inbox, ListOrdered, UsersRound } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Inbox, ListOrdered } from 'lucide-react'
 import * as m from 'motion/react-m'
 import { Tabs as TabsPrimitive } from 'radix-ui'
 import type { CSSProperties } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
-import { PersonAvatar } from '@/components/people/person-avatar'
-import { VerifiedBadge } from '@/components/people/verified-badge'
 import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ErrorState } from '@/components/shared/error-state'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { BOOKING_STATUS } from '@/features/bookings/labels'
 import { CapacityMeter } from '@/features/bookings/components/capacity-meter'
+import { CheckInPanel } from '@/features/bookings/components/check-in-panel'
 import { RequestDeck } from '@/features/bookings/components/request-deck'
-import { useAttendees, useHostCapacity, useJoinRequests } from '@/features/bookings/queries'
+import { useHostCapacity, useJoinRequests } from '@/features/bookings/queries'
 import { useEvent } from '@/features/events/queries'
 import { formatEventDate } from '@/lib/format'
 import { spring } from '@/lib/motion'
@@ -39,58 +36,6 @@ function DeckSkeleton() {
         <Skeleton className="aspect-[4/5] w-full rounded-3xl" />
       </div>
     </div>
-  )
-}
-
-function Going({ eventId }: { eventId: string }) {
-  const { data: attendees, isPending, isError, refetch } = useAttendees(eventId)
-  if (isPending) {
-    return (
-      <div role="status" aria-label="Loading guests" className="grid gap-3 sm:grid-cols-2">
-        {[0, 1, 2, 3].map((index) => (
-          <Skeleton key={index} className="h-18 rounded-2xl" />
-        ))}
-      </div>
-    )
-  }
-  if (isError) return <ErrorState onRetry={() => void refetch()} />
-  if (attendees.length === 0) {
-    return (
-      <EmptyState
-        icon={UsersRound}
-        title="Nobody is going yet"
-        description="People you accept appear here, with a note when they’ve said they’re still coming."
-      />
-    )
-  }
-  return (
-    <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {attendees.map(({ booking, person }) => {
-        const status = BOOKING_STATUS[booking.status]
-        return (
-          <li key={booking.id}>
-            <AppLink
-              to={`/app/people/${person.userId}`}
-              className="flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3.5 shadow-card transition-[transform,box-shadow] duration-300 ease-out-soft hover:-translate-y-0.5 hover:shadow-lift"
-            >
-              <PersonAvatar person={person} className="size-12" />
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <span className="truncate">{person.firstName}</span>
-                  {person.verified ? <VerifiedBadge /> : null}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {booking.reconfirmedAt ? 'Still coming' : booking.promotedAt ? 'Moved up from the waitlist' : 'Accepted'}
-                </span>
-              </span>
-              <Badge variant={status.variant} size="sm">
-                {status.label}
-              </Badge>
-            </AppLink>
-          </li>
-        )
-      })}
-    </ul>
   )
 }
 
@@ -130,7 +75,7 @@ export function Component() {
     waitlist: requests.data ? waiting.length : undefined,
     going: capacity.data?.approved,
   }
-  const labels: Record<Tab, string> = { requests: 'Requests', waitlist: 'Waitlist', going: 'Going' }
+  const labels: Record<Tab, string> = { requests: 'Requests', waitlist: 'Waitlist', going: 'Going and check-in' }
 
   return (
     <>
@@ -254,7 +199,7 @@ export function Component() {
         </TabsPrimitive.Content>
 
         <TabsPrimitive.Content value="going" className="pt-8 outline-none">
-          {eventId ? <Going eventId={eventId} /> : null}
+          {event.data ? <CheckInPanel event={event.data} /> : null}
         </TabsPrimitive.Content>
       </TabsPrimitive.Root>
     </>
