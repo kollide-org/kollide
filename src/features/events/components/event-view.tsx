@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, CalendarDays, CalendarX, HandCoins, Home, Lock, MapPin, Plus, ShieldCheck, UsersRound } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { lazy, Suspense, useState, type ReactNode } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
 import { AvatarStack } from '@/components/people/avatar-stack'
@@ -12,7 +12,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SquadCard } from '@/features/squads/components/squad-card'
-import { StartSquadDialog } from '@/features/squads/components/start-squad-dialog'
 import { useSquadsForEvent } from '@/features/squads/queries'
 import { ageRangeLabel, formatDay, formatTimeRange, priceLabel } from '@/lib/format'
 import { useMediaQuery } from '@/lib/use-media-query'
@@ -24,6 +23,11 @@ import { useEvent, useEventAddress, useSimilarEvents } from '../queries'
 import { EventAction } from './event-action'
 import { EventCard } from './event-card'
 import { HostCard } from './host-card'
+
+// The form is only needed once someone chooses to start a squad, so it loads then.
+const StartSquadDialog = lazy(() =>
+  import('@/features/squads/components/start-squad-dialog').then((module) => ({ default: module.StartSquadDialog })),
+)
 
 function Block({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
@@ -106,6 +110,8 @@ function Address({ event }: { event: EventDetail }) {
 function Squads({ event }: { event: EventDetail }) {
   const { role, session } = useSession()
   const [starting, setStarting] = useState(false)
+  // Once opened, the dialog stays mounted so it can animate closed.
+  const [opened, setOpened] = useState(false)
   const [openedAt] = useState(() => Date.now())
   const { data: squads, isPending } = useSquadsForEvent(event.id)
   const upcoming = event.status === 'published' && new Date(event.startsAt).getTime() > openedAt
@@ -136,7 +142,13 @@ function Squads({ event }: { event: EventDetail }) {
   } else {
     canStart = true
     start = (
-      <Button variant="outline" onClick={() => setStarting(true)}>
+      <Button
+        variant="outline"
+        onClick={() => {
+          setOpened(true)
+          setStarting(true)
+        }}
+      >
         <Plus aria-hidden="true" />
         Start a squad
       </Button>
@@ -167,8 +179,10 @@ function Squads({ event }: { event: EventDetail }) {
         )}
       </div>
       {start ? <div className="mt-5">{start}</div> : null}
-      {canStart ? (
-        <StartSquadDialog event={event} canChooseWomenOnly={isWoman} open={starting} onOpenChange={setStarting} />
+      {canStart && opened ? (
+        <Suspense fallback={null}>
+          <StartSquadDialog event={event} canChooseWomenOnly={isWoman} open={starting} onOpenChange={setStarting} />
+        </Suspense>
       ) : null}
     </>
   )
