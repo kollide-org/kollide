@@ -3,7 +3,10 @@ import type { ID, ISODateTime, PositiveTag, TagCount, TagReview } from '@/servic
 
 import { HOUR_MS } from './time'
 
-/** Feedback opens when the event ends and stays open for 72 hours. */
+/**
+ * Feedback opens when the event ends, or earlier if the host closes it out
+ * first, and stays open until 72 hours after the end.
+ */
 export const REVIEW_WINDOW_HOURS = 72
 
 export interface ReviewWindow {
@@ -11,16 +14,17 @@ export interface ReviewWindow {
   closesAt: ISODateTime
 }
 
-export function reviewWindow(eventEndsAt: ISODateTime): ReviewWindow {
-  const opens = new Date(eventEndsAt).getTime()
+export function reviewWindow(eventEndsAt: ISODateTime, closedOutAt: ISODateTime | null = null): ReviewWindow {
+  const ends = new Date(eventEndsAt).getTime()
+  const opens = closedOutAt ? Math.min(ends, new Date(closedOutAt).getTime()) : ends
   return {
     opensAt: new Date(opens).toISOString(),
-    closesAt: new Date(opens + REVIEW_WINDOW_HOURS * HOUR_MS).toISOString(),
+    closesAt: new Date(ends + REVIEW_WINDOW_HOURS * HOUR_MS).toISOString(),
   }
 }
 
-export function isReviewWindowOpen(eventEndsAt: ISODateTime, now: Date): boolean {
-  const { opensAt, closesAt } = reviewWindow(eventEndsAt)
+export function isReviewWindowOpen(eventEndsAt: ISODateTime, now: Date, closedOutAt: ISODateTime | null = null): boolean {
+  const { opensAt, closesAt } = reviewWindow(eventEndsAt, closedOutAt)
   const time = now.getTime()
   return time >= new Date(opensAt).getTime() && time < new Date(closesAt).getTime()
 }
@@ -39,6 +43,8 @@ interface ReviewAttempt {
   subjectId: ID
   tags: readonly string[]
   eventEndsAt: ISODateTime
+  /** When the host closed the event out, if they have. */
+  eventClosedOutAt?: ISODateTime | null
   /** Everyone checked in at this event. */
   checkedInUserIds: ReadonlySet<ID>
   /** Reviews already submitted for this event. */
@@ -52,11 +58,11 @@ interface ReviewAttempt {
  * inside the 72-hour window, with at most three tags from the fixed list.
  */
 export function reviewBlocker(attempt: ReviewAttempt): ReviewBlocker | null {
-  const { reviewerId, subjectId, tags, eventEndsAt, checkedInUserIds, existingReviews, now } = attempt
+  const { reviewerId, subjectId, tags, eventEndsAt, eventClosedOutAt = null, checkedInUserIds, existingReviews, now } = attempt
   if (reviewerId === subjectId) return 'self'
   if (!checkedInUserIds.has(reviewerId)) return 'reviewer_not_checked_in'
   if (!checkedInUserIds.has(subjectId)) return 'subject_not_checked_in'
-  if (!isReviewWindowOpen(eventEndsAt, now)) return 'window_closed'
+  if (!isReviewWindowOpen(eventEndsAt, now, eventClosedOutAt)) return 'window_closed'
   if (existingReviews.some((review) => review.reviewerId === reviewerId && review.subjectId === subjectId)) {
     return 'already_reviewed'
   }

@@ -73,6 +73,18 @@ const TRANSITIONS: Record<BookingStatus, readonly BookingStatus[]> = {
   refunded: [],
 }
 
+/** The host can start checking people in this long before the start. */
+export const CHECK_IN_OPENS_HOURS_BEFORE = 2
+
+/** When check-in opens: two hours before the start. It stays open until the host closes the event out. */
+export function checkInOpensAt(eventStartsAt: ISODateTime): Date {
+  return new Date(new Date(eventStartsAt).getTime() - CHECK_IN_OPENS_HOURS_BEFORE * 3_600_000)
+}
+
+export function isCheckInOpen(eventStartsAt: ISODateTime, eventStatus: string, now: Date): boolean {
+  return eventStatus === 'published' && now >= checkInOpensAt(eventStartsAt)
+}
+
 export function canTransition(from: BookingStatus, to: BookingStatus): boolean {
   return TRANSITIONS[from].includes(to)
 }

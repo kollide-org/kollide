@@ -108,7 +108,7 @@ export function profileCard(db: Db, userId: ID, viewerId: ID | null, at: Date): 
 
 /** Removes the private fields, so an address can never leak through an event. */
 export function publicEvent(record: EventRecord) {
-  const { exactAddress: _address, directions: _directions, cancelledByKollide: _cancelled, ...event } = record
+  const { exactAddress: _address, directions: _directions, cancelledByKollide: _cancelled, closedOutAt: _closedOut, ...event } = record
   return event
 }
 

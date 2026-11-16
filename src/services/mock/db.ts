@@ -32,6 +32,8 @@ export interface EventRecord extends Event {
   exactAddress: string
   directions: string | null
   cancelledByKollide: boolean
+  /** When the host closed the event out. Feedback opens then, if that is before the end. */
+  closedOutAt: ISODateTime | null
 }
 
 /** Everything the mock backend knows. Only source records: nothing calculated is stored. */
@@ -63,7 +65,7 @@ export interface Db {
 }
 
 /** Raise this whenever the shape or the seed changes, so stale browsers reseed. */
-export const DB_VERSION = 4
+export const DB_VERSION = 5
 const STORAGE_KEY = 'kollide:mock-db'
 
 let memory: Db | null = null

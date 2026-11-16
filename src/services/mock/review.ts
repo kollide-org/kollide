@@ -31,7 +31,7 @@ function checkedInIds(db: Db, eventId: ID): Set<ID> {
 }
 
 function buildForm(db: Db, event: EventRecord, viewerId: ID): FeedbackForm {
-  const window = reviewWindow(event.endsAt)
+  const window = reviewWindow(event.endsAt, event.closedOutAt)
   const reviewed = new Set(
     db.tagReviews.filter((review) => review.eventId === event.id && review.reviewerId === viewerId).map((review) => review.subjectId),
   )
@@ -65,7 +65,7 @@ export const mockReviewService: ReviewService = {
       db.checkIns
         .filter((checkIn) => checkIn.userId === user.id)
         .map((checkIn) => eventOf(db, checkIn.eventId))
-        .filter((event) => isReviewWindowOpen(event.endsAt, at))
+        .filter((event) => isReviewWindowOpen(event.endsAt, at, event.closedOutAt))
         .map((event) => buildForm(db, event, user.id))
         .filter((form) => form.people.some((person) => !person.reviewed) || !form.hostRated)
         .sort((a, b) => a.closesAt.localeCompare(b.closesAt)),
@@ -94,6 +94,7 @@ export const mockReviewService: ReviewService = {
       subjectId: input.subjectId,
       tags: input.tags,
       eventEndsAt: event.endsAt,
+      eventClosedOutAt: event.closedOutAt,
       checkedInUserIds: checkedInIds(db, event.id),
       existingReviews: existing,
       now: now(),
@@ -146,7 +147,7 @@ export const mockReviewService: ReviewService = {
     const event = eventOf(db, input.eventId)
     if (!event.hostId || event.hostId === user.id) throw invalid('There is no host to rate for this event.')
     if (!checkedInIds(db, event.id).has(user.id)) throw new ServiceError('forbidden', BLOCKER_MESSAGES.reviewer_not_checked_in)
-    if (!isReviewWindowOpen(event.endsAt, now())) throw invalid(BLOCKER_MESSAGES.window_closed)
+    if (!isReviewWindowOpen(event.endsAt, now(), event.closedOutAt)) throw invalid(BLOCKER_MESSAGES.window_closed)
     if (db.hostRatings.some((rating) => rating.eventId === event.id && rating.raterId === user.id)) {
       throw new ServiceError('conflict', 'You have already rated the host for this event.')
     }

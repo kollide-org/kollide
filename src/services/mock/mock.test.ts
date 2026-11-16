@@ -65,7 +65,7 @@ describe('seed data', () => {
   it('has the people, events and squads the brief asks for', () => {
     const db = getDb()
     expect(db.profiles).toHaveLength(40)
-    expect(db.events.filter((event) => !event.id.startsWith('ev-past-'))).toHaveLength(16)
+    expect(db.events.filter((event) => !event.id.startsWith('ev-past-'))).toHaveLength(17)
     expect(db.squads).toHaveLength(4)
     expect(db.tagReviews.length).toBeGreaterThan(100)
   })
@@ -424,5 +424,30 @@ describe('admin', () => {
     await adminService.setUserStatus('u18', 'suspended', 'Repeated reports within one month.')
     getDb().sessionUserId = 'u18'
     expect(await rejection(bookingService.requestToJoin('ev-potluck-games'))).toBe('forbidden')
+  })
+})
+
+describe('check-in and closing out', () => {
+  it('checks a guest in from their ticket, then opens feedback and updates reliability', async () => {
+    await mockDevTools.signInAs('member')
+    const before = (await profileService.getProfileCard('u02')).reputation.reliability
+    const plan = (await bookingService.listMyBookings()).find((booking) => booking.eventId === 'ev-quiz-night')!
+    const ticket = await bookingService.getTicket(plan.id)
+
+    await mockDevTools.signInAs('host')
+    // Tomorrow's board games has not opened for check-in yet.
+    const tomorrow = getDb().bookings.find((booking) => booking.eventId === 'ev-board-games' && booking.status === 'approved')!
+    expect(await rejection(bookingService.checkIn('ev-board-games', tomorrow.userId, 'manual'))).toBe('validation')
+    expect(await rejection(bookingService.checkInWithTicket('ev-board-games', ticket.code))).toBe('validation')
+
+    await bookingService.checkInWithTicket('ev-quiz-night', ticket.code)
+    const result = await bookingService.closeOutEvent('ev-quiz-night')
+    expect(result).toEqual({ attended: 4, noShows: 4 })
+
+    await mockDevTools.signInAs('member')
+    const pending = await reviewService.listPendingFeedback()
+    expect(pending.map((form) => form.eventId)).toContain('ev-quiz-night')
+    const after = (await profileService.getProfileCard('u02')).reputation.reliability
+    expect(after).toEqual({ showedUp: before!.showedUp + 1, outOf: before!.outOf + 1 })
   })
 })

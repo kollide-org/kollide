@@ -11,8 +11,9 @@ import { eventListItem, publicEvent } from './views'
 
 const DAY = 86_400_000
 
+/** Listed events are ones people can still join, so an event leaves the feed once it starts. */
 function isUpcoming(event: EventRecord, at: Date): boolean {
-  return new Date(event.endsAt).getTime() > at.getTime()
+  return new Date(event.startsAt).getTime() > at.getTime()
 }
 
 function matchesDate(event: EventRecord, filter: EventFilters['date'], at: Date): boolean {
@@ -224,6 +225,7 @@ export const mockEventService: EventService = {
       exactAddress: exactAddress.trim(),
       directions: directions?.trim() || null,
       cancelledByKollide: false,
+      closedOutAt: null,
     }
     db.events.push(record)
     notifyAdmins(db, 'event_review', 'An event is waiting for approval', record.title, '/admin/events')
