@@ -122,7 +122,7 @@ function Tips() {
                 Under review
               </p>
             ) : (
-              <Button variant="link" className="mt-2 h-auto text-highlight-soft-foreground underline" onClick={() => setAppealing(tip.category)}>
+              <Button variant="link" className="mt-2 h-auto text-left whitespace-normal text-highlight-soft-foreground underline" onClick={() => setAppealing(tip.category)}>
                 Doesn’t sound right? Ask us to look again
               </Button>
             )}
@@ -179,6 +179,12 @@ export function Component() {
       <title>Your profile · Kollide</title>
       <PageHeader eyebrow="Profile" title="How others see you" description="This is the card hosts and squads see when you ask to join." />
 
+      {session?.user.status === 'on_hold' || card?.onHold ? (
+        <div className="mt-10">
+          <OnHold />
+        </div>
+      ) : null}
+
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-14">
         {isPending ? (
           <Skeleton className="aspect-[4/7] w-full rounded-3xl" />
@@ -189,7 +195,6 @@ export function Component() {
         )}
 
         <div className="grid gap-5 lg:sticky lg:top-28">
-          {session?.user.status === 'on_hold' || card?.onHold ? <OnHold /> : null}
           {card ? <Reliability card={card} /> : <Skeleton className="h-36 rounded-2xl" />}
           <Tips />
           {card ? <Verification card={card} /> : <Skeleton className="h-44 rounded-2xl" />}
