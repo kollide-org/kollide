@@ -79,7 +79,9 @@ function Going({ eventId }: { eventId: string }) {
                   <span className="truncate">{person.firstName}</span>
                   {person.verified ? <VerifiedBadge /> : null}
                 </span>
-                <span className="text-sm text-muted-foreground">{booking.reconfirmedAt ? 'Still coming' : 'Accepted'}</span>
+                <span className="text-sm text-muted-foreground">
+                  {booking.reconfirmedAt ? 'Still coming' : booking.promotedAt ? 'Moved up from the waitlist' : 'Accepted'}
+                </span>
               </span>
               <Badge variant={status.variant} size="sm">
                 {status.label}

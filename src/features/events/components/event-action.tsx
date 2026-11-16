@@ -114,6 +114,7 @@ function RequestDialog({
 export function EventAction({ event, appPath }: { event: EventDetail; appPath: string }) {
   const { session, role } = useSession()
   const [asking, setAsking] = useState(false)
+  const [givingUp, setGivingUp] = useState(false)
   const request = useRequestToJoin(event.slug)
   const cancel = useCancelBooking(event.slug)
 
@@ -213,7 +214,13 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
     action = (
       <>
         <StatusPill tone="success" icon={<Check className="size-4.5" strokeWidth={2.5} aria-hidden="true" />}>You’re in</StatusPill>
-        <Note>The address and directions are on this page now.</Note>
+        <Note>
+          {booking?.promotedAt ? 'A place opened up and you moved up from the waitlist. ' : ''}The address and directions are on this
+          page now.
+        </Note>
+        <Button variant="ghost" size="sm" className="-ml-3 w-fit" onClick={() => setGivingUp(true)}>
+          I can’t make it
+        </Button>
       </>
     )
   } else if (status === 'paid') {
@@ -221,6 +228,11 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
       <>
         <StatusPill tone="success" icon={<Check className="size-4.5" strokeWidth={2.5} aria-hidden="true" />}>You’re booked</StatusPill>
         <Note>The address and directions are on this page now.</Note>
+        {booking ? (
+          <Button asChild variant="ghost" size="sm" className="-ml-3 w-fit">
+            <AppLink to={`/app/plans/${booking.id}/cancel`}>Cancel booking</AppLink>
+          </Button>
+        ) : null}
       </>
     )
   } else if (status === 'declined') {
@@ -346,6 +358,38 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
       ) : null}
 
       <RequestDialog event={event} open={asking} onOpenChange={setAsking} onSend={send} />
+      <Dialog open={givingUp} onOpenChange={setGivingUp}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Give up your place?</DialogTitle>
+            <DialogDescription>
+              Thank you for saying so. Your place goes to the next person on the waitlist, and it counts as cancelling, not as
+              missing the event.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setGivingUp(false)}>
+              Keep my place
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={cancel.isPending}
+              onClick={() => {
+                if (!booking) return
+                cancel.mutate(booking.id, {
+                  onSuccess: () => {
+                    setGivingUp(false)
+                    toast.success('Your place is free for someone else')
+                  },
+                  onError: (error) => toast.error('That didn’t go through', { description: error.message }),
+                })
+              }}
+            >
+              Give up my place
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
