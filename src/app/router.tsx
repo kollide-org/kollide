@@ -66,8 +66,9 @@ export const router = createBrowserRouter([
             children: [
               { index: true, loader: prefetchHome, lazy: () => import('@/pages/app/home') },
               { path: 'events/:slug', loader: prefetchEvent, lazy: () => import('@/pages/app/event') },
-              { path: 'events/:slug/book', element: <StubPage title="Book your place" milestone={7} /> },
-              { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
+              { path: 'events/:slug/book', loader: prefetchEvent, lazy: () => import('@/pages/app/book') },
+              { path: 'plans', lazy: () => import('@/pages/app/plans') },
+              { path: 'plans/:bookingId/cancel', lazy: () => import('@/pages/app/cancel-booking') },
               { path: 'squads', lazy: () => import('@/pages/app/squads') },
               { path: 'squads/:squadId', lazy: () => import('@/pages/app/squad') },
               { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
