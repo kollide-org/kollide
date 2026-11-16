@@ -160,7 +160,8 @@ export function RequestDeck({ eventId, requests, capacity, mode }: RequestDeckPr
         {waitlist}
         {decline}
       </div>
-      <div className={xl ? undefined : 'mt-3 hidden sm:block'}>{note}</div>
+      {/* On a phone the reminder is hidden to save room, but the reason Accept is off is always shown. */}
+      <div className={xl ? undefined : cn('mt-3', !atLimit && 'hidden sm:block')}>{note}</div>
     </>
   )
 

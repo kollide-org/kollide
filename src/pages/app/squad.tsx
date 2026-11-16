@@ -20,6 +20,7 @@ import { useDecideSquadRequest, useLeaveSquad, useRequestSquad, useSquad } from 
 import { meetingTime } from '@/features/squads/schemas'
 import { formatDay, formatEventDate, formatTime } from '@/lib/format'
 import { shareOrCopy } from '@/lib/share'
+import { useMediaQuery } from '@/lib/use-media-query'
 import { isServiceError, type PersonPreview, type SquadWithMembers } from '@/services'
 
 const step = (index: number) => ({ '--i': index }) as CSSProperties
@@ -111,7 +112,7 @@ function SquadAction({ squad, onLeave }: { squad: SquadWithMembers; onLeave: () 
   return (
     <Panel>
       {squad.viewerStatus === 'declined'
-        ? note(`${creator} kept this squad small last time. You’re welcome to ask again, or start your own for this event.`)
+        ? note(`${creator} isn’t adding anyone just now. You’re welcome to ask again later, or start your own squad for this event.`)
         : note(`${creator} sees your profile card and how often you turn up, then approves each person.`)}
       <Button size="lg" onClick={send} disabled={ask.isPending}>
         <Plus aria-hidden="true" />
@@ -207,6 +208,8 @@ export function Component() {
   const { data: squad, isPending, isError, error, refetch } = useSquad(squadId)
   const leave = useLeaveSquad()
   const [leaving, setLeaving] = useState(false)
+  // The action is rendered once: beside the content on wide screens, near the top on small ones.
+  const wide = useMediaQuery('(min-width: 1024px)')
 
   const back = (
     <AppLink to="/app/squads" className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground">
@@ -299,6 +302,8 @@ export function Component() {
             </span>
           </AppLink>
 
+          {wide ? null : <SquadAction squad={squad} onLeave={() => setLeaving(true)} />}
+
           <section aria-labelledby="meet-heading" className="rise-in grid gap-4 rounded-3xl bg-highlight-soft p-6 text-highlight-soft-foreground sm:grid-cols-[auto_1fr] sm:items-center sm:gap-6" style={step(4)}>
             <span className="inline-flex size-14 items-center justify-center rounded-full bg-card text-primary shadow-card">
               <MapPin className="size-6" aria-hidden="true" />
@@ -355,7 +360,7 @@ export function Component() {
         </div>
 
         <aside className="grid content-start gap-4 lg:sticky lg:top-24 lg:self-start">
-          <SquadAction squad={squad} onLeave={() => setLeaving(true)} />
+          {wide ? <SquadAction squad={squad} onLeave={() => setLeaving(true)} /> : null}
           <div className="grid gap-3 rounded-3xl border border-border/70 p-6">
             <p className="flex items-start gap-3 text-sm text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
