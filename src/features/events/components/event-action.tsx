@@ -161,7 +161,7 @@ export function EventAction({ event, appPath }: { event: EventDetail; appPath: s
       <>
         <StatusPill tone="neutral" icon={<UsersRound className="size-4.5" aria-hidden="true" />}>You’re hosting this</StatusPill>
         <Button asChild variant="outline" className="w-full">
-          <AppLink to="/app/host">Open the host dashboard</AppLink>
+          <AppLink to={`/app/host/events/${event.slug}`}>See requests and guests</AppLink>
         </Button>
       </>
     )

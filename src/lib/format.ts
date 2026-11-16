@@ -62,3 +62,15 @@ export function ageRangeLabel(range: { min: number; max: number | null }): strin
 export function percent(share: number): string {
   return `${Math.round(share * 100)}%`
 }
+
+const relative = new Intl.RelativeTimeFormat('en-IN', { numeric: 'auto' })
+
+/** "2 hours ago", "yesterday", "3 days ago". */
+export function formatAgo(iso: string, now: Date = new Date()): string {
+  const minutes = Math.round((new Date(iso).getTime() - now.getTime()) / 60_000)
+  if (Math.abs(minutes) < 1) return 'just now'
+  if (Math.abs(minutes) < 60) return relative.format(minutes, 'minute')
+  const hours = Math.round(minutes / 60)
+  if (Math.abs(hours) < 24) return relative.format(hours, 'hour')
+  return relative.format(Math.round(hours / 24), 'day')
+}
