@@ -72,7 +72,7 @@ function Failure({ message, onRetry }: { message: string; onRetry: () => void })
       </span>
       <p className="mt-6 font-display text-h3">The payment didn’t go through</p>
       <p className="mt-2 max-w-sm text-muted-foreground" role="alert">
-        {message} Your place is held for a little while, and any credit is untouched.
+        {message} Any Kollide credit you have is untouched.
       </p>
       <Button size="lg" className="mt-8 w-full" onClick={onRetry}>
         Try again

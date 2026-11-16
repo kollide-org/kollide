@@ -56,7 +56,7 @@ const CONFIRM: Record<PlanAction, { title: string; body: string; button: string;
   },
   remove_unpaid: {
     title: 'Remove this booking?',
-    body: 'You haven’t paid, so nothing is charged. The place is released.',
+    body: 'You haven’t paid, so nothing is charged.',
     button: 'Remove',
     done: 'Booking removed',
   },
@@ -228,7 +228,8 @@ export function Component() {
   const upcoming = all
     .filter((plan) => new Date(plan.event.endsAt).getTime() > openedAt && !ENDED.has(plan.status))
     .sort((a, b) => a.event.startsAt.localeCompare(b.event.startsAt))
-  const past = all.filter((plan) => !upcoming.includes(plan))
+  // A checkout that was started and removed before paying was never really a plan.
+  const past = all.filter((plan) => !upcoming.includes(plan) && !(plan.status === 'cancelled' && plan.flow === 'paid' && !plan.paymentId))
   const stillComing = upcoming.filter((plan) => plan.needsReconfirmation)
   const shown = tab === 'past' ? past : upcoming
 
