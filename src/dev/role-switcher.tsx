@@ -65,7 +65,7 @@ export default function RoleSwitcher() {
   }
 
   return (
-    <div className={cn('fixed right-3 bottom-20 z-50 md:right-4 md:bottom-4', focusedFlow && 'hidden md:block')}>
+    <div data-dev-switcher="" className={cn('fixed right-3 bottom-20 z-50 md:right-4 md:bottom-4', focusedFlow && 'hidden md:block')}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

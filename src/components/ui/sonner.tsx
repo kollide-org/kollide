@@ -1,12 +1,17 @@
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { Toaster as Sonner, type ToasterProps } from 'sonner'
 
 import { useTheme } from '@/app/providers/theme-context'
 
+/**
+ * Rendered straight into the page body, beside dialogs rather than inside the
+ * app, so feedback from a dialog shows above its backdrop.
+ */
 function Toaster(props: ToasterProps) {
   const { resolvedTheme } = useTheme()
 
-  return (
+  return createPortal(
     <Sonner
       theme={resolvedTheme}
       position="top-center"
@@ -33,7 +38,8 @@ function Toaster(props: ToasterProps) {
         },
       }}
       {...props}
-    />
+    />,
+    document.body,
   )
 }
 
