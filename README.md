@@ -186,7 +186,7 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 ## After the event
 
 - **Tickets:** anyone with a place has a QR ticket on My plans and on the event page. The code is drawn by `qrcode-generator` (free, MIT licence), loaded only when a ticket is opened.
-- **Check-in (the host's "Going and check-in" tab):** opens two hours before the start. The host taps names as people arrive, or scans a ticket. The camera is simulated in this version, so the scanner takes the code shown under the QR. "Close out" lists everyone not checked in before marking them as missed.
+- **Check-in (the "Guests" tab on the host’s event page):** opens two hours before the start. The host taps names as people arrive, or scans a ticket. The camera is simulated in this version, so the scanner takes the code shown under the QR. "Close out" lists everyone not checked in before marking them as missed.
 - **The live quiz night:** Arjun’s "Pub quiz, team of strangers" starts an hour before the demo data is created, with Ananya booked, so the whole loop can be tried. "Reset demo data" in the role switcher makes it live again.
 - **Feedback (`/app/feedback/:eventId`):** opens when the event ends, or as soon as the host closes it out, and closes 72 hours after the end. Only people who were checked in can give it. For each person: up to three tags from the fixed list, "I’d like to meet them again", and an optional private "Something felt off?". Then three yes-or-no questions about the host. Reviews stay hidden until both people have answered, or the window closes.
 - **Reliability:** "Shows up: X of Y" is worked out from check-ins. Giving up a place in advance never counts against anyone. Your own profile explains your score.

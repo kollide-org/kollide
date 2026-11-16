@@ -75,7 +75,7 @@ export function Component() {
     waitlist: requests.data ? waiting.length : undefined,
     going: capacity.data?.approved,
   }
-  const labels: Record<Tab, string> = { requests: 'Requests', waitlist: 'Waitlist', going: 'Going and check-in' }
+  const labels: Record<Tab, string> = { requests: 'Requests', waitlist: 'Waitlist', going: 'Guests' }
 
   return (
     <>
@@ -139,7 +139,7 @@ export function Component() {
               key={value}
               value={value}
               className={cn(
-                'relative inline-flex h-12 items-center gap-2 px-3 font-medium sm:px-4 transition-colors outline-none focus-visible:rounded-lg focus-visible:outline-2 focus-visible:outline-ring',
+                'relative inline-flex h-12 items-center gap-2 px-3 font-medium whitespace-nowrap sm:px-4 transition-colors outline-none focus-visible:rounded-lg focus-visible:outline-2 focus-visible:outline-ring',
                 value === tab ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
