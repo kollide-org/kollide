@@ -68,7 +68,8 @@ export const router = createBrowserRouter([
               { path: 'events/:slug', loader: prefetchEvent, lazy: () => import('@/pages/app/event') },
               { path: 'events/:slug/book', element: <StubPage title="Book your place" milestone={7} /> },
               { path: 'plans', element: <StubPage title="My plans" milestone={7} /> },
-              { path: 'squads', element: <StubPage title="Squads" milestone={6} /> },
+              { path: 'squads', lazy: () => import('@/pages/app/squads') },
+              { path: 'squads/:squadId', lazy: () => import('@/pages/app/squad') },
               { path: 'connections', element: <StubPage title="Connections" milestone={8} /> },
               { path: 'profile', lazy: () => import('@/pages/app/profile') },
               { path: 'people/:userId', lazy: () => import('@/pages/app/person') },
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
                 children: [
                   { path: 'host', lazy: () => import('@/pages/app/host') },
                   { path: 'host/new', lazy: () => import('@/pages/app/host-create') },
+                  { path: 'host/events/:slug', loader: prefetchEvent, lazy: () => import('@/pages/app/host-event') },
                 ],
               },
             ],

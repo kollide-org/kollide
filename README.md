@@ -13,7 +13,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 3. Landing page and public pages (How it works, Safety, Privacy, Terms) | Built |
 | 4. Sign-in, onboarding and profile | Built |
 | 5. Events (home, filters, hubs, event page, create event, admin approval) | Built |
-| 6. Requests and squads | Not started |
+| 6. Requests and squads (host inbox, waitlist, squads) | Built |
 | 7. Bookings | Not started |
 | 8. After the event | Not started |
 | 9. Admin and polish | Not started |
@@ -136,8 +136,8 @@ In development, a floating button in the bottom-right corner signs you in as the
 
 | Role | Signed in as | What their account shows |
 |---|---|---|
-| Member | Ananya | A plan to reconfirm, a pending request, a waitlist place, a gentle decline, two paid bookings, ₹900 credit, and feedback to give |
-| Host | Arjun | A request inbox with six requests and two people on the waitlist |
+| Member | Ananya | A plan to reconfirm, a pending request, a waitlist place, a gentle decline, two paid bookings, ₹900 credit, feedback to give, and a squad she started with two people waiting for her answer |
+| Host | Arjun | Two events with requests: six requests and two on the waitlist for board games, four requests for New Year’s Eve |
 | Admin | Meera | Host applications, an event to approve, open reports, an appeal and a collusion flag |
 
 ## Sign-in and onboarding
@@ -164,6 +164,16 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **The main button** depends on the kind of event: "Request to join" for community events, "Book" for Kollide's own, and "Get tickets" (an outbound link) with "Join a squad" for partner events.
 - **Creating an event (`/app/host/new`):** seven steps, saved as they are written. House parties are capped at 25 guests. Every new event waits for approval at `/admin/events` before it is listed.
 
+## Requests and squads
+
+- **The request inbox (`/app/host/events/:slug`):** a capacity meter, then three tabs: Requests, Waitlist and Going. Each request opens as the person’s profile card, with any note they wrote above it, and three answers: accept, waitlist and decline.
+- **On a phone** the host swipes between people, or uses the arrow buttons. Swiping only moves through the list. Every answer takes a button press, so nobody is declined by a slip of the thumb.
+- **The approval limit:** hosts can accept up to 30% more people than there are places. At the limit, Accept is switched off and the screen says why.
+- **Declines are gentle.** The member hears that the event is full and gets similar events. The word "rejected" is not used anywhere.
+- **Squads (`/app/squads`):** your squads, then squads forming, with a women-only filter. A squad’s page (`/app/squads/:id`) shows who is in, the public place where the squad meets and at what time, and what the viewer can do. The creator opens each person’s profile card before answering.
+- **Starting a squad:** every upcoming event has a "Start a squad" button. A squad has a name, a public meeting place, a meeting time (15 to 60 minutes before the start) and a size of 4 to 6. Women can make a squad women-only, and every squad for a women-only event is women-only.
+- **No chat.** A squad page has no messages, notes or contact details, by design.
+
 ## Mock and real services
 
 Components never talk to a backend directly. They call TanStack Query hooks in `src/features`, the hooks call the service interfaces, and one file decides which implementation answers.
@@ -184,7 +194,7 @@ Put the flag in a `.env.local` file or in the build environment. To connect a re
 **The mock backend.**
 
 - It keeps its data in memory and mirrors it to `localStorage` under `kollide:mock-db`, so changes survive a refresh. "Reset demo data" in the role switcher starts again from the seed.
-- The seed is built relative to today, so there are always events coming up. It has 40 members, 16 events (14 of them live), 3 squads, 12 finished events that give reliability a history, and one event from yesterday whose feedback window is open.
+- The seed is built relative to today, so there are always events coming up. It has 40 members, 16 events (14 of them live), 4 squads, 12 finished events that give reliability a history, and one event from yesterday whose feedback window is open.
 - Calls take about 450 ms, so loading states are visible. Set `VITE_MOCK_DELAY_MS` to change this.
 - The email sign-in code is always `123456`.
 - To see a failed payment, pay with a UPI ID ending in `@fail` or a card number ending in `0002`.
