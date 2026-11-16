@@ -1,4 +1,5 @@
 import { ProsePage, type ProseSection } from '@/components/shared/prose-page'
+import { EMERGENCY_NUMBER } from '@/lib/safety'
 
 const SECTIONS: ProseSection[] = [
   {
@@ -111,7 +112,7 @@ const SECTIONS: ProseSection[] = [
           <li>Depending on what we find, we may warn, suspend or permanently remove the member.</li>
         </ul>
         <p>
-          <strong>If you are in immediate danger, call 112.</strong> Kollide’s reports are for our team to review. They
+          <strong>If you are in immediate danger, call {EMERGENCY_NUMBER}.</strong> Kollide’s reports are for our team to review. They
           are not an emergency service.
         </p>
       </>

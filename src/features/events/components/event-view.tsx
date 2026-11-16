@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CalendarDays, CalendarX, HandCoins, Home, Lock, MapPin, Plus, ShieldCheck, UsersRound } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarDays, CalendarX, HandCoins, Home, Lock, Flag, MapPin, Plus, ShieldCheck, UsersRound } from 'lucide-react'
 import { lazy, Suspense, useState, type ReactNode } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
@@ -28,6 +28,28 @@ import { HostCard } from './host-card'
 const StartSquadDialog = lazy(() =>
   import('@/features/squads/components/start-squad-dialog').then((module) => ({ default: module.StartSquadDialog })),
 )
+
+const ReportDialog = lazy(() =>
+  import('@/features/safety/components/report-dialog').then((module) => ({ default: module.ReportDialog })),
+)
+
+/** A quiet link at the foot of the page. The dialog loads only when it is opened. */
+function ReportEvent({ event }: { event: EventDetail }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border-t border-border pt-6">
+      <Button variant="ghost" size="sm" className="-ml-3 text-muted-foreground" onClick={() => setOpen(true)}>
+        <Flag aria-hidden="true" />
+        Report this event
+      </Button>
+      {open ? (
+        <Suspense fallback={null}>
+          <ReportDialog subject={{ type: 'event', id: event.id, name: event.title }} open onOpenChange={setOpen} />
+        </Suspense>
+      ) : null}
+    </div>
+  )
+}
 
 function Block({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
@@ -404,6 +426,8 @@ export function EventView({ slug, back }: EventViewProps) {
                 <Badge variant="highlight-soft">Part of a seasonal collection</Badge>
               </p>
             ) : null}
+
+            {signedIn && !viewer.isHost ? <ReportEvent event={event} /> : null}
           </div>
         </div>
 
