@@ -10,9 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EVENT_STATUS_LABELS } from '@/features/events/labels'
 import { useHostedEvents } from '@/features/events/queries'
 import { formatEventDate } from '@/lib/format'
-import type { EventListItem } from '@/services'
+import type { HostedEvent } from '@/services'
 
-function EventRow({ event }: { event: EventListItem }) {
+function EventRow({ event }: { event: HostedEvent }) {
   const status = EVENT_STATUS_LABELS[event.status]
   return (
     <li className="group relative flex flex-wrap items-center gap-x-5 gap-y-3 p-4 transition-colors hover:bg-background/60 sm:px-5">
@@ -20,7 +20,7 @@ function EventRow({ event }: { event: EventListItem }) {
       <div className="min-w-0 flex-1 basis-48">
         <h2 className="truncate font-display text-h4">
           <AppLink
-            to={`/app/events/${event.slug}`}
+            to={event.status === 'published' ? `/app/host/events/${event.slug}` : `/app/events/${event.slug}`}
             className="outline-none after:absolute after:inset-0 focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring"
           >
             {event.title}
@@ -31,6 +31,16 @@ function EventRow({ event }: { event: EventListItem }) {
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        {event.status === 'published' && event.requested > 0 ? (
+          <Badge variant="default" size="sm">
+            {event.requested} {event.requested === 1 ? 'request' : 'requests'}
+          </Badge>
+        ) : null}
+        {event.status === 'published' && event.waitlisted > 0 ? (
+          <Badge variant="warning" size="sm">
+            {event.waitlisted} waitlisted
+          </Badge>
+        ) : null}
         {event.status === 'published' ? (
           <Badge variant="outline" size="sm">
             {event.goingCount} of {event.capacity} going
@@ -44,7 +54,7 @@ function EventRow({ event }: { event: EventListItem }) {
   )
 }
 
-/** The host's events, in every state. The request inbox and check-in join this page in the next milestone. */
+/** The host's events, in every state. A published event opens its request inbox. */
 export function Component() {
   const { data: events, isPending, isError, refetch } = useHostedEvents()
 
