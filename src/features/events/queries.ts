@@ -82,6 +82,7 @@ export function useRequestToJoin(slug: string) {
           waitlistPosition: null,
           reconfirmedAt: null,
           paymentId: null,
+          promotedAt: null,
           createdAt: now,
           updatedAt: now,
         }

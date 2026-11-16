@@ -68,6 +68,7 @@ export function promoteFromWaitlist(db: Db, event: EventRecord): WaitlistPromoti
   next.status = 'approved'
   next.waitlistPosition = null
   next.updatedAt = nowIso()
+  next.promotedAt = next.updatedAt
   renumberWaitlist(db, event.id)
   notify(db, next.userId, 'waitlist_promoted', 'A place opened up', `You’re in for ${event.title}.`, '/app/plans')
   return { promoted: next, person: personPreview(db, next.userId) }
@@ -150,6 +151,7 @@ export const mockBookingService: BookingService = {
       waitlistPosition: null,
       reconfirmedAt: null,
       paymentId: null,
+      promotedAt: null,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     }
@@ -242,7 +244,7 @@ export const mockBookingService: BookingService = {
         booking.waitlistPosition =
           db.bookings.filter((candidate) => candidate.eventId === event.id && candidate.status === 'waitlisted').length
       }
-      notify(db, booking.userId, 'request_declined', 'You’re on the waitlist', `${event.title}. We’ll tell you if a place opens.`, '/app/plans')
+      notify(db, booking.userId, 'request_waitlisted', 'You’re on the waitlist', `${event.title}. We’ll tell you if a place opens.`, '/app/plans')
     } else {
       move(booking, 'declined')
       booking.waitlistPosition = null
