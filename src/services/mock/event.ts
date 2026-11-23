@@ -1,4 +1,5 @@
 import { canSeeAddress, HOUSE_PARTY_MAX_GUESTS } from '@/domain/bookings'
+import { bengaluruClock, fromBengaluru } from '@/domain/time'
 
 import { ServiceError } from '../errors'
 import type { EventService } from '../interfaces'
@@ -18,9 +19,11 @@ function isUpcoming(event: EventRecord, at: Date): boolean {
 
 function matchesDate(event: EventRecord, filter: EventFilters['date'], at: Date): boolean {
   if (!filter) return true
+  // Days are Bengaluru days, so "today" means the same thing on every device.
   const start = new Date(event.startsAt)
-  const midnight = new Date(at)
-  midnight.setHours(0, 0, 0, 0)
+  const today = bengaluruClock(at)
+  const day = bengaluruClock(start)
+  const midnight = fromBengaluru(today.year, today.month, today.day)
   const dayOffset = Math.floor((start.getTime() - midnight.getTime()) / DAY)
   switch (filter) {
     case 'today':
@@ -28,11 +31,11 @@ function matchesDate(event: EventRecord, filter: EventFilters['date'], at: Date)
     case 'this_week':
       return dayOffset >= 0 && dayOffset < 7
     case 'this_weekend': {
-      const isWeekend = start.getDay() === 0 || start.getDay() === 6
+      const isWeekend = day.weekday === 0 || day.weekday === 6
       return isWeekend && dayOffset >= 0 && dayOffset < 7
     }
     case 'this_month':
-      return start.getFullYear() === at.getFullYear() && start.getMonth() === at.getMonth()
+      return day.year === today.year && day.month === today.month
   }
 }
 

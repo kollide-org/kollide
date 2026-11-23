@@ -11,6 +11,20 @@ export function daysBetween(from: ISODateTime | Date, to: ISODateTime | Date): n
   return (new Date(to).getTime() - new Date(from).getTime()) / DAY_MS
 }
 
+/** India keeps one offset all year, with no daylight saving. */
+const BENGALURU_OFFSET_MS = 5.5 * HOUR_MS
+
+/** The calendar date and time in Bengaluru, whatever time zone the device is in. */
+export function bengaluruClock(at: Date): { year: number; month: number; day: number; weekday: number } {
+  const shifted = new Date(at.getTime() + BENGALURU_OFFSET_MS)
+  return { year: shifted.getUTCFullYear(), month: shifted.getUTCMonth(), day: shifted.getUTCDate(), weekday: shifted.getUTCDay() }
+}
+
+/** A moment given as a Bengaluru date and time. `month` counts from 0; days may overflow into the next month. */
+export function fromBengaluru(year: number, month: number, day: number, hour = 0, minute = 0): Date {
+  return new Date(Date.UTC(year, month, day, hour, minute) - BENGALURU_OFFSET_MS)
+}
+
 /** Age in whole years on `now`. */
 export function ageFromDateOfBirth(dateOfBirth: ISODate, now: Date): number {
   const [year, month, day] = dateOfBirth.split('-').map(Number)

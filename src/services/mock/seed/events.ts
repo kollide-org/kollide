@@ -1,3 +1,5 @@
+import { bengaluruClock, fromBengaluru } from '@/domain/time'
+
 import type { Area, EventCategory, EventStatus, EventType, Hub, Pricing } from '../../types'
 import type { EventRecord } from '../db'
 
@@ -5,12 +7,10 @@ import { coverUrl, hubArtworkUrl } from './assets'
 
 const HOUR = 3_600_000
 
-/** A day relative to today, at a set local time. */
+/** A day relative to today, at a set time in Bengaluru, wherever the demo is opened. */
 function dayAt(now: Date, days: number, hour: number, minute = 0): Date {
-  const date = new Date(now)
-  date.setDate(date.getDate() + days)
-  date.setHours(hour, minute, 0, 0)
-  return date
+  const today = bengaluruClock(now)
+  return fromBengaluru(today.year, today.month, today.day + days, hour, minute)
 }
 
 /** A moment a number of hours from now, rounded to the half hour. */
