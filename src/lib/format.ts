@@ -2,8 +2,10 @@ import type { Pricing } from '@/services'
 
 const LOCALE = 'en-IN'
 
-const dayFormat = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' })
-const timeFormat = new Intl.DateTimeFormat(LOCALE, { hour: 'numeric', minute: '2-digit', hour12: true })
+// Kollide is in Bengaluru, so dates and times read the same on every device, wherever it is set.
+const TIME_ZONE = 'Asia/Kolkata'
+const dayFormat = new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short', timeZone: TIME_ZONE })
+const timeFormat = new Intl.DateTimeFormat(LOCALE, { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: TIME_ZONE })
 const rupeeFormat = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
 /** "Sat 14 Nov" */

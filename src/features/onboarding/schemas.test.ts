@@ -4,7 +4,8 @@ import { EMPTY_DRAFT } from './draft'
 import { ageFor, birthdaySchema, isOldEnough, nameSchema, phoneSchema, promptsSchema, toIsoDate } from './schemas'
 import { canOpenStep, firstIncompleteStep } from './steps'
 
-const NOW = new Date(2026, 10, 13)
+// Midday on 13 November in Bengaluru, so the test reads the same in any time zone.
+const NOW = new Date('2026-11-13T06:30:00.000Z')
 const birthday = (birthDay: string, birthMonth: string, birthYear: string) => ({ birthDay, birthMonth, birthYear })
 
 describe('onboarding validation', () => {

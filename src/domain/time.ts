@@ -25,11 +25,12 @@ export function fromBengaluru(year: number, month: number, day: number, hour = 0
   return new Date(Date.UTC(year, month, day, hour, minute) - BENGALURU_OFFSET_MS)
 }
 
-/** Age in whole years on `now`. */
+/** Age in whole years on `now`, by the Bengaluru calendar. */
 export function ageFromDateOfBirth(dateOfBirth: ISODate, now: Date): number {
   const [year, month, day] = dateOfBirth.split('-').map(Number)
-  let age = now.getFullYear() - year
-  const hadBirthday = now.getMonth() + 1 > month || (now.getMonth() + 1 === month && now.getDate() >= day)
+  const today = bengaluruClock(now)
+  let age = today.year - year
+  const hadBirthday = today.month + 1 > month || (today.month + 1 === month && today.day >= day)
   if (!hadBirthday) age -= 1
   return age
 }

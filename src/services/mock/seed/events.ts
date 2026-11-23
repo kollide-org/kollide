@@ -13,6 +13,28 @@ function dayAt(now: Date, days: number, hour: number, minute = 0): Date {
   return fromBengaluru(today.year, today.month, today.day + days, hour, minute)
 }
 
+/**
+ * The first of a few ordinary start times (Bengaluru time) that falls between
+ * `minHours` and `maxHours` from now. Used for an event that must be inside a
+ * time window, such as "tomorrow, but within a day", and still start at an
+ * hour people would actually meet.
+ */
+function slotWithin(now: Date, minHours: number, maxHours: number): Date {
+  const slots = [
+    [18, 30],
+    [16, 0],
+    [10, 30],
+  ] as const
+  for (const [hour, minute] of slots) {
+    for (const days of [0, 1, 2]) {
+      const candidate = dayAt(now, days, hour, minute)
+      const ahead = (candidate.getTime() - now.getTime()) / HOUR
+      if (ahead >= minHours && ahead <= maxHours) return candidate
+    }
+  }
+  return inHours(now, (minHours + maxHours) / 2)
+}
+
 /** A moment a number of hours from now, rounded to the half hour. */
 function inHours(now: Date, hours: number): Date {
   const date = new Date(now.getTime() + hours * HOUR)
@@ -203,7 +225,8 @@ function primarySpecs(now: Date): EventSpec[] {
       category: 'games',
       coverAlt: 'A wooden café table with a board game, steel tumblers of coffee and warm light.',
       hostId: 'u03',
-      start: inHours(now, 20),
+      // Inside the 24-hour reconfirm window, and too far off for check-in to have opened.
+      start: slotWithin(now, 4, 23),
       hours: 3,
       area: 'Indiranagar',
       venueName: 'Third Wave Courtyard',
