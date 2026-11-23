@@ -1,7 +1,7 @@
 import type { ID, ISODateTime } from './common'
 import type { Event } from './event'
 import type { Appeal, SafetyReport } from './review'
-import type { AccountStatus, Host, PersonPreview, Reputation, User } from './user'
+import type { AccountStatus, Host, PersonPreview, Photo, Reputation, User } from './user'
 
 export interface HostApplication {
   host: Host
@@ -50,6 +50,16 @@ export interface PartnerLink {
   partnerName: string
   ticketUrl: string
   startsAt: ISODateTime
+}
+
+/** A selfie waiting to be compared with the member's photos. */
+export interface VerificationQueueItem {
+  person: PersonPreview
+  /** The member's profile photos, in order, to compare the selfie against. */
+  photos: Photo[]
+  /** The selfie itself. The mock layer has no camera, so it stands in with the first photo. */
+  selfieUrl: string | null
+  submittedAt: ISODateTime
 }
 
 export interface AppealQueueItem {

@@ -8,6 +8,7 @@ import type { FeedbackForm, ID, SafetyReport, TagReview } from '../types'
 import { getDb, saveDb, type Db, type EventRecord } from './db'
 import { notify, notifyAdmins } from './notify'
 import { copy, invalid, latency, newId, notFound, now, nowIso, requireUser } from './runtime'
+import { settingsOf } from './settings'
 import { personPreview } from './views'
 
 const BLOCKER_MESSAGES: Record<ReviewBlocker, string> = {
@@ -44,7 +45,11 @@ function buildForm(db: Db, event: EventRecord, viewerId: ID): FeedbackForm {
     closesAt: window.closesAt,
     people: [...checkedInIds(db, event.id)]
       .filter((userId) => userId !== viewerId)
-      .map((userId) => ({ ...personPreview(db, userId), reviewed: reviewed.has(userId) }))
+      .map((userId) => ({
+        ...personPreview(db, userId),
+        reviewed: reviewed.has(userId),
+        openToMeetAgain: settingsOf(db, userId).privacy.openToMeetAgain,
+      }))
       .sort((a, b) => a.firstName.localeCompare(b.firstName)),
     host: hostIsSomeoneElse ? personPreview(db, event.hostId!) : null,
     hostRated: !hostIsSomeoneElse || db.hostRatings.some((rating) => rating.eventId === event.id && rating.raterId === viewerId),
@@ -110,7 +115,8 @@ export const mockReviewService: ReviewService = {
       reviewerId: user.id,
       subjectId: input.subjectId,
       tags: [...new Set(input.tags)],
-      wantsToMeetAgain: input.wantsToMeetAgain,
+      // Someone who has switched meeting again off is never asked, whatever the form sent.
+      wantsToMeetAgain: input.wantsToMeetAgain && settingsOf(db, input.subjectId).privacy.openToMeetAgain,
       submittedAt: nowIso(),
     }
     const connected = completesConnection(review, existing)

@@ -139,6 +139,8 @@ export interface RepeatSuggestion {
 export interface ReviewablePerson extends PersonPreview {
   /** True once the viewer has reviewed this person for this event. */
   reviewed: boolean
+  /** False when this person has chosen not to be asked to meet again. */
+  openToMeetAgain: boolean
 }
 
 /** Everything the feedback screen needs for one event. */

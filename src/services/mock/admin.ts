@@ -251,6 +251,26 @@ export const mockAdminService: AdminService = {
     return copy(user)
   },
 
+  async listVerificationQueue() {
+    await latency()
+    const db = getDb()
+    requireRole('admin', db)
+    return copy(
+      db.profiles
+        .filter((profile) => profile.verification.status === 'pending' && profile.verification.submittedAt)
+        .sort((a, b) => a.verification.submittedAt!.localeCompare(b.verification.submittedAt!))
+        .map((profile) => {
+          const photos = profile.photos.slice().sort((a, b) => a.position - b.position)
+          return {
+            person: personPreview(db, profile.userId),
+            photos,
+            selfieUrl: photos[0]?.url ?? null,
+            submittedAt: profile.verification.submittedAt!,
+          }
+        }),
+    )
+  },
+
   async decideVerification(userId, decision) {
     await latency(0.7)
     const db = getDb()
@@ -261,6 +281,11 @@ export const mockAdminService: AdminService = {
       status: decision === 'verify' ? 'verified' : 'rejected',
       submittedAt: profile.verification.submittedAt,
       reviewedAt: nowIso(),
+    }
+    if (decision === 'verify') {
+      notify(db, userId, 'account', 'You’re verified', 'Your profile now shows the verified badge.', '/app/profile')
+    } else {
+      notify(db, userId, 'account', 'Please try your selfie again', 'We couldn’t match it to your photos. Good light and a clear face help.', '/app/profile')
     }
     saveDb()
   },
@@ -287,7 +312,10 @@ export const mockAdminService: AdminService = {
     appeal.status = decision
     appeal.decidedAt = nowIso()
     const user = db.users.find((candidate) => candidate.id === appeal.userId)
-    if (decision === 'overturned' && appeal.about === 'suspension' && user?.status === 'suspended') user.status = 'active'
+    // An appeal about a hold or a suspension that is overturned gives the account back.
+    if (decision === 'overturned' && appeal.about === 'suspension' && (user?.status === 'suspended' || user?.status === 'on_hold')) {
+      user.status = 'active'
+    }
     notify(
       db,
       appeal.userId,

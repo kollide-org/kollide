@@ -110,32 +110,35 @@ export function PersonFeedback({ eventId, person, onReport }: { eventId: string;
               />
             </div>
 
-            <button
-              type="button"
-              aria-pressed={meetAgain}
-              onClick={() => setMeetAgain((value) => !value)}
-              className={cn(
-                'flex items-center gap-4 rounded-2xl border p-4 text-left transition-colors',
-                meetAgain ? 'border-primary bg-primary-soft text-primary-soft-foreground' : 'border-input hover:border-foreground/50',
-              )}
-            >
-              <m.span
-                animate={meetAgain ? { scale: [1, 1.18, 1] } : { scale: 1 }}
-                transition={{ duration: 0.35 }}
+            {/* Not offered for someone who has switched meeting again off. They never learn it was hidden. */}
+            {person.openToMeetAgain ? (
+              <button
+                type="button"
+                aria-pressed={meetAgain}
+                onClick={() => setMeetAgain((value) => !value)}
                 className={cn(
-                  'inline-flex size-11 shrink-0 items-center justify-center rounded-full',
-                  meetAgain ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+                  'flex items-center gap-4 rounded-2xl border p-4 text-left transition-colors',
+                  meetAgain ? 'border-primary bg-primary-soft text-primary-soft-foreground' : 'border-input hover:border-foreground/50',
                 )}
               >
-                <Handshake className="size-5" aria-hidden="true" />
-              </m.span>
-              <span>
-                <span className="block font-semibold">I’d like to meet {person.firstName} again</span>
-                <span className={cn('block text-sm', meetAgain ? 'text-primary-soft-foreground/90' : 'text-muted-foreground')}>
-                  If they say the same, you’re connected. Nobody ever sees a no.
+                <m.span
+                  animate={meetAgain ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.35 }}
+                  className={cn(
+                    'inline-flex size-11 shrink-0 items-center justify-center rounded-full',
+                    meetAgain ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+                  )}
+                >
+                  <Handshake className="size-5" aria-hidden="true" />
+                </m.span>
+                <span>
+                  <span className="block font-semibold">I’d like to meet {person.firstName} again</span>
+                  <span className={cn('block text-sm', meetAgain ? 'text-primary-soft-foreground/90' : 'text-muted-foreground')}>
+                    If they say the same, you’re connected. Nobody ever sees a no.
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+            ) : null}
 
             <div>
               <button

@@ -18,6 +18,7 @@ import type {
 
 import type { Db, EventRecord } from './db'
 import { notFound } from './runtime'
+import { settingsOf } from './settings'
 
 /**
  * Builders for everything a service returns that is calculated rather than
@@ -129,6 +130,7 @@ export function eventListItem(db: Db, record: EventRecord): EventListItem {
   // Partner tickets are bought elsewhere, so the people we know about are those in squads.
   const goingIds = [...new Set([...holding.map((booking) => booking.userId), ...squadPeople])]
   const attendeePreview = goingIds
+    .filter((userId) => settingsOf(db, userId).privacy.showOnEventCards)
     .map((userId) => personPreview(db, userId))
     .filter((person) => person.verified)
     .slice(0, 5)

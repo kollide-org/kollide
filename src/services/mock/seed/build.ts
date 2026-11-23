@@ -68,6 +68,7 @@ export function buildSeed(now: Date): Db {
     refunds: [],
     credits: [],
     notifications: [],
+    settings: {},
   }
 
   const counters: Record<string, number> = {}

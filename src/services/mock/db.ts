@@ -16,6 +16,7 @@ import type {
   Profile,
   Refund,
   SafetyReport,
+  Settings,
   Squad,
   SquadMember,
   TagReview,
@@ -62,10 +63,12 @@ export interface Db {
   refunds: Refund[]
   credits: Credit[]
   notifications: Notification[]
+  /** Only members who changed something have an entry. Everyone else has the defaults. */
+  settings: Record<ID, Settings>
 }
 
 /** Raise this whenever the shape or the seed changes, so stale browsers reseed. */
-export const DB_VERSION = 5
+export const DB_VERSION = 6
 const STORAGE_KEY = 'kollide:mock-db'
 
 let memory: Db | null = null

@@ -6,6 +6,7 @@ import type { NotificationService } from './notification'
 import type { PaymentService } from './payment'
 import type { ProfileService } from './profile'
 import type { ReviewService } from './review'
+import type { SettingsService } from './settings'
 import type { SquadService } from './squad'
 
 export type {
@@ -17,10 +18,11 @@ export type {
   PaymentService,
   ProfileService,
   ReviewService,
+  SettingsService,
   SquadService,
 }
 
-/** The full set. A mock and a real implementation each provide all nine. */
+/** The full set. A mock and a real implementation each provide all ten. */
 export interface Services {
   authService: AuthService
   profileService: ProfileService
@@ -31,4 +33,5 @@ export interface Services {
   paymentService: PaymentService
   adminService: AdminService
   notificationService: NotificationService
+  settingsService: SettingsService
 }

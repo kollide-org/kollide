@@ -26,4 +26,5 @@ export const realServices: Services = {
   paymentService: notImplemented('paymentService'),
   adminService: notImplemented('adminService'),
   notificationService: notImplemented('notificationService'),
+  settingsService: notImplemented('settingsService'),
 }

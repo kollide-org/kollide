@@ -8,6 +8,7 @@ import { mockNotificationService } from './notification'
 import { mockPaymentService } from './payment'
 import { mockProfileService } from './profile'
 import { mockReviewService } from './review'
+import { mockSettingsService } from './settings'
 import { mockSquadService } from './squad'
 
 export { mockDevTools } from './auth'
@@ -23,4 +24,5 @@ export const mockServices: Services = {
   paymentService: mockPaymentService,
   adminService: mockAdminService,
   notificationService: mockNotificationService,
+  settingsService: mockSettingsService,
 }

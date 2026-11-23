@@ -19,6 +19,7 @@ const {
   paymentService,
   adminService,
   notificationService,
+  settingsService,
 } = mockServices
 
 const START = new Date('2026-11-13T10:00:00.000Z')
@@ -449,5 +450,84 @@ describe('check-in and closing out', () => {
     expect(pending.map((form) => form.eventId)).toContain('ev-quiz-night')
     const after = (await profileService.getProfileCard('u02')).reputation.reliability
     expect(after).toEqual({ showedUp: before!.showedUp + 1, outOf: before!.outOf + 1 })
+  })
+})
+
+describe('settings', () => {
+  it('starts from the defaults and keeps only what changed', async () => {
+    await mockDevTools.signInAs('member')
+    const before = await settingsService.getSettings()
+    expect(before.privacy).toEqual({ showOnEventCards: true, openToMeetAgain: true })
+    const after = await settingsService.updateSettings({ notifications: { squads: { email: true } } })
+    expect(after.notifications.squads).toEqual({ email: true, push: true })
+    expect(after.notifications.reminders).toEqual(before.notifications.reminders)
+  })
+
+  it('leaves a member off event cards when they ask', async () => {
+    await mockDevTools.signInAs('member')
+    const pictured = (await eventService.listEvents()).find((event) => event.attendeePreview.some((person) => person.userId === 'u02'))
+    expect(pictured).toBeDefined()
+    await settingsService.updateSettings({ privacy: { showOnEventCards: false } })
+    const again = (await eventService.listEvents()).find((event) => event.id === pictured!.id)!
+    expect(again.attendeePreview.some((person) => person.userId === 'u02')).toBe(false)
+    expect(again.goingCount).toBe(pictured!.goingCount)
+  })
+
+  it('never asks someone to meet again once they have switched it off', async () => {
+    await mockDevTools.signInAs('member')
+    const [form] = await reviewService.listPendingFeedback()
+    const person = form.people.find((candidate) => !candidate.reviewed)!
+    getDb().settings[person.userId] = { ...(await settingsService.getSettings()), privacy: { showOnEventCards: true, openToMeetAgain: false } }
+    const fresh = await reviewService.getFeedbackForm(form.eventId)
+    expect(fresh.people.find((candidate) => candidate.userId === person.userId)?.openToMeetAgain).toBe(false)
+    const { review, connected } = await reviewService.submitReview({
+      eventId: form.eventId,
+      subjectId: person.userId,
+      tags: ['Punctual'],
+      wantsToMeetAgain: true,
+    })
+    expect(review.wantsToMeetAgain).toBe(false)
+    expect(connected).toBe(false)
+  })
+})
+
+describe('account', () => {
+  it('will not delete a host with an upcoming event, and deletes a member', async () => {
+    await mockDevTools.signInAs('host')
+    expect(await rejection(authService.deleteAccount())).toBe('conflict')
+    await mockDevTools.signInAs('member')
+    await authService.deleteAccount()
+    expect(getDb().users.some((user) => user.id === 'u02')).toBe(false)
+    expect(await authService.getSession()).toBeNull()
+  })
+})
+
+describe('more moderation', () => {
+  it('gives the account back when an appeal against a hold is overturned', async () => {
+    await mockDevTools.signInAs('member')
+    await reviewService.submitSafetyReport({
+      subjectType: 'user',
+      subjectId: 'u18',
+      category: 'inappropriate_behaviour',
+      details: 'Kept interrupting and made an unkind joke about another guest.',
+    })
+    getDb().sessionUserId = 'u18'
+    const appeal = await profileService.submitAppeal({ about: 'suspension', reference: 'on_hold', message: 'I think this is a misunderstanding.' })
+    await mockDevTools.signInAs('admin')
+    await adminService.decideAppeal(appeal.id, 'overturned')
+    expect(getDb().users.find((user) => user.id === 'u18')?.status).toBe('active')
+  })
+
+  it('lists selfies waiting for a check and tells the member the outcome', async () => {
+    const unverified = getDb().profiles.find((profile) => profile.verification.status === 'unverified')!
+    getDb().sessionUserId = unverified.userId
+    await profileService.submitVerificationSelfie()
+    await mockDevTools.signInAs('admin')
+    const queue = await adminService.listVerificationQueue()
+    const item = queue.find((candidate) => candidate.person.userId === unverified.userId)
+    expect(item?.photos.length).toBeGreaterThan(0)
+    await adminService.decideVerification(unverified.userId, 'verify')
+    expect((await adminService.listVerificationQueue()).some((candidate) => candidate.person.userId === unverified.userId)).toBe(false)
+    expect(getDb().notifications.some((note) => note.userId === unverified.userId && note.title === 'You’re verified')).toBe(true)
   })
 })

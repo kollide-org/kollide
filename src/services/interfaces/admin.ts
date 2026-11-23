@@ -16,6 +16,7 @@ import type {
   SafetyReport,
   SafetyReportStatus,
   User,
+  VerificationQueueItem,
 } from '../types'
 
 /** Every method rejects with `forbidden` for anyone who is not an admin. */
@@ -38,6 +39,8 @@ export interface AdminService {
   listUsers(search?: string): Promise<AdminUserRow[]>
   /** Put on hold, suspend, ban, or restore to active. */
   setUserStatus(userId: ID, status: AccountStatus, reason: string): Promise<User>
+  /** Selfies waiting for a check, oldest first. */
+  listVerificationQueue(): Promise<VerificationQueueItem[]>
   decideVerification(userId: ID, decision: 'verify' | 'reject'): Promise<void>
 
   listAppeals(): Promise<AppealQueueItem[]>

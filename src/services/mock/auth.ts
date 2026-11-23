@@ -1,3 +1,4 @@
+import { ServiceError } from '../errors'
 import type { DevTools } from '../index'
 import type { AuthService } from '../interfaces'
 import type { Role, Session, User } from '../types'
@@ -86,6 +87,15 @@ export const mockAuthService: AuthService = {
     await latency()
     const db = getDb()
     const user = requireUser(db)
+    const hosting = db.events.some(
+      (event) =>
+        event.hostId === user.id &&
+        (event.status === 'published' || event.status === 'pending_review') &&
+        new Date(event.endsAt) > now(),
+    )
+    if (hosting) {
+      throw new ServiceError('conflict', 'You’re hosting an upcoming event. Cancel it from your host dashboard first, so your guests are told.')
+    }
     const mine = (record: { userId: string }) => record.userId !== user.id
     db.users = db.users.filter((candidate) => candidate.id !== user.id)
     db.profiles = db.profiles.filter(mine)
@@ -97,6 +107,7 @@ export const mockAuthService: AuthService = {
     db.credits = db.credits.filter(mine)
     db.connections = db.connections.filter((connection) => !connection.userIds.includes(user.id))
     db.tagReviews = db.tagReviews.filter((review) => review.reviewerId !== user.id && review.subjectId !== user.id)
+    delete db.settings[user.id]
     db.sessionUserId = null
     saveDb()
   },

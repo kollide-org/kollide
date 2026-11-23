@@ -41,6 +41,7 @@ export const reviewService = lazy('reviewService')
 export const paymentService = lazy('paymentService')
 export const adminService = lazy('adminService')
 export const notificationService = lazy('notificationService')
+export const settingsService = lazy('settingsService')
 
 /** Development helpers for the role switcher and the mock sign-in screens. */
 export interface DevTools {
