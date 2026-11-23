@@ -76,14 +76,14 @@ export function Hero() {
 
         {/* The stage is decoration. Its content is described by the text beside it. */}
         <div aria-hidden="true" className="relative mx-auto aspect-square w-full max-w-88 sm:max-w-md lg:max-w-136">
-          <m.div style={{ y: circlesY }} className="absolute inset-0">
-            <div className="rise-in absolute top-[4%] left-0 size-[64%]" style={step(3)}>
-              <div className="size-full animate-drift-a rounded-full bg-brand-cherry" />
+          <m.div style={{ y: circlesY }} className="absolute -inset-[14%]">
+            {/* One wash of light in the brand colours, with no edges, drifting very slowly. */}
+            <div className="rise-in absolute inset-0" style={step(3)}>
+              <div className="size-full animate-drift-a bg-[radial-gradient(75%_55%_at_35%_30%,var(--brand-cherry),transparent_75%)] opacity-55 dark:opacity-45" />
             </div>
-            <div className="rise-in absolute right-0 bottom-[2%] size-[60%]" style={step(4)}>
-              <div className="size-full animate-drift-b rounded-full bg-brand-dusty mix-blend-multiply dark:opacity-85 dark:mix-blend-normal" />
+            <div className="rise-in absolute inset-0" style={step(4)}>
+              <div className="size-full animate-drift-b bg-[radial-gradient(70%_60%_at_68%_70%,var(--brand-dusty),transparent_75%)] opacity-60 dark:opacity-45" />
             </div>
-            <div className="rise-in absolute top-[30%] left-[14%] size-[84%] rounded-full border border-foreground/15" style={step(6)} />
           </m.div>
 
           <m.div style={{ y: cardY }} className="absolute top-[17%] left-[9%] w-[58%]">

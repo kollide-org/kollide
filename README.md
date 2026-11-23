@@ -128,7 +128,8 @@ Each one shows something real happening, and each plays once, at the moment it m
 
 | Moment | Where | What happens |
 |---|---|---|
-| The wordmark loader | `index.html`, `BootFallback` | The "k" arrives alone, then "ollide" slides out from behind it. Drawn in plain HTML and CSS, so it shows before any script loads, and only after half a second, so fast loads never see it. |
+| The wordmark loader | `index.html`, `BootFallback` | The "k" arrives alone, then "ollide" slides out from behind it. Drawn in plain HTML and CSS, so it shows before any script loads, and only after half a second, so fast loads never see it. The same wordmark is the waiting state while a payment is confirmed. |
+| The last screen | Landing page, closing section | As you scroll to the end, the wordmark writes itself: "ollide" slides out from behind the "k". |
 | The invitation | Event page, the first time you see the address | The address arrives as an invitation card ("You’re invited") that turns over to show the address on the back. It plays when the card is on screen. |
 | Your place at the table | Event page, "Who’s going" | Guests are name place cards set down at slight angles. The first time, your card drops onto the table among them. |
 | The guestbook | Connections | Each new connection is written in, "Ananya & Aditi", left to right at a writing pace, with an underline drawn beneath. |
@@ -238,7 +239,7 @@ Put the flag in a `.env.local` file or in the build environment. To connect a re
 
 **Calculated values.** Reliability ("Shows up: 7 of 8"), tag counts, spots left, host ratings and gentle tips are worked out from bookings, check-ins and reviews each time they are asked for. None of them is stored. The rules live in `src/domain` as pure functions with tests, ready to move to the backend unchanged.
 
-**Seed images.** The covers, hub artwork and avatars in `public/assets` are placeholder artwork drawn from the brand palette by `npm run placeholders`. They stand in for generated photographs. To swap in real images, add the files and change `IMAGE_EXTENSION` in `src/services/mock/seed/assets.ts`.
+**Seed images.** The covers, hub artwork and avatars in `public/assets` are placeholder artwork drawn from the brand palette by `npm run placeholders`: soft pools of colour and grain, with no shapes in them. They stand in for generated photographs. To swap in real images, add the files and change `IMAGE_EXTENSION` in `src/services/mock/seed/assets.ts`.
 
 The page at `/dev/data` shows the seed data read through the real hooks.
 

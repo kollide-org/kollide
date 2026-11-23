@@ -19,7 +19,7 @@ function Placeholder() {
 
 /**
  * The landing page. It tells one story from top to bottom: you arrive alone,
- * you find a squad, and by the last screen the two circles have met.
+ * you find a squad, and by the last screen the wordmark has written itself.
  *
  * Only the hero is in the first bundle. Everything below it is fetched once
  * the hero has painted, so the first screen is never held up by the rest.

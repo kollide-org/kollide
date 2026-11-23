@@ -22,7 +22,10 @@ function Repeat({ suggestion, isHost }: { suggestion: RepeatSuggestion; isHost: 
       aria-labelledby={`repeat-${suggestion.eventId}`}
       className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-lift sm:p-8"
     >
-      <span className="absolute -top-20 -right-16 size-64 rounded-full bg-highlight/50 mix-blend-soft-light" aria-hidden="true" />
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(50%_70%_at_92%_0%,rgb(255_255_255/0.16),transparent_70%)]"
+      />
       <div className="relative grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <div>
           <p className="eyebrow flex items-center gap-2 opacity-85">

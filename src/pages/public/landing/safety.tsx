@@ -17,8 +17,10 @@ export function Safety() {
   return (
     <section className="container-page py-24 md:py-36">
       <div className="relative isolate overflow-hidden rounded-[2rem] bg-brand-ink px-6 py-14 text-brand-antique sm:px-12 md:py-20 lg:px-16">
-        <div aria-hidden="true" className="absolute -top-52 -right-40 -z-10 size-80 rounded-full bg-brand-cherry opacity-45 lg:-top-64 lg:-right-48 lg:size-112" />
-        <div aria-hidden="true" className="absolute -top-36 right-20 -z-10 hidden size-64 rounded-full bg-brand-dusty opacity-30 mix-blend-screen lg:block" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[radial-gradient(45%_55%_at_95%_0%,rgb(166_58_80/0.55),transparent_70%),radial-gradient(35%_40%_at_70%_0%,rgb(186_110_99/0.25),transparent_70%)]"
+        />
 
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>

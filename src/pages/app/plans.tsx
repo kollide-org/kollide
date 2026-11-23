@@ -80,8 +80,10 @@ function StillComing({ plan, onCantMakeIt }: { plan: BookingWithEvent; onCantMak
       aria-labelledby={`still-${plan.id}`}
       className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-lift sm:p-8"
     >
-      <span className="absolute -top-16 -right-10 size-56 rounded-full bg-highlight/50 mix-blend-soft-light" aria-hidden="true" />
-      <span className="absolute -right-24 -bottom-24 size-64 rounded-full border border-primary-foreground/25" aria-hidden="true" />
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(50%_70%_at_92%_0%,rgb(255_255_255/0.16),transparent_70%)]"
+      />
       <div className="relative grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <div>
           <p className="eyebrow opacity-85">Still coming?</p>

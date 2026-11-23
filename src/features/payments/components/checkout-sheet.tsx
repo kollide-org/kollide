@@ -3,6 +3,7 @@ import { AnimatePresence } from 'motion/react'
 import * as m from 'motion/react-m'
 import { useState, type FormEvent, type ReactNode } from 'react'
 
+import { WordmarkLoader } from '@/components/brand/wordmark-loader'
 import { FieldError } from '@/components/forms/step-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +12,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { cardSchema, formatCardNumber, formatExpiry, upiSchema } from '@/features/payments/schemas'
 import { formatInr } from '@/lib/format'
 import { spring } from '@/lib/motion'
-import { useMediaQuery, useMotionAllowed } from '@/lib/use-media-query'
+import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 import { SERVICE_MODE, type Checkout, type PaymentInput } from '@/services'
 
@@ -41,24 +42,12 @@ function Field({ id, label, error, hint, children }: { id: string; label: string
   )
 }
 
-/** Two circles drawing towards each other: the "processing" state. */
+/** The "processing" state: the wordmark loader, while the bank answers. */
 function Processing() {
-  const motionAllowed = useMotionAllowed()
   return (
-    <div role="status" aria-live="polite" className="flex flex-col items-center px-2 py-10 text-center">
-      <div className="relative h-24 w-36" aria-hidden="true">
-        <m.span
-          className="absolute top-1/2 left-0 size-20 -translate-y-1/2 rounded-full bg-primary/85 mix-blend-multiply dark:mix-blend-screen"
-          animate={motionAllowed ? { x: [0, 28, 0] } : undefined}
-          transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
-        />
-        <m.span
-          className="absolute top-1/2 right-0 size-20 -translate-y-1/2 rounded-full bg-highlight/85 mix-blend-multiply dark:mix-blend-screen"
-          animate={motionAllowed ? { x: [0, -28, 0] } : undefined}
-          transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
-        />
-      </div>
-      <p className="mt-8 font-display text-h3">Confirming your payment</p>
+    <div role="status" aria-live="polite" className="flex flex-col items-center px-2 py-12 text-center">
+      <WordmarkLoader className="text-[2.75rem]" />
+      <p className="mt-9 font-display text-h3">Confirming your payment</p>
       <p className="mt-2 max-w-xs text-muted-foreground">This takes a few seconds. Please keep this open.</p>
     </div>
   )

@@ -22,13 +22,13 @@ function Heading() {
   )
 }
 
-/** A soft pair of circles behind each scene, echoing the hero. */
+/** Soft light behind each scene, the same light as the hero's. No shapes. */
 function Backdrop() {
   return (
-    <div aria-hidden="true" className="absolute inset-0 -z-10">
-      <div className="absolute -top-[8%] -right-[10%] size-[58%] rounded-full bg-highlight-soft" />
-      <div className="absolute -bottom-[10%] -left-[12%] size-[66%] rounded-full bg-primary-soft" />
-    </div>
+    <div
+      aria-hidden="true"
+      className="absolute -inset-[10%] -z-10 bg-[radial-gradient(50%_45%_at_85%_10%,var(--highlight-soft),transparent_70%),radial-gradient(55%_50%_at_10%_92%,var(--primary-soft),transparent_72%)]"
+    />
   )
 }
 

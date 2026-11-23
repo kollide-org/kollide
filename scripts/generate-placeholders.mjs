@@ -2,9 +2,9 @@
  * Draws the placeholder artwork for the seed data: event covers, hub artwork
  * and monogram avatars, as small SVG files in public/assets.
  *
- * These stand in for generated photographs. Every piece is built from the
- * brand palette and the two-circle "collide" motif, so the product looks
- * finished while the photographs are produced. To swap in real images, add the
+ * These stand in for photographs. Every piece is soft, shapeless light in
+ * the brand palette, like a photograph out of focus, so the product looks
+ * finished until the real photographs replace them. To swap in real images, add the
  * files and change IMAGE_EXTENSION in src/services/mock/seed/assets.ts.
  *
  *   npm run placeholders
@@ -46,7 +46,7 @@ const INK = '#2a2224'
 const WINE = '#6e2233'
 const GOLD = '#d9b26a'
 
-/** [background from, background to, first circle, second circle, detail colour, blend mode] */
+/** [background from, background to, first light, second light, third light, blend mode] */
 const PALETTES = {
   rose: ['#f3e6d6', '#e7c6ba', CHERRY, DUSTY, WINE, 'multiply'],
   wine: ['#7a2639', '#3d1622', '#c75a6f', '#e0a090', ANTIQUE, 'screen'],
@@ -73,41 +73,32 @@ const round = (value) => Math.round(value * 10) / 10
 const grain = (id) =>
   `<filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .45 0 0 0 .22 0"/></filter>`
 
-/** Two large circles that overlap, a hairline ring and a small dot. */
-function composition(key, width, height, paletteName, circleCount = 2) {
+/**
+ * Soft light with no shapes: a base gradient, three wide pools of colour with
+ * blurred edges, and a film of grain. It reads as a photograph out of focus,
+ * a stand-in for the real photograph that will replace it.
+ */
+function composition(key, width, height, paletteName) {
   const random = randomFrom(key)
   const [from, to, first, second, detail, blend] = PALETTES[paletteName]
-  const angle = Math.floor(random() * 4) * 90 + 45
-  const radius = height * (0.34 + random() * 0.12)
-  const cx = width * (0.3 + random() * 0.18)
-  const cy = height * (0.42 + random() * 0.2)
-  const gap = radius * (1.05 + random() * 0.35)
-  const tilt = (random() - 0.5) * 0.9
-  const cx2 = cx + Math.cos(tilt) * gap
-  const cy2 = cy + Math.sin(tilt) * gap
-
-  const circles = [
-    `<circle cx="${round(cx)}" cy="${round(cy)}" r="${round(radius)}" fill="${first}"/>`,
-    `<circle cx="${round(cx2)}" cy="${round(cy2)}" r="${round(radius * (0.86 + random() * 0.2))}" fill="${second}" style="mix-blend-mode:${blend}" opacity=".92"/>`,
-  ]
-  for (let extra = 2; extra < circleCount; extra += 1) {
-    const r = height * (0.08 + random() * 0.16)
-    circles.push(
-      `<circle cx="${round(width * random())}" cy="${round(height * random())}" r="${round(r)}" fill="${extra % 2 ? first : second}" style="mix-blend-mode:${blend}" opacity="${round(0.35 + random() * 0.4)}"/>`,
-    )
+  const angle = Math.floor(random() * 360)
+  const pool = (colour, id) => {
+    const cx = round(0.1 + random() * 0.8)
+    const cy = round(0.1 + random() * 0.8)
+    const r = round(0.45 + random() * 0.35)
+    return [
+      `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}"><stop offset="0" stop-color="${colour}" stop-opacity="${round(0.55 + random() * 0.3)}"/><stop offset="1" stop-color="${colour}" stop-opacity="0"/></radialGradient>`,
+      `<rect width="${width}" height="${height}" fill="url(#${id})" style="mix-blend-mode:${blend}"/>`,
+    ]
   }
-  const ringRadius = radius * (1.25 + random() * 0.4)
-  const dotX = width * (0.12 + random() * 0.76)
-  const dotY = height * (0.14 + random() * 0.2)
+  const pools = [pool(first, 'p1'), pool(second, 'p2'), pool(detail, 'p3')]
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid slice">`,
-    `<defs><linearGradient id="g" gradientTransform="rotate(${angle} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient>${grain('n')}</defs>`,
+    `<defs><linearGradient id="g" gradientTransform="rotate(${angle} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient>${pools.map((item) => item[0]).join('')}${grain('n')}</defs>`,
     `<rect width="${width}" height="${height}" fill="url(#g)"/>`,
-    ...circles,
-    `<circle cx="${round(cx2)}" cy="${round(cy2)}" r="${round(ringRadius)}" fill="none" stroke="${detail}" stroke-width="1.5" opacity=".45"/>`,
-    `<circle cx="${round(dotX)}" cy="${round(dotY)}" r="${round(height * 0.012)}" fill="${detail}" opacity=".8"/>`,
-    `<rect width="${width}" height="${height}" filter="url(#n)" opacity=".5" style="mix-blend-mode:soft-light"/>`,
+    ...pools.map((item) => item[1]),
+    `<rect width="${width}" height="${height}" filter="url(#n)" opacity=".55" style="mix-blend-mode:soft-light"/>`,
     `</svg>`,
   ].join('')
 }
@@ -123,7 +114,7 @@ const AVATAR_TONES = [
   ['#f7e7df', '#eac9a8', CHERRY, GOLD],
 ]
 
-/** A monogram: the person's initial in the display font, over a soft overlapping circle. */
+/** A monogram: the person’s initial in the display font, over a soft pool of light. */
 function avatar(person, variant) {
   const size = 400
   const random = randomFrom(`${person.id}-${variant}`)
@@ -134,16 +125,14 @@ function avatar(person, variant) {
   const scale = (size * (variant === 3 ? 0.3 : 0.44)) / glyphHeight
   const x = size / 2 - ((glyph.x1 + glyph.x2) / 2) * scale
   const y = size / 2 - ((glyph.y1 + glyph.y2) / 2) * scale
-  const r = size * (0.3 + random() * 0.08)
   const cx = size * (0.26 + random() * 0.5)
   const cy = size * (0.62 + random() * 0.24)
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`,
-    `<defs><linearGradient id="g" gradientTransform="rotate(${45 + variant * 30} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>`,
+    `<defs><linearGradient id="g" gradientTransform="rotate(${45 + variant * 30} .5 .5)"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient><radialGradient id="l" cx="${round(cx / size)}" cy="${round(cy / size)}" r=".7"><stop offset="0" stop-color="${accent}" stop-opacity=".35"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient></defs>`,
     `<rect width="${size}" height="${size}" fill="url(#g)"/>`,
-    `<circle cx="${round(cx)}" cy="${round(cy)}" r="${round(r)}" fill="${accent}" opacity=".3"/>`,
-    variant === 2 ? `<circle cx="${round(size - cx)}" cy="${round(size - cy)}" r="${round(r * 0.7)}" fill="none" stroke="${ink}" stroke-width="1.5" opacity=".35"/>` : '',
+    `<rect width="${size}" height="${size}" fill="url(#l)"/>`,
     `<path transform="translate(${round(x)} ${round(y)}) scale(${round(scale * 1000) / 1000})" fill="${ink}" d="${glyph.d}"/>`,
     `</svg>`,
   ].join('')
@@ -165,7 +154,7 @@ for (const category of EVENT_CATEGORIES) {
 
 const HUB_PALETTE = { 'new-years-eve': 'gold', 'long-weekend-outdoors': 'sage' }
 for (const hub of buildHubs(new Date())) {
-  write('hubs', hub.slug, composition(hub.slug, 1600, 900, HUB_PALETTE[hub.slug] ?? 'rose', 6))
+  write('hubs', hub.slug, composition(hub.slug, 1600, 900, HUB_PALETTE[hub.slug] ?? 'rose'))
 }
 
 for (const person of PEOPLE) {

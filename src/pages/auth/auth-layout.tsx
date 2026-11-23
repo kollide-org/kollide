@@ -48,9 +48,8 @@ export function AuthLayout() {
       </div>
 
       <aside aria-hidden="true" className="relative isolate hidden overflow-hidden bg-brand-cherry text-brand-antique lg:block">
-        <div className="absolute -top-[10%] -right-[22%] aspect-square w-[78%] animate-drift-a rounded-full bg-brand-dusty opacity-90" />
-        <div className="absolute -bottom-[14%] -left-[26%] aspect-square w-[88%] animate-drift-b rounded-full bg-brand-ink/20" />
-        <div className="absolute top-[20%] left-[12%] aspect-square w-[78%] rounded-full border border-brand-antique/25" />
+        {/* Soft light on the cherry panel, drifting very slowly. No shapes. */}
+        <div className="absolute -inset-[15%] animate-drift-a bg-[radial-gradient(55%_45%_at_80%_12%,rgb(186_110_99/0.85),transparent_70%),radial-gradient(60%_50%_at_10%_95%,rgb(42_34_36/0.35),transparent_70%)]" />
         <div className="relative flex h-full flex-col justify-end p-14 xl:p-20">
           <p className="max-w-md font-display text-h1">Never walk in alone.</p>
           <ul className="mt-8 grid gap-3">
