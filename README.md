@@ -16,9 +16,7 @@ This repository is the frontend only. There is no backend yet. All data will com
 | 6. Requests and squads (host inbox, waitlist, squads) | Built |
 | 7. Bookings (checkout, reconfirmation, refunds and credit, My plans) | Built |
 | 8. After the event (check-in, feedback, reports, reliability, meet again) | Built |
-| 9. Admin and polish | Not started |
-
-Routes for later milestones exist as placeholders, so the navigation and role guards can be reviewed now.
+| 9. Admin, settings and polish | Built |
 
 ## Setup
 
@@ -48,7 +46,7 @@ The site runs at `http://localhost:5173`.
 
 ## Stack
 
-Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. Forms use React Hook Form with Zod for validation. GSAP with ScrollTrigger and Lenis are used on the public pages only. Icons are Lucide throughout.
+Vite, React, TypeScript, Tailwind CSS, shadcn/ui (Radix), React Router, TanStack Query and Motion for React. Forms use React Hook Form with Zod for validation. GSAP with ScrollTrigger and Lenis are used on the landing page only. Icons are Lucide throughout.
 
 ## Folder structure
 
@@ -74,7 +72,7 @@ src/
   dev/            the development-only role switcher
 public/assets/    covers, hub artwork and avatars for the seed data
 public/fonts/     self-hosted fonts and their licences
-scripts/          the placeholder artwork generator
+scripts/          the placeholder artwork generator and the route preload build plugin
 ```
 
 ## Theme
@@ -110,7 +108,7 @@ Four tools, each with one job:
 | CSS | Entrances at the top of a page (`rise-in`, `line-reveal`) and slow decorative loops | Everywhere |
 | Motion for React | Interface animation: staggered lists, scene changes, scroll-linked parallax | Everywhere |
 | GSAP with ScrollTrigger | The two scroll moments: the statement that comes into focus word by word, and the pinned "How it works" sequence | Landing page only |
-| Lenis | Smooth scrolling | Public pages only, never inside the app |
+| Lenis | Smooth scrolling | Landing page only |
 
 Rules:
 
@@ -143,7 +141,17 @@ One-time moments are remembered in `localStorage` (`kollide:address-revealed`, `
 
 The first bundle holds the hero and nothing else from the landing page. The sections below it load once the hero has painted and mount one at a time. The mock backend, GSAP, Lenis, the mobile menu and toasts are all separate chunks, loaded when they are first needed.
 
-A page that shows data, such as an event page, starts fetching its data in the route loader, at the same moment its code is requested. Its cover image still cannot start loading until that data has arrived, so on a slow phone the event page paints its largest element later than the landing page does.
+A page that shows data, such as an event page, starts fetching its data in the route loader, at the same moment its code is requested. For the pages people most often open from a shared link (the event page, Home and the in-app event page), `index.html` starts downloading the page's code and the services alongside the main bundle, through `scripts/vite-route-preload.ts`. The toaster is mounted once the page is idle.
+
+Lighthouse, mobile, on the production build (`npm run build`, then `npx vite preview`):
+
+| Page | Performance | Accessibility | Best practices |
+|---|---|---|---|
+| Landing | 97–98 | 100 | 100 |
+| How it works | 99 | 100 | 100 |
+| Event page | 83–85 | 100 | 100 |
+
+The event page is below the target of 90. Its largest element is the cover image, and a page drawn in the browser cannot know which cover to show until about 375 kB of fonts, styles and code have arrived and the event has loaded. Unthrottled, the cover paints at about 0.4 s. Lighthouse's simulated slow phone puts it at 4.3 s. The mock's artificial delay is not the cause: with it set to zero the score is the same. Reaching 90 needs the event page's HTML to be rendered ahead of time, on the server or at build time, which is a change to the stack.
 
 ## Roles
 
@@ -211,6 +219,31 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **Safety reports:** on every other member’s profile, every event page and the feedback screen. A report about a person puts them on hold: they can’t send requests, and their profile says so, with a way to appeal. The emergency number is in `src/lib/safety.ts`.
 - **Connections (`/app/connections`):** people who both said yes. When three or more all said yes to each other, Kollide suggests a repeat. There are no messages, by design.
 
+## Admin
+
+Sign in as Meera (admin) from the role switcher. Every list has loading, empty, error and success states, and a decided item eases out of its queue.
+
+| Page | What it does |
+|---|---|
+| Host approvals (`/admin`) | Members who asked to host, with their reliability, the tags guests gave them most, and why they want to host. Approve, or "Not just yet". |
+| Events (`/admin/events`) | New events wait for review. The "Live and featuring" tab features live events, which then come first on Home and in browsing. |
+| Hubs (`/admin/hubs`) | Create and edit seasonal hubs: title, dates in Bengaluru time, artwork, an accent pair that keeps AA contrast, and events. One shows on Home at a time. |
+| Reports (`/admin/reports`) | Safety reports, appeals and review patterns. Anyone named in an open report is on hold; the hold lifts when no report about them is open. Closing a report needs a note. |
+| Users (`/admin/users`) | Search members, then put on hold, suspend, ban or restore, always with a reason the member is shown. The "Selfie checks" tab compares a selfie with the profile photos. |
+| Partner links (`/admin/partners`) | Where "Get tickets" goes for each partner event. Links must start with `https://`. |
+
+A banned account is signed out and cannot sign in again. Overturning an appeal against a hold or a suspension gives the account back.
+
+## Settings
+
+`/app/settings` holds:
+
+- **Account:** your standing. A hold or a suspension is explained there, with "Tell us your side" and the state of each appeal.
+- **Privacy:** "Show my photo on event cards" and "Let people I meet ask to meet again". Both are enforced by the services, not just hidden in the interface.
+- **Notifications:** email and push for reminders, squads, meet again and new events. Bookings, payments and safety are always on. No WhatsApp or SMS.
+- **Appearance:** light, dark, or match the device.
+- **Leaving Kollide:** sign out, or delete the account after a confirmation. Deleting is refused while you host an upcoming event, so your guests are told first.
+
 ## Mock and real services
 
 Components never talk to a backend directly. They call TanStack Query hooks in `src/features`, the hooks call the service interfaces, and one file decides which implementation answers.
@@ -226,7 +259,7 @@ component  ->  query hook  ->  service interface  ->  mock or real implementatio
 | `VITE_SERVICES=mock` (the default) | The mock backend runs in the browser |
 | `VITE_SERVICES=real` | Calls go to `src/services/real` |
 
-Put the flag in a `.env.local` file or in the build environment. To connect a real backend, implement the nine interfaces in `src/services/interfaces` inside `src/services/real`. No component or hook changes. A lint rule in `.oxlintrc.json` blocks any import of `services/mock` or `services/real` from outside `src/services`.
+Put the flag in a `.env.local` file or in the build environment. To connect a real backend, implement the ten interfaces in `src/services/interfaces` inside `src/services/real`. No component or hook changes. A lint rule in `.oxlintrc.json` blocks any import of `services/mock` or `services/real` from outside `src/services`.
 
 **The mock backend.**
 
