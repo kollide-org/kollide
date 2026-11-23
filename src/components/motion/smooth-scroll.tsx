@@ -3,8 +3,8 @@ import { useEffect } from 'react'
 import { setSmoothScroll } from '@/lib/smooth-scroll'
 
 /**
- * Lenis smooth scrolling for the public pages. It is not used inside the app,
- * where sheets, swipe decks and nested scrollers need native scrolling.
+ * Lenis smooth scrolling for the landing page. Every other page, public or
+ * in the app, keeps native scrolling.
  *
  * Lenis loads after first paint, leaves touch scrolling native, and switches
  * its smoothing off by itself when the system asks for reduced motion.

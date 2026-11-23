@@ -3,7 +3,6 @@ import { lazy, Suspense, useState } from 'react'
 import { Outlet } from 'react-router'
 
 import { useSession } from '@/app/providers/session-context'
-import { SmoothScroll } from '@/components/motion/smooth-scroll'
 import { AppLink, AppNavLink } from '@/components/shared/app-link'
 import { SiteFooter } from '@/components/shared/site-footer'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
@@ -33,7 +32,6 @@ export function PublicLayout() {
 
   return (
     <div className="paper flex min-h-dvh flex-col">
-      <SmoothScroll />
       <header
         className={cn(
           'sticky top-0 z-40 border-b transition-[background-color,border-color] duration-300',

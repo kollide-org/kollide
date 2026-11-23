@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { LazyMotion, MotionConfig } from 'motion/react'
-import { lazy, Suspense, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 
 import { queryClient } from '@/app/query-client'
 
@@ -10,6 +10,26 @@ import { ThemeProvider } from './theme-provider'
 // Loaded on demand so neither delays the first screen.
 const loadMotionFeatures = () => import('@/lib/motion-features').then((module) => module.default)
 const Toaster = lazy(() => import('@/components/ui/sonner').then((module) => ({ default: module.Toaster })))
+
+/**
+ * Toasts only ever follow something the person did, so the toaster arrives
+ * once the page is idle and never competes with the first screen.
+ */
+function IdleToaster() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 300))
+    const cancelIdle = window.cancelIdleCallback ?? window.clearTimeout
+    const handle = idle(() => setReady(true), { timeout: 2500 })
+    return () => cancelIdle(handle)
+  }, [])
+  if (!ready) return null
+  return (
+    <Suspense fallback={null}>
+      <Toaster />
+    </Suspense>
+  )
+}
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -21,9 +41,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <LazyMotion features={loadMotionFeatures} strict>
             <SessionProvider>
               {children}
-              <Suspense fallback={null}>
-                <Toaster />
-              </Suspense>
+              <IdleToaster />
             </SessionProvider>
           </LazyMotion>
         </MotionConfig>

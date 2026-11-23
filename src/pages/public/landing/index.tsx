@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
+import { SmoothScroll } from '@/components/motion/smooth-scroll'
+
 import { Hero } from './hero'
 
 const BelowFold = lazy(() => import('./below-fold'))
@@ -46,6 +48,8 @@ export function Component() {
   return (
     <>
       <title>Kollide · Social events in Bengaluru</title>
+      {/* Lenis belongs to the landing page alone, as the brief asks. */}
+      <SmoothScroll />
       <Hero />
       {heroPainted ? (
         <Suspense fallback={<Placeholder />}>
