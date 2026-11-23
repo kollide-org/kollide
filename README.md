@@ -219,6 +219,10 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **Safety reports:** on every other member’s profile, every event page and the feedback screen. A report about a person puts them on hold: they can’t send requests, and their profile says so, with a way to appeal. The emergency number is in `src/lib/safety.ts`.
 - **Connections (`/app/connections`):** people who both said yes. When three or more all said yes to each other, Kollide suggests a repeat. There are no messages, by design.
 
+## Time
+
+Kollide is in Bengaluru, so every date and time is shown in Bengaluru time (`Asia/Kolkata`) on any device, and the times a host types are read as Bengaluru times. The demo data is placed relative to the moment it is created, at ordinary local hours. The exception is the live quiz night, which starts an hour before the data is created so check-in can be tried at any time of day.
+
 ## Admin
 
 Sign in as Meera (admin) from the role switcher. Every list has loading, empty, error and success states, and a decided item eases out of its queue.
@@ -226,8 +230,8 @@ Sign in as Meera (admin) from the role switcher. Every list has loading, empty, 
 | Page | What it does |
 |---|---|
 | Host approvals (`/admin`) | Members who asked to host, with their reliability, the tags guests gave them most, and why they want to host. Approve, or "Not just yet". |
-| Events (`/admin/events`) | New events wait for review. The "Live and featuring" tab features live events, which then come first on Home and in browsing. |
-| Hubs (`/admin/hubs`) | Create and edit seasonal hubs: title, dates in Bengaluru time, artwork, an accent pair that keeps AA contrast, and events. One shows on Home at a time. |
+| Events (`/admin/events`) | New events wait for review. The "Live and featuring" tab features live events: they come first on Home and in browsing, with a "Featured" mark. |
+| Hubs (`/admin/hubs`) | Create and edit seasonal hubs: title, dates in Bengaluru time, artwork, an accent pair that keeps AA contrast, and events. One hub is chosen for Home at a time, and it shows only between its dates. |
 | Reports (`/admin/reports`) | Safety reports, appeals and review patterns. Anyone named in an open report is on hold; the hold lifts when no report about them is open. Closing a report needs a note. |
 | Users (`/admin/users`) | Search members, then put on hold, suspend, ban or restore, always with a reason the member is shown. The "Selfie checks" tab compares a selfie with the profile photos. |
 | Partner links (`/admin/partners`) | Where "Get tickets" goes for each partner event. Links must start with `https://`. |
