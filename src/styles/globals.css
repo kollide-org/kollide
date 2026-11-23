@@ -155,6 +155,24 @@
     scroll-padding-top: 5rem;
   }
 
+  /*
+   * Keep anything scrolled to, or focused with the keyboard, clear of the bars
+   * fixed to the bottom of the screen: the phone tab bar and a form's step footer.
+   */
+  html:has([data-step-footer]) {
+    scroll-padding-bottom: 7rem;
+  }
+
+  @media (width < 48rem) {
+    html:has([data-tab-bar]) {
+      scroll-padding-bottom: 5rem;
+    }
+
+    html:has([data-tab-bar]):has([data-step-footer]) {
+      scroll-padding-bottom: 11rem;
+    }
+  }
+
   body {
     @apply bg-background text-base text-foreground antialiased;
     min-height: 100dvh;

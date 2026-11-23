@@ -58,7 +58,7 @@ export function StepForm({
       </div>
 
       {/* Inside the app, the page sets --step-footer-offset so this clears the tab bar. */}
-      <div className="sticky bottom-(--step-footer-offset,0px) -mx-5 border-t border-border bg-background/92 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-10 sm:backdrop-blur-none">
+      <div data-step-footer className="sticky bottom-(--step-footer-offset,0px) -mx-5 border-t border-border bg-background/92 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-10 sm:backdrop-blur-none">
         {error ? (
           <p role="alert" className="mb-4 flex items-start gap-2 text-sm text-destructive-strong">
             <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
