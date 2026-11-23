@@ -1,19 +1,15 @@
 import { ArrowUpRight, Handshake, Sparkles } from 'lucide-react'
-import * as m from 'motion/react-m'
 
 import { useSession } from '@/app/providers/session-context'
 import { AvatarStack } from '@/components/people/avatar-stack'
-import { PersonAvatar } from '@/components/people/person-avatar'
-import { VerifiedBadge } from '@/components/people/verified-badge'
 import { AppLink } from '@/components/shared/app-link'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ErrorState } from '@/components/shared/error-state'
 import { PageHeader } from '@/components/shared/page-header'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Guestbook } from '@/features/reviews/components/guestbook'
 import { useConnections, useRepeatSuggestions } from '@/features/reviews/queries'
-import { formatAgo } from '@/lib/format'
-import { staggerContainer, staggerItem } from '@/lib/motion'
 import { hasRole } from '@/services/types/role'
 import type { ConnectionWithPerson, RepeatSuggestion } from '@/services'
 
@@ -90,7 +86,8 @@ export function Component() {
         ))}
 
         <section aria-labelledby="connections-heading">
-          <h2 id="connections-heading" className="text-h3">
+          <p className="eyebrow text-muted-foreground">The Kollide guestbook</p>
+          <h2 id="connections-heading" className="mt-2 text-h3">
             Your connections
           </h2>
           <div className="mt-5">
@@ -115,30 +112,7 @@ export function Component() {
                 }
               />
             ) : (
-              <m.ul variants={staggerContainer} initial="hidden" animate="visible" className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {people.map((connection) => (
-                  <m.li key={connection.id} variants={staggerItem}>
-                    <AppLink
-                      to={`/app/people/${connection.person.userId}`}
-                      className="flex items-center gap-4 rounded-3xl border border-border/70 bg-card p-4 shadow-card transition-[transform,box-shadow] duration-300 ease-out-soft hover:-translate-y-0.5 hover:shadow-lift"
-                    >
-                      <PersonAvatar person={connection.person} className="size-16" />
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-1.5 text-h4">
-                          <span className="truncate">{connection.person.firstName}</span>
-                          {connection.person.verified ? <VerifiedBadge /> : null}
-                        </span>
-                        <span className="block truncate text-sm text-muted-foreground">
-                          {connection.eventTitles.length > 1
-                            ? `Met at ${connection.eventTitles.length} events`
-                            : `Met at ${connection.eventTitles[0]}`}
-                        </span>
-                        <span className="block text-sm text-muted-foreground">Connected {formatAgo(connection.createdAt)}</span>
-                      </span>
-                    </AppLink>
-                  </m.li>
-                ))}
-              </m.ul>
+              <Guestbook entries={people} />
             )}
           </div>
         </section>

@@ -83,7 +83,7 @@ export function ProfileCard({ card, own = false, className }: ProfileCardProps) 
 
       <div className="grid gap-5 px-2.5 pt-5 pb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <ReliabilityChip reputation={reputation} />
+          <ReliabilityChip reputation={reputation} countUp />
           {card.onHold ? <Badge variant="destructive">On hold</Badge> : null}
           {own && card.verification.status === 'pending' ? (
             <Badge variant="warning">

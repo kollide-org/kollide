@@ -366,3 +366,140 @@ html.lenis body {
 .lenis [data-lenis-prevent] {
   overscroll-behavior: contain;
 }
+
+/*
+ * The wordmark loader. The "k" appears on its own, then "ollide" slides out
+ * from behind it, holds, and folds back while loading continues. It waits a
+ * moment before appearing, so a fast load never flashes it. index.html draws
+ * the same thing before any script runs, so the hand-over is seamless.
+ */
+@keyframes wordmark-k {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.06);
+  }
+  24% {
+    transform: scale(1);
+  }
+}
+@keyframes wordmark-rest {
+  0%,
+  22% {
+    transform: translateX(-104%);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  48%,
+  80% {
+    transform: translateX(0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
+  }
+  96%,
+  100% {
+    transform: translateX(-104%);
+    opacity: 0;
+  }
+}
+@keyframes wordmark-loader-in {
+  from {
+    opacity: 0;
+  }
+}
+@utility wordmark-loader {
+  animation: wordmark-loader-in 400ms var(--easing-out-soft) 350ms both;
+}
+@utility wordmark-k {
+  display: inline-block;
+  transform-origin: 50% 80%;
+  animation: wordmark-k 2.8s cubic-bezier(0.45, 0, 0.55, 1) 350ms infinite both;
+}
+@utility wordmark-rest {
+  display: inline-block;
+  animation: wordmark-rest 2.8s 350ms infinite both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wordmark-k,
+  .wordmark-rest {
+    animation: none !important;
+  }
+}
+
+/*
+ * Evening light: an ambient glow behind the home page that follows the time
+ * of day in Bengaluru. Each part of the day is a pair of soft radial lights.
+ */
+@layer components {
+  .light-dawn {
+    background:
+      radial-gradient(60% 55% at 18% 0%, rgb(244 190 160 / 0.9), transparent 78%),
+      radial-gradient(45% 45% at 88% 8%, rgb(250 226 200 / 0.9), transparent 78%);
+  }
+  .light-day {
+    background: radial-gradient(70% 55% at 72% 0%, rgb(255 246 232 / 0.9), transparent 80%);
+  }
+  .light-golden {
+    background:
+      radial-gradient(60% 55% at 78% 0%, rgb(236 168 112 / 0.71), transparent 78%),
+      radial-gradient(45% 50% at 8% 18%, rgb(186 110 99 / 0.37), transparent 78%);
+  }
+  .light-dusk {
+    background:
+      radial-gradient(60% 55% at 82% 0%, rgb(186 110 99 / 0.65), transparent 78%),
+      radial-gradient(50% 50% at 12% 10%, rgb(166 58 80 / 0.34), transparent 80%);
+  }
+  .light-night {
+    background:
+      radial-gradient(70% 55% at 50% -8%, rgb(92 52 82 / 0.37), transparent 80%),
+      radial-gradient(40% 40% at 88% 6%, rgb(166 58 80 / 0.24), transparent 78%);
+  }
+  .dark .light-dawn {
+    background: radial-gradient(60% 55% at 18% 0%, rgb(186 110 99 / 0.34), transparent 78%);
+  }
+  .dark .light-day {
+    background: radial-gradient(70% 55% at 72% 0%, rgb(240 231 216 / 0.1), transparent 80%);
+  }
+  .dark .light-golden {
+    background:
+      radial-gradient(60% 55% at 78% 0%, rgb(217 140 90 / 0.31), transparent 78%),
+      radial-gradient(45% 50% at 8% 18%, rgb(186 110 99 / 0.2), transparent 78%);
+  }
+  .dark .light-dusk {
+    background:
+      radial-gradient(60% 55% at 82% 0%, rgb(229 143 160 / 0.27), transparent 78%),
+      radial-gradient(50% 50% at 12% 10%, rgb(166 58 80 / 0.24), transparent 80%);
+  }
+  .dark .light-night {
+    background:
+      radial-gradient(70% 55% at 50% -8%, rgb(229 143 160 / 0.17), transparent 80%),
+      radial-gradient(40% 40% at 88% 6%, rgb(166 58 80 / 0.2), transparent 78%);
+  }
+}
+
+/* A slow band of light across a ticket, so it reads as live, not a screenshot. */
+@keyframes ticket-sheen {
+  from {
+    transform: translateX(-160%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+@utility ticket-sheen {
+  animation: ticket-sheen 4.2s var(--easing-in-out-soft) 0.8s infinite;
+}
+@keyframes live-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+@utility live-dot {
+  animation: live-dot 1.6s ease-in-out infinite;
+}

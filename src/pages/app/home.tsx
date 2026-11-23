@@ -15,6 +15,9 @@ import { countFilters, filtersFromParams, filtersToParams } from '@/features/eve
 import { useActiveHub, useEvents } from '@/features/events/queries'
 import { SquadCard } from '@/features/squads/components/squad-card'
 import { useSquadsForming } from '@/features/squads/queries'
+import { EveningLight } from '@/components/ambient/evening-light'
+import { bengaluruHour, DAY_PART_LABELS } from '@/lib/day-part'
+import { useDayPart } from '@/lib/use-day-part'
 import { cn } from '@/lib/utils'
 import type { EventFilters } from '@/services'
 
@@ -152,13 +155,17 @@ function Feed() {
 /** Home: the seasonal hub, squads forming, then the event feed with its filters. */
 export function Component() {
   const { session } = useSession()
-  const [hello] = useState(() => greeting(new Date().getHours()))
+  const [hello] = useState(() => greeting(bengaluruHour()))
+  const part = useDayPart()
 
   return (
     <>
       <title>What’s on · Kollide</title>
+      <EveningLight part={part} />
       <header>
-        <p className="eyebrow text-primary">Bengaluru</p>
+        <p className="eyebrow text-primary">
+          Bengaluru <span className="text-muted-foreground">· {DAY_PART_LABELS[part]}</span>
+        </p>
         <h1 className="mt-3 text-h1">
           {hello}, {session?.profile?.firstName}.
         </h1>

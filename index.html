@@ -25,9 +25,34 @@
         } catch (e) {}
       })()
     </script>
+    <style>
+      /* The page colour, set before any stylesheet loads, so dark mode never flashes white. */
+      html { background: #f0e7d8; }
+      html.dark { background: #1e1719; }
+      /* The wordmark loader, drawn before any script runs. It fades in only if loading takes a moment. */
+      @font-face { font-family: 'Gloock'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/gloock-latin-400.woff2') format('woff2'); }
+      .kw-splash { position: fixed; inset: 0; display: grid; place-items: center; background: #f0e7d8; color: #a63a50; animation: kw-in 400ms ease-out 450ms both; }
+      html.dark .kw-splash { background: #1e1719; color: #e58fa0; }
+      .kw { display: inline-flex; font-family: 'Gloock', Georgia, serif; font-size: 3rem; line-height: 1; letter-spacing: -0.01em; }
+      .kw-k { display: inline-block; transform-origin: 50% 80%; animation: kw-k 2.8s cubic-bezier(0.45, 0, 0.55, 1) 450ms infinite both; }
+      .kw-rest { display: inline-block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+      .kw-rest > span { display: inline-block; animation: kw-rest 2.8s 450ms infinite both; }
+      @keyframes kw-in { from { opacity: 0; } }
+      @keyframes kw-k { 0%, 100% { transform: scale(1); } 10% { transform: scale(1.06); } 24% { transform: scale(1); } }
+      @keyframes kw-rest {
+        0%, 22% { transform: translateX(-104%); opacity: 0; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+        48%, 80% { transform: translateX(0); opacity: 1; animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0); }
+        96%, 100% { transform: translateX(-104%); opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) { .kw-k, .kw-rest > span { animation: none; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="kw-splash" role="status" aria-label="Loading Kollide">
+        <span class="kw" aria-hidden="true"><span class="kw-k">k</span><span class="kw-rest"><span>ollide</span></span></span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

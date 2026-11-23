@@ -122,6 +122,22 @@ Rules:
 - The operating system's "reduce motion" setting is respected everywhere. With it on, the landing page shows the steps as a plain list, text is fully visible, and Lenis stops smoothing.
 - Links use the View Transitions API where the browser supports it. Use `AppLink` and `AppNavLink` from `src/components/shared/app-link.tsx` instead of React Router's `Link`.
 
+### Signature moments
+
+Each one shows something real happening, and each plays once, at the moment it means something.
+
+| Moment | Where | What happens |
+|---|---|---|
+| The wordmark loader | `index.html`, `BootFallback` | The "k" arrives alone, then "ollide" slides out from behind it. Drawn in plain HTML and CSS, so it shows before any script loads, and only after half a second, so fast loads never see it. |
+| The invitation | Event page, the first time you see the address | The address arrives as an invitation card ("You’re invited") that turns over to show the address on the back. It plays when the card is on screen. |
+| Your place at the table | Event page, "Who’s going" | Guests are name place cards set down at slight angles. The first time, your card drops onto the table among them. |
+| The guestbook | Connections | Each new connection is written in, "Ananya & Aditi", left to right at a writing pace, with an underline drawn beneath. |
+| Evening light | Home | A soft light behind the greeting follows the time of day in Bengaluru: early light, daytime, golden hour, dusk and after dark. The eyebrow names it. |
+| The live ticket | Ticket | A slow band of light crosses the stub, a live clock ticks under your name, and the stub settles away from the code along the perforation. |
+| Reliability counting up | Profile cards | "Shows up: X of Y" counts up as the card opens. Screen readers get the final number straight away. |
+
+One-time moments are remembered in `localStorage` (`kollide:address-revealed`, `kollide:seated`, `kollide:guestbook-seen-at`). Clear those keys to see them again.
+
 ## Performance
 
 The first bundle holds the hero and nothing else from the landing page. The sections below it load once the hero has painted and mount one at a time. The mock backend, GSAP, Lenis, the mobile menu and toasts are all separate chunks, loaded when they are first needed.

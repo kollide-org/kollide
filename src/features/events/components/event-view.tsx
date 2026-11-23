@@ -23,6 +23,8 @@ import { useEvent, useEventAddress, useSimilarEvents } from '../queries'
 import { EventAction } from './event-action'
 import { EventCard } from './event-card'
 import { HostCard } from './host-card'
+import { InvitationReveal } from './invitation-reveal'
+import { PlaceCards } from './place-cards'
 
 // The form is only needed once someone chooses to start a squad, so it loads then.
 const StartSquadDialog = lazy(() =>
@@ -115,9 +117,9 @@ function Address({ event }: { event: EventDetail }) {
   if (isPending) return <Skeleton className="h-24 w-full rounded-2xl" />
   if (isError) return <ErrorState onRetry={() => void refetch()} />
 
-  return (
-    <div className="flex items-start gap-4 rounded-2xl border border-success/40 bg-success-soft/60 p-5">
-      <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-success-soft text-success-strong">
+  const card = (
+    <div className="flex h-full items-start gap-4 rounded-2xl border border-success/40 bg-success-soft p-5">
+      <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-card text-success-strong">
         <MapPin className="size-5" aria-hidden="true" />
       </span>
       <div>
@@ -126,6 +128,12 @@ function Address({ event }: { event: EventDetail }) {
         <p className="mt-2 text-sm text-muted-foreground">Only approved guests can see this. Please don’t pass it on.</p>
       </div>
     </div>
+  )
+  // The host already knows the address, so only guests get the invitation moment.
+  return event.viewer.isHost ? card : (
+    <InvitationReveal eventId={event.id} eventTitle={event.title}>
+      {card}
+    </InvitationReveal>
   )
 }
 
@@ -372,20 +380,24 @@ export function EventView({ slug, back }: EventViewProps) {
                 <p className="text-muted-foreground">Nobody yet. Be the first, and others will follow.</p>
               ) : seesGuests && signedIn ? (
                 <>
-                  <ul className="flex flex-wrap gap-2.5">
-                    {event.attendeePreview.map((person) => (
-                      <li key={person.userId}>
-                        <AppLink
-                          to={`/app/people/${person.userId}`}
-                          className="flex items-center gap-2.5 rounded-full border border-border bg-card py-1.5 pr-4 pl-1.5 font-medium transition-colors hover:border-foreground/40"
-                        >
-                          <PersonAvatar person={person} className="size-9" />
-                          {person.firstName}
-                          {person.verified ? <VerifiedBadge /> : null}
-                        </AppLink>
-                      </li>
-                    ))}
-                  </ul>
+                  {viewer.isHost ? (
+                    <ul className="flex flex-wrap gap-2.5">
+                      {event.attendeePreview.map((person) => (
+                        <li key={person.userId}>
+                          <AppLink
+                            to={`/app/people/${person.userId}`}
+                            className="flex items-center gap-2.5 rounded-full border border-border bg-card py-1.5 pr-4 pl-1.5 font-medium transition-colors hover:border-foreground/40"
+                          >
+                            <PersonAvatar person={person} className="size-9" />
+                            {person.firstName}
+                            {person.verified ? <VerifiedBadge /> : null}
+                          </AppLink>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <PlaceCards eventId={event.id} people={event.attendeePreview} />
+                  )}
                   <p className="mt-4 text-sm text-muted-foreground">
                     {event.goingCount} going. You can see who, because you’re going too.
                   </p>
