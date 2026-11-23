@@ -1,4 +1,4 @@
-import { BadgeCheck, Camera, Clock, EyeOff, Lightbulb, LogOut, PauseCircle } from 'lucide-react'
+import { BadgeCheck, Camera, Clock, EyeOff, Lightbulb, LogOut } from 'lucide-react'
 import { useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSubmitSelfie } from '@/features/onboarding/hooks'
 import { ProfileCard } from '@/features/profile/components/profile-card'
+import { AccountStanding } from '@/features/profile/components/account-standing'
 import { AppealDialog } from '@/features/profile/components/appeal-dialog'
-import { useMyAppeals, useMyTips, useProfileCard } from '@/features/profile/queries'
+import { useMyTips, useProfileCard } from '@/features/profile/queries'
 import type { ProfileCard as ProfileCardData } from '@/services'
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
@@ -138,50 +139,21 @@ function Tips() {
   )
 }
 
-/** Shown while a safety report about you is being looked at. */
-function OnHold() {
-  const appeals = useMyAppeals()
-  const [appealing, setAppealing] = useState(false)
-  const pending = appeals.data?.find((appeal) => appeal.about === 'suspension' && appeal.status === 'under_review')
-  return (
-    <section className="rounded-2xl border border-warning/50 bg-warning-soft p-6 text-warning-strong">
-      <h2 className="flex items-center gap-2 font-sans text-base font-semibold">
-        <PauseCircle className="size-5" aria-hidden="true" />
-        Your account is on hold
-      </h2>
-      <p className="mt-2">
-        Our safety team is looking into a report. Until they finish, you can’t send new requests, but plans you already have stay
-        as they are.
-      </p>
-      {pending ? (
-        <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-semibold text-foreground">
-          <Clock className="size-4" aria-hidden="true" />
-          Your appeal is under review
-        </p>
-      ) : (
-        <Button variant="outline" className="mt-4 border-warning-strong/40 text-warning-strong" onClick={() => setAppealing(true)}>
-          Tell us your side
-        </Button>
-      )}
-      {appealing ? <AppealDialog about="suspension" reference="on_hold" open onOpenChange={setAppealing} /> : null}
-    </section>
-  )
-}
-
 /** Your own profile: the card as others see it, and the details only you can see. */
 export function Component() {
   const { session, signOut } = useSession()
   const userId = session!.user.id
   const { data: card, isPending, isError, refetch } = useProfileCard(userId)
+  const standing = card?.onHold ? 'on_hold' : session!.user.status
 
   return (
     <>
       <title>Your profile · Kollide</title>
       <PageHeader eyebrow="Profile" title="How others see you" description="This is the card hosts and squads see when you ask to join." />
 
-      {session?.user.status === 'on_hold' || card?.onHold ? (
+      {standing === 'on_hold' || standing === 'suspended' ? (
         <div className="mt-10">
-          <OnHold />
+          <AccountStanding status={standing} />
         </div>
       ) : null}
 

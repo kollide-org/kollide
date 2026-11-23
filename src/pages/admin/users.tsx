@@ -189,7 +189,7 @@ function Members() {
   }, [text, setParams])
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <div className="relative max-w-md">
         <Label htmlFor="user-search" className="sr-only">
           Search members

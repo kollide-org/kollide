@@ -38,6 +38,7 @@ function findOrCreateUser(db: Db, email: string): User {
 }
 
 function signIn(db: Db, user: User): Session {
+  if (user.status === 'banned') throw new ServiceError('forbidden', 'This account has been closed.')
   db.sessionUserId = user.id
   saveDb()
   return sessionFor(db, user)
@@ -48,6 +49,12 @@ export const mockAuthService: AuthService = {
     await latency(0.4)
     const db = getDb()
     const user = db.users.find((candidate) => candidate.id === db.sessionUserId)
+    // A closed account is signed out wherever it was signed in.
+    if (user?.status === 'banned') {
+      db.sessionUserId = null
+      saveDb()
+      return null
+    }
     return user ? sessionFor(db, user) : null
   },
 

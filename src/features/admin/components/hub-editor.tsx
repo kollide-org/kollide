@@ -237,7 +237,7 @@ export function HubEditor({ hub, artwork, open, onOpenChange }: HubEditorProps) 
                   return (
                     <li key={event.id} className={cn('flex items-center gap-3 px-4 py-3 transition-colors', on && 'bg-primary-soft/50')}>
                       <Checkbox id={checkboxId} checked={on} onCheckedChange={(state) => toggleEvent(event.id, state === true)} />
-                      <Label htmlFor={checkboxId} className="min-w-0 flex-1 cursor-pointer font-normal">
+                      <Label htmlFor={checkboxId} className="block min-w-0 flex-1 cursor-pointer leading-snug font-normal">
                         <span className="block truncate font-medium">{event.title}</span>
                         <span className="block text-sm text-muted-foreground">
                           {formatDay(event.startsAt)} · {event.area}

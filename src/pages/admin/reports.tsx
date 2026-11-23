@@ -59,6 +59,12 @@ function ReportCard({ item }: { item: ReportQueueItem }) {
         <Badge variant="outline" size="sm">
           {SAFETY_REPORT_LABELS[report.category]}
         </Badge>
+        {subjectPerson && isOpen(report.status) ? (
+          <Badge variant="warning" size="sm">
+            <PauseCircle aria-hidden="true" />
+            On hold while open
+          </Badge>
+        ) : null}
         <span className="text-sm text-muted-foreground">{formatAgo(report.createdAt)}</span>
       </div>
 
@@ -68,12 +74,6 @@ function ReportCard({ item }: { item: ReportQueueItem }) {
           <h2 className="text-h3">{subjectPerson ? `About ${subjectPerson.firstName}` : `About “${subjectEventTitle ?? 'an event'}”`}</h2>
           {subjectPerson && subjectEventTitle ? <p className="text-sm text-muted-foreground">At {subjectEventTitle}</p> : null}
         </div>
-        {subjectPerson && isOpen(report.status) ? (
-          <Badge variant="warning">
-            <PauseCircle aria-hidden="true" />
-            On hold while open
-          </Badge>
-        ) : null}
       </div>
 
       <figure className="mt-5 rounded-xl bg-background/70 p-5">

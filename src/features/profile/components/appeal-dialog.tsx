@@ -46,7 +46,7 @@ export function AppealDialog({ about, reference, open, onOpenChange }: AppealDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{about === 'tip' ? 'Ask us to look at this tip again' : 'Ask us to look at the hold again'}</DialogTitle>
+          <DialogTitle>{about === 'tip' ? 'Ask us to look at this tip again' : reference === 'suspended' ? 'Ask us to look at the suspension again' : 'Ask us to look at the hold again'}</DialogTitle>
           <DialogDescription>
             {about === 'tip'
               ? 'If the tip doesn’t sound like you, tell us why. While we look, it stays visible only to you.'

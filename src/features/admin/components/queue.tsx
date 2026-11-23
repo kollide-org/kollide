@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 /** A list of items an admin works through. A decided item eases out and the rest close the gap. */
 export function QueueList({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <ul className={cn('grid gap-5', className)}>
+    <ul className={cn('grid grid-cols-1 gap-5', className)}>
       <AnimatePresence initial={false}>
         {children}
       </AnimatePresence>

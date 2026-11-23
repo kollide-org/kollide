@@ -9,7 +9,6 @@ import { RootLayout } from '@/app/layouts/root-layout'
 import { NotFoundPage } from '@/pages/not-found'
 import { Component as LandingPage } from '@/pages/public/landing'
 import { RouteErrorPage } from '@/pages/route-error'
-import { StubPage } from '@/pages/stub-page'
 
 /**
  * Starts fetching an event while the page's code is still loading, so the two
@@ -75,7 +74,7 @@ export const router = createBrowserRouter([
               { path: 'feedback/:eventId', lazy: () => import('@/pages/app/feedback') },
               { path: 'profile', lazy: () => import('@/pages/app/profile') },
               { path: 'people/:userId', lazy: () => import('@/pages/app/person') },
-              { path: 'settings', element: <StubPage title="Settings" milestone={9} /> },
+              { path: 'settings', lazy: () => import('@/pages/app/settings') },
               {
                 element: <RequireRole minimum="host" />,
                 children: [
