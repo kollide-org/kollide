@@ -34,6 +34,30 @@
     "motion": {
       "type": "http",
       "url": "https://mcp.motion.dev"
+    },
+    "beui": {
+      "type": "http",
+      "url": "https://mcp.beui.dev/mcp"
+    },
+    "motion-brew": {
+      "type": "http",
+      "url": "https://motion-brew.com/mcp"
+    },
+    "motionprompts": {
+      "type": "http",
+      "url": "https://motionprompts.dev/mcp"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--executablePath=/opt/pw-browsers/chromium",
+        "--headless=true",
+        "--isolated=true",
+        "--chromeArg=--no-sandbox",
+        "--no-usage-statistics"
+      ]
     }
   }
 }
