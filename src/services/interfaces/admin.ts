@@ -1,5 +1,6 @@
 import type {
   AccountStatus,
+  AdminHub,
   AdminUserRow,
   Appeal,
   AppealQueueItem,
@@ -28,6 +29,8 @@ export interface AdminService {
   decideEvent(eventId: ID, decision: 'approve' | 'decline'): Promise<Event>
   setEventFeatured(eventId: ID, featured: boolean): Promise<Event>
 
+  /** Every hub, with the events assigned to it. */
+  listHubs(): Promise<AdminHub[]>
   createHub(input: HubInput): Promise<Hub>
   updateHub(hubId: ID, patch: Partial<HubInput>): Promise<Hub>
   /** Only one hub is active at a time. */

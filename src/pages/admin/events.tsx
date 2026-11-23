@@ -1,5 +1,5 @@
-import { CalendarCheck, Check, Lock, X } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { CalendarCheck, Check, Lock, Sparkles, X } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { PersonAvatar } from '@/components/people/person-avatar'
@@ -7,12 +7,19 @@ import { VerifiedBadge } from '@/components/people/verified-badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ErrorState } from '@/components/shared/error-state'
 import { PageHeader } from '@/components/shared/page-header'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Switch } from '@/components/ui/switch'
+import { QueueItem, QueueList, QueueSkeleton } from '@/features/admin/components/queue'
+import { ViewTabs } from '@/features/admin/components/view-tabs'
+import { useSetFeatured } from '@/features/admin/queries'
 import { CATEGORY_LABELS } from '@/features/events/labels'
-import { useDecideEvent, useEventAddress, useEventsForReview } from '@/features/events/queries'
+import { useDecideEvent, useEventAddress, useEvents, useEventsForReview } from '@/features/events/queries'
 import { ageRangeLabel, formatDay, formatTimeRange, priceLabel } from '@/lib/format'
-import type { EventReviewItem } from '@/services'
+import { cn } from '@/lib/utils'
+import type { EventListItem, EventReviewItem } from '@/services'
 
 function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -42,7 +49,7 @@ function ReviewCard({ item }: { item: EventReviewItem }) {
     )
 
   return (
-    <li className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-card">
+    <QueueItem className="overflow-hidden">
       <div className="grid md:grid-cols-[16rem_1fr]">
         <img src={event.coverUrl} alt="" loading="lazy" className="aspect-[16/9] size-full object-cover md:aspect-auto" />
         <div className="p-6">
@@ -110,35 +117,114 @@ function ReviewCard({ item }: { item: EventReviewItem }) {
           </div>
         </div>
       </div>
+    </QueueItem>
+  )
+}
+
+function ReviewQueue() {
+  const { data: items, isPending, isError, refetch } = useEventsForReview()
+  if (isPending) return <QueueSkeleton label="Loading events" rows={1} className="h-96" />
+  if (isError) return <ErrorState onRetry={() => void refetch()} />
+  if (items.length === 0) {
+    return <EmptyState icon={CalendarCheck} title="Nothing waiting" description="Every event has been looked at. New ones appear here as hosts send them in." />
+  }
+  return (
+    <QueueList className="gap-6">
+      {items.map((item) => (
+        <ReviewCard key={item.event.id} item={item} />
+      ))}
+    </QueueList>
+  )
+}
+
+function FeatureRow({ event }: { event: EventListItem }) {
+  const setFeatured = useSetFeatured()
+  // The switch moves at once and goes back if the change does not save.
+  const [featured, setLocal] = useState(event.featured)
+  const id = `feature-${event.id}`
+
+  const change = (next: boolean) => {
+    setLocal(next)
+    setFeatured.mutate(
+      { eventId: event.id, featured: next },
+      {
+        onSuccess: () => toast.success(next ? 'Featured' : 'No longer featured', { description: event.title }),
+        onError: (error) => {
+          setLocal(!next)
+          toast.error('That didn’t save', { description: error.message })
+        },
+      },
+    )
+  }
+
+  return (
+    <li className="flex items-center gap-4 py-4">
+      <img src={event.coverUrl} alt="" loading="lazy" className="size-14 shrink-0 rounded-xl object-cover sm:h-14 sm:w-20" />
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold">{event.title}</span>
+          {event.type === 'partner' ? <Badge variant="secondary" size="sm">Partner</Badge> : null}
+        </p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {formatDay(event.startsAt)} · {event.area} · {event.goingCount} going
+        </p>
+      </div>
+      <div className="flex shrink-0 items-center gap-3">
+        <Label htmlFor={id} className={cn('hidden text-sm sm:block', featured ? 'text-foreground' : 'text-muted-foreground')}>
+          Featured
+        </Label>
+        <Switch id={id} checked={featured} onCheckedChange={change} aria-label={`Feature ${event.title}`} />
+      </div>
     </li>
   )
 }
 
-/** Admin: every new event is checked here before it goes live. */
+function LiveEvents() {
+  const { data: events, isPending, isError, refetch } = useEvents()
+  if (isPending) return <QueueSkeleton label="Loading live events" rows={1} className="h-96" />
+  if (isError) return <ErrorState onRetry={() => void refetch()} />
+  if (events.length === 0) {
+    return <EmptyState icon={Sparkles} title="No live events" description="Approved events appear here, ready to be featured." />
+  }
+  const featuredCount = events.filter((event) => event.featured).length
+  return (
+    <section aria-labelledby="live-heading" className="rounded-2xl border border-border/70 bg-card px-5 shadow-card sm:px-7">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border py-5">
+        <h2 id="live-heading" className="font-sans text-base font-semibold">
+          Upcoming and live
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {featuredCount} featured · featured events come first on Home and in browsing
+        </p>
+      </div>
+      <ul className="divide-y divide-border">
+        {events.map((event) => (
+          <FeatureRow key={event.id} event={event} />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+/** Admin: every new event is checked here before it goes live, and live events can be featured. */
 export function Component() {
-  const { data: items, isPending, isError, refetch } = useEventsForReview()
+  const waiting = useEventsForReview()
 
   return (
     <>
-      <title>Event approvals · Kollide admin</title>
-      <PageHeader eyebrow="Admin" title="Event approvals" description="New events wait here until someone on the team has read them." />
+      <title>Events · Kollide admin</title>
+      <PageHeader eyebrow="Admin" title="Events" description="New events wait here until someone on the team has read them. Feature the best of what’s live." />
 
       <div className="mt-10">
-        {isPending ? (
-          <div role="status" aria-label="Loading events" className="grid gap-5">
-            <Skeleton className="h-96 rounded-2xl" />
-          </div>
-        ) : isError ? (
-          <ErrorState onRetry={() => void refetch()} />
-        ) : items.length === 0 ? (
-          <EmptyState icon={CalendarCheck} title="Nothing waiting" description="Every event has been looked at. New ones appear here as hosts send them in." />
-        ) : (
-          <ul className="grid gap-6">
-            {items.map((item) => (
-              <ReviewCard key={item.event.id} item={item} />
-            ))}
-          </ul>
-        )}
+        <ViewTabs
+          label="Events"
+          tabs={[
+            { value: 'review', label: 'Waiting for review', count: waiting.data?.length },
+            { value: 'live', label: 'Live and featuring' },
+          ]}
+        >
+          {(view) => (view === 'review' ? <ReviewQueue /> : <LiveEvents />)}
+        </ViewTabs>
       </div>
     </>
   )

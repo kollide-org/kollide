@@ -1,5 +1,5 @@
 import type { ID, ISODateTime } from './common'
-import type { Event } from './event'
+import type { Event, Hub } from './event'
 import type { Appeal, SafetyReport } from './review'
 import type { AccountStatus, Host, PersonPreview, Photo, Reputation, User } from './user'
 
@@ -65,6 +65,11 @@ export interface VerificationQueueItem {
 export interface AppealQueueItem {
   appeal: Appeal
   person: PersonPreview
+}
+
+/** A hub as the admin hub manager sees it, with every event assigned to it, past ones included. */
+export interface AdminHub extends Hub {
+  eventIds: ID[]
 }
 
 export interface HubInput {

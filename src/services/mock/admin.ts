@@ -133,6 +133,18 @@ export const mockAdminService: AdminService = {
     return copy(publicEvent(event))
   },
 
+  async listHubs() {
+    await latency()
+    const db = getDb()
+    requireRole('admin', db)
+    return copy(
+      db.hubs
+        .slice()
+        .sort((a, b) => Number(b.active) - Number(a.active) || b.startsAt.localeCompare(a.startsAt))
+        .map((hub) => ({ ...hub, eventIds: db.events.filter((event) => event.hubId === hub.id).map((event) => event.id) })),
+    )
+  },
+
   async createHub(input) {
     await latency()
     const db = getDb()
