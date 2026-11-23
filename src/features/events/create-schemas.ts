@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { HOUSE_PARTY_MAX_GUESTS } from '@/domain/bookings'
-import { MINIMUM_AGE } from '@/domain/time'
+import { DAY_MS, MINIMUM_AGE } from '@/domain/time'
 import { AREAS, EVENT_CATEGORIES } from '@/services/types'
 import type { Area, EventCategory, EventDraft } from '@/services'
 
@@ -85,10 +85,11 @@ export const detailsSchema = z.object({
 /** The start and end as dates. An end time earlier than the start means it runs past midnight. */
 export function eventTimes(draft: Pick<EventFormDraft, 'date' | 'startTime' | 'endTime'>): { startsAt: Date; endsAt: Date } | null {
   if (!draft.date || !draft.startTime || !draft.endTime) return null
-  const startsAt = new Date(`${draft.date}T${draft.startTime}`)
-  const endsAt = new Date(`${draft.date}T${draft.endTime}`)
+  // The times a host types are Bengaluru times, whatever time zone their device is in.
+  const startsAt = new Date(`${draft.date}T${draft.startTime}:00+05:30`)
+  const endsAt = new Date(`${draft.date}T${draft.endTime}:00+05:30`)
   if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) return null
-  if (endsAt <= startsAt) endsAt.setDate(endsAt.getDate() + 1)
+  if (endsAt <= startsAt) endsAt.setTime(endsAt.getTime() + DAY_MS)
   return { startsAt, endsAt }
 }
 

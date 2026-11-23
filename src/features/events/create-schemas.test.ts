@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { bengaluruClock } from '@/domain/time'
+
 import { basicsSchema, costSchema, EMPTY_EVENT_DRAFT, eventTimes, firstOpenStep, FIXED_RULE, guestsSchema, toEventDraft, type EventFormDraft } from './create-schemas'
 
 const nextYear = new Date().getFullYear() + 1
@@ -49,8 +51,13 @@ describe('creating an event', () => {
 
   it('treats an end time before the start as the next day', () => {
     const times = eventTimes({ date: `${nextYear}-03-14`, startTime: '20:00', endTime: '01:00' })!
-    expect(times.endsAt.getDate()).toBe(15)
+    expect(bengaluruClock(times.endsAt).day).toBe(15)
     expect(times.endsAt.getTime() - times.startsAt.getTime()).toBe(5 * 3_600_000)
+  })
+
+  it('reads the times as Bengaluru times on any device', () => {
+    const times = eventTimes({ date: `${nextYear}-03-14`, startTime: '19:00', endTime: '22:00' })!
+    expect(times.startsAt.toISOString()).toBe(`${nextYear}-03-14T13:30:00.000Z`)
   })
 
   it('builds what the service expects, and always adds the fixed rule', () => {

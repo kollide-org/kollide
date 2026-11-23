@@ -14,6 +14,38 @@ import { useEvents } from '@/features/events/queries'
 import { formatDay } from '@/lib/format'
 import type { AdminHub } from '@/services'
 
+/** Chosen for Home is not the same as on Home: a chosen hub shows only between its dates. */
+function ShowingBadge({ hub }: { hub: AdminHub }) {
+  const [now] = useState(() => new Date())
+  if (!hub.active) {
+    return (
+      <Badge variant="secondary" size="sm">
+        Not showing
+      </Badge>
+    )
+  }
+  if (now < new Date(hub.startsAt)) {
+    return (
+      <Badge variant="highlight-soft" size="sm">
+        Shows on Home from {formatDay(hub.startsAt)}
+      </Badge>
+    )
+  }
+  if (now > new Date(hub.endsAt)) {
+    return (
+      <Badge variant="warning" size="sm">
+        Chosen, but its dates have passed
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="success" size="sm">
+      <Eye aria-hidden="true" />
+      Showing on Home
+    </Badge>
+  )
+}
+
 function HubCard({ hub, onEdit }: { hub: AdminHub; onEdit: () => void }) {
   const setActive = useSetActiveHub()
   const accent = { '--hub-accent': hub.accentColor, '--hub-accent-foreground': hub.accentForeground } as CSSProperties
@@ -22,8 +54,8 @@ function HubCard({ hub, onEdit }: { hub: AdminHub; onEdit: () => void }) {
   const toggle = () =>
     setActive.mutate(hub.active ? null : hub.id, {
       onSuccess: () =>
-        toast.success(hub.active ? 'Taken off Home' : 'Now showing on Home', {
-          description: hub.active ? 'Home shows no hub until you choose one.' : `“${hub.title}” replaces any other hub.`,
+        toast.success(hub.active ? 'Taken off Home' : 'Chosen for Home', {
+          description: hub.active ? 'Home shows no hub until you choose one.' : `“${hub.title}” replaces any other hub, between its dates.`,
         }),
       onError: (error) => toast.error('That didn’t save', { description: error.message }),
     })
@@ -39,16 +71,7 @@ function HubCard({ hub, onEdit }: { hub: AdminHub; onEdit: () => void }) {
         </div>
         <div className="p-6">
           <div className="flex flex-wrap items-center gap-2">
-            {hub.active ? (
-              <Badge variant="success" size="sm">
-                <Eye aria-hidden="true" />
-                Showing on Home
-              </Badge>
-            ) : (
-              <Badge variant="secondary" size="sm">
-                Not showing
-              </Badge>
-            )}
+            <ShowingBadge hub={hub} />
             <span className="text-sm text-muted-foreground">
               {formatDay(hub.startsAt)} to {formatDay(hub.endsAt)}
             </span>
@@ -61,7 +84,7 @@ function HubCard({ hub, onEdit }: { hub: AdminHub; onEdit: () => void }) {
           <div className="mt-5 flex flex-wrap gap-3 border-t border-border pt-5">
             <Button variant="outline" onClick={toggle} disabled={setActive.isPending}>
               {hub.active ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-              {hub.active ? 'Take off Home' : 'Show on Home'}
+              {hub.active ? 'Take off Home' : 'Choose for Home'}
             </Button>
             <Button variant="ghost" onClick={onEdit}>
               <Pencil aria-hidden="true" />

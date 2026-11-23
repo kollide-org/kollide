@@ -40,6 +40,7 @@ import { spring } from '@/lib/motion'
 import { useLocalDraft } from '@/lib/use-local-draft'
 import { cn } from '@/lib/utils'
 import { HOUSE_PARTY_MAX_GUESTS, OVER_APPROVAL_RATIO } from '@/domain/bookings'
+import { bengaluruClock } from '@/domain/time'
 import type { Event, EventCategory } from '@/services'
 import { AREAS, EVENT_CATEGORIES } from '@/services/types'
 
@@ -157,9 +158,9 @@ function DetailsStep({ draft, update, onNext }: StepProps) {
 
 function PlaceStep({ draft, update, onNext }: StepProps) {
   const [errors, setErrors] = useState<Errors>({})
-  const [today] = useState(() => new Date().toLocaleDateString('en-CA'))
+  const [today] = useState(() => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }))
   const times = eventTimes(draft)
-  const pastMidnight = times ? times.endsAt.getDate() !== times.startsAt.getDate() : false
+  const pastMidnight = times ? bengaluruClock(times.endsAt).day !== bengaluruClock(times.startsAt).day : false
 
   return (
     <StepForm

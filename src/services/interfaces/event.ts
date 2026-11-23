@@ -1,7 +1,7 @@
 import type { Event, EventAddress, EventDetail, EventDraft, EventFilters, EventListItem, HostedEvent, Hub, HubWithEvents, ID } from '../types'
 
 export interface EventService {
-  /** Published, upcoming events, soonest first. */
+  /** Published, upcoming events: featured ones first, then soonest first. */
   listEvents(filters?: EventFilters): Promise<EventListItem[]>
   getEvent(idOrSlug: string): Promise<EventDetail>
   /** Rejects with `forbidden` unless the viewer is approved, paid, the host or an admin. */

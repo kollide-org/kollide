@@ -33,7 +33,7 @@ export interface AdminService {
   listHubs(): Promise<AdminHub[]>
   createHub(input: HubInput): Promise<Hub>
   updateHub(hubId: ID, patch: Partial<HubInput>): Promise<Hub>
-  /** Only one hub is active at a time. */
+  /** Only one hub is chosen at a time. It shows on Home between its start and end dates. */
   setActiveHub(hubId: ID | null): Promise<Hub[]>
 
   listReports(): Promise<ReportQueueItem[]>

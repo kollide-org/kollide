@@ -104,7 +104,7 @@ export const mockEventService: EventService = {
     return copy(
       db.events
         .filter((event) => event.status === 'published' && isUpcoming(event, at) && matches(event, filters, at))
-        .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+        .sort((a, b) => Number(b.featured) - Number(a.featured) || a.startsAt.localeCompare(b.startsAt))
         .map((event) => eventListItem(db, event)),
     )
   },
@@ -176,7 +176,10 @@ export const mockEventService: EventService = {
     await latency()
     const db = getDb()
     const at = now()
-    const hub = db.hubs.find((candidate) => candidate.active)
+    // The chosen hub shows only between its dates.
+    const hub = db.hubs.find(
+      (candidate) => candidate.active && new Date(candidate.startsAt) <= at && at <= new Date(candidate.endsAt),
+    )
     if (!hub) return null
     return copy({
       ...hub,

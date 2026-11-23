@@ -89,7 +89,10 @@ describe('seed data', () => {
     expect(events).toHaveLength(14)
     expect(JSON.stringify(events)).not.toContain('exactAddress')
     expect(JSON.stringify(events)).not.toContain('Sai Residency')
-    expect(events.map((event) => event.startsAt)).toEqual([...events.map((event) => event.startsAt)].sort())
+    // Featured events lead; within each group, the soonest comes first.
+    for (const group of [events.filter((event) => event.featured), events.filter((event) => !event.featured)]) {
+      expect(group.map((event) => event.startsAt)).toEqual([...group.map((event) => event.startsAt)].sort())
+    }
     const hub = await eventService.getActiveHub()
     expect(hub?.events.length).toBe(4)
   })
@@ -516,6 +519,10 @@ describe('more moderation', () => {
     await mockDevTools.signInAs('admin')
     await adminService.decideAppeal(appeal.id, 'overturned')
     expect(getDb().users.find((user) => user.id === 'u18')?.status).toBe('active')
+    // The report is still open, but the queue no longer says the member is on hold.
+    const item = (await adminService.listReports()).find((candidate) => candidate.report.subjectId === 'u18')
+    expect(item?.report.status).toBe('open')
+    expect(item?.subjectStatus).toBe('active')
   })
 
   it('lists selfies waiting for a check and tells the member the outcome', async () => {
@@ -529,5 +536,30 @@ describe('more moderation', () => {
     await adminService.decideVerification(unverified.userId, 'verify')
     expect((await adminService.listVerificationQueue()).some((candidate) => candidate.person.userId === unverified.userId)).toBe(false)
     expect(getDb().notifications.some((note) => note.userId === unverified.userId && note.title === 'You’re verified')).toBe(true)
+  })
+})
+
+describe('hubs', () => {
+  it('shows the chosen hub on Home only between its dates', async () => {
+    await mockDevTools.signInAs('admin')
+    const [hub] = (await adminService.listHubs()).filter((candidate) => candidate.active)
+    expect(await eventService.getActiveHub()).not.toBeNull()
+    const later = new Date(START.getTime() + 400 * 24 * HOUR).toISOString()
+    await adminService.updateHub(hub.id, { startsAt: later, endsAt: new Date(new Date(later).getTime() + 48 * HOUR).toISOString() })
+    expect(await eventService.getActiveHub()).toBeNull()
+    expect((await adminService.listHubs()).find((candidate) => candidate.id === hub.id)?.eventIds.length).toBe(hub.eventIds.length)
+  })
+})
+
+describe('featuring', () => {
+  it('puts featured events first, then the soonest', async () => {
+    await mockDevTools.signInAs('admin')
+    const before = await eventService.listEvents()
+    const last = before[before.length - 1]
+    await adminService.setEventFeatured(last.id, true)
+    const after = await eventService.listEvents()
+    const featured = after.filter((event) => event.featured)
+    expect(after.slice(0, featured.length).every((event) => event.featured)).toBe(true)
+    expect(featured.map((event) => event.id)).toContain(last.id)
   })
 })

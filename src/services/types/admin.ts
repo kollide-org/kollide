@@ -19,6 +19,8 @@ export interface ReportQueueItem {
   reporter: PersonPreview
   /** The reported person. `null` when the report is about an event. */
   subjectPerson: PersonPreview | null
+  /** The reported person's account status now. `null` when the report is about an event. */
+  subjectStatus: AccountStatus | null
   subjectEventTitle: string | null
   /** How many other reports name the same subject. */
   otherReportsAboutSubject: number

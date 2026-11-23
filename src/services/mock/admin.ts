@@ -196,6 +196,7 @@ export const mockAdminService: AdminService = {
           report,
           reporter: personPreview(db, report.reporterId),
           subjectPerson: report.subjectType === 'user' ? personPreview(db, report.subjectId) : null,
+          subjectStatus: report.subjectType === 'user' ? (db.users.find((user) => user.id === report.subjectId)?.status ?? null) : null,
           subjectEventTitle:
             db.events.find((event) => event.id === (report.subjectType === 'event' ? report.subjectId : report.eventId))?.title ?? null,
           otherReportsAboutSubject: db.safetyReports.filter(

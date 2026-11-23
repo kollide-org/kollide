@@ -129,7 +129,7 @@ export function HubEditor({ hub, artwork, open, onOpenChange }: HubEditorProps) 
       {
         onSuccess: () => {
           toast.success(hub ? 'Hub saved' : 'Hub created', {
-            description: hub?.active ? 'Home shows the changes now.' : 'Show it on Home when it’s ready.',
+            description: hub?.active ? 'Home shows the changes between the hub’s dates.' : 'Choose it for Home when it’s ready.',
           })
           onOpenChange(false)
         },

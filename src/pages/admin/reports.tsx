@@ -25,6 +25,8 @@ const REPORT_STATUS: Record<SafetyReportStatus, { label: string; variant: 'destr
   dismissed: { label: 'Closed, no action', variant: 'secondary' },
 }
 
+const SUBJECT_STATUS = { on_hold: 'On hold while open', suspended: 'Account suspended', banned: 'Account banned' } as const
+
 const isOpen = (status: SafetyReportStatus) => status === 'open' || status === 'reviewing'
 
 function ReportCard({ item }: { item: ReportQueueItem }) {
@@ -59,10 +61,10 @@ function ReportCard({ item }: { item: ReportQueueItem }) {
         <Badge variant="outline" size="sm">
           {SAFETY_REPORT_LABELS[report.category]}
         </Badge>
-        {subjectPerson && isOpen(report.status) ? (
+        {item.subjectStatus && item.subjectStatus !== 'active' && isOpen(report.status) ? (
           <Badge variant="warning" size="sm">
             <PauseCircle aria-hidden="true" />
-            On hold while open
+            {SUBJECT_STATUS[item.subjectStatus]}
           </Badge>
         ) : null}
         <span className="text-sm text-muted-foreground">{formatAgo(report.createdAt)}</span>
