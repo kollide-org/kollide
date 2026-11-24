@@ -6,6 +6,7 @@ import { authService, profileService, type OnboardingInput } from '@/services'
 
 import { clearOnboardingDraft, type OnboardingDraft } from './draft'
 import { toIsoDate } from './schemas'
+import { tidyPrompts } from '@/domain/prompts'
 
 function toInput(draft: OnboardingDraft): OnboardingInput {
   const firstName = draft.firstName.trim()
@@ -18,7 +19,7 @@ function toInput(draft: OnboardingDraft): OnboardingInput {
     zone: draft.zone ?? undefined,
     interests: draft.interests,
     languages: draft.languages,
-    prompts: draft.prompts.map((prompt) => ({ ...prompt, answer: prompt.answer.trim() })),
+    prompts: tidyPrompts(draft.prompts),
     photos: draft.photos.map((url, index) => ({ url, alt: `Photo ${index + 1} of ${firstName}` })),
     phone: `+91 ${draft.phone.replace(/[\s-]/g, '')}`,
     acceptedConduct: draft.acceptedConduct,

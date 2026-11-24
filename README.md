@@ -229,6 +229,16 @@ Other cities show as "Coming soon". To open one, add its localities and set `ope
 
 Members add any of about 80 languages, Indian ones first, then languages from around the world, including sign languages. Each one is Fluent, Conversational or Learning. The profile card reads "Speaks English and Kannada · gets by in Hindi", with "Learning Spanish" as a separate badge, which gives people something to ask about. At least one language must be one the member can already chat in. The list is in `src/services/types/languages.ts`.
 
+## Prompts
+
+A profile has two or three prompts, at least one of them written. There are three kinds, all in `src/services/types/prompts.ts`:
+
+- **Written:** finish the sentence. Grouped as Bengaluru ("A dish I’d cross Silk Board for…"), Roots, Opinions, About me, Meeting people, and the original seven as The classics.
+- **This or that:** one tap, such as "Filter coffee or Cutting chai".
+- **Two truths and a lie:** three short statements with the lie marked. Anyone viewing the card taps the one they think is false and finds out; on your own card the lie is shown.
+
+The same rules are checked by the form and the services, in `src/domain/prompts.ts`.
+
 ## Time
 
 Kollide is in Bengaluru, so every date and time is shown in Bengaluru time (`Asia/Kolkata`) on any device, and the times a host types are read as Bengaluru times. The demo data is placed relative to the moment it is created, at ordinary local hours. The exception is the live quiz night, which starts an hour before the data is created so check-in can be tried at any time of day.

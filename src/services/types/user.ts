@@ -48,10 +48,15 @@ export interface Verification {
   reviewedAt: ISODateTime | null
 }
 
+/** One prompt on a profile. Which fields are used depends on the prompt's kind, in `prompts.ts`. */
 export interface ProfilePrompt {
   promptId: string
   question: string
+  /** The written answer, or the chosen option for "this or that". Empty for "two truths and a lie". */
   answer: string
+  /** "Two truths and a lie": the three statements, and which one is false. */
+  statements?: string[]
+  lieIndex?: number
 }
 
 /** What other members may see about a person. */

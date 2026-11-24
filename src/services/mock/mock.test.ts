@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { promptsProblem } from '@/domain/prompts'
+
 import { isServiceError } from '../errors'
 import type { OnboardingInput } from '../types'
 
@@ -622,5 +624,46 @@ describe('languages', () => {
       ),
     ).toBe('validation')
     expect(await rejection(profileService.updateProfile({ languages: [{ language: 'Japanese', level: 'learning' }] }))).toBe('validation')
+  })
+})
+
+describe('prompts', () => {
+  it('gives every seeded member prompts that follow the rules', () => {
+    for (const profile of getDb().profiles) expect(promptsProblem(profile.prompts), profile.userId).toBeNull()
+  })
+
+  it('takes a written prompt, a pick and two truths and a lie', async () => {
+    await mockDevTools.signInAs('member')
+    const profile = await profileService.updateProfile({
+      prompts: [
+        { promptId: 'cross-silk-board', question: '', answer: '  Thatte idli at 7 am.  ' },
+        { promptId: 'coffee-or-chai', question: '', answer: 'Cutting chai' },
+        { promptId: 'two-truths', question: '', answer: 'ignored', statements: [' I swim ', 'I sing', 'I fly'], lieIndex: 2 },
+      ],
+    })
+    expect(profile.prompts).toEqual([
+      { promptId: 'cross-silk-board', question: 'A dish I’d cross Silk Board for…', answer: 'Thatte idli at 7 am.' },
+      { promptId: 'coffee-or-chai', question: 'Filter coffee or Cutting chai', answer: 'Cutting chai' },
+      { promptId: 'two-truths', question: 'Two truths and a lie', answer: '', statements: ['I swim', 'I sing', 'I fly'], lieIndex: 2 },
+    ])
+  })
+
+  it('refuses a pick that is not one of the two, a lie that is not marked, and only quick picks', async () => {
+    await mockDevTools.signInAs('member')
+    const written = { promptId: 'green-flag', question: '', answer: 'They remember small things.' }
+    expect(await rejection(profileService.updateProfile({ prompts: [written, { promptId: 'coffee-or-chai', question: '', answer: 'Tea' }] }))).toBe('validation')
+    expect(
+      await rejection(profileService.updateProfile({ prompts: [written, { promptId: 'two-truths', question: '', answer: '', statements: ['a', 'b', 'c'] }] })),
+    ).toBe('validation')
+    expect(
+      await rejection(
+        profileService.updateProfile({
+          prompts: [
+            { promptId: 'coffee-or-chai', question: '', answer: 'Filter coffee' },
+            { promptId: 'mysore-pak-or-peda', question: '', answer: 'Mysore Pak' },
+          ],
+        }),
+      ),
+    ).toBe('validation')
   })
 })

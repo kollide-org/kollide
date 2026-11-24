@@ -1,4 +1,5 @@
 import { languagesProblem } from '@/domain/languages'
+import { promptsProblem, tidyPrompts } from '@/domain/prompts'
 import { AREA_PROBLEMS, resolveArea } from '@/domain/places'
 import { activeTipCategories, TIP_MESSAGES, type FeedbackContext } from '@/domain/private-feedback'
 import { daysBetween, isAdult } from '@/domain/time'
@@ -56,7 +57,8 @@ export const mockProfileService: ProfileService = {
     if (!input.firstName.trim()) throw invalid('Add your first name.')
     if (input.photos.length < 3) throw invalid('Add three photos.')
     if (input.interests.length === 0) throw invalid('Pick at least one interest.')
-    if (input.prompts.length < 2 || input.prompts.length > 3) throw invalid('Answer two or three prompts.')
+    const promptProblem = promptsProblem(input.prompts)
+    if (promptProblem) throw invalid(promptProblem)
     const languageProblem = languagesProblem(input.languages)
     if (languageProblem) throw invalid(languageProblem)
     const place = resolveArea(input.city, input.area, input.zone)
@@ -81,7 +83,7 @@ export const mockProfileService: ProfileService = {
       zone: place.zone,
       interests: input.interests,
       languages: input.languages,
-      prompts: input.prompts,
+      prompts: tidyPrompts(input.prompts),
       photos: toPhotos(user.id, input.photos),
       verification: { status: 'unverified', submittedAt: null, reviewedAt: null },
       workplace: null,
@@ -108,7 +110,11 @@ export const mockProfileService: ProfileService = {
       if (problem) throw invalid(problem)
       profile.languages = patch.languages
     }
-    if (patch.prompts) profile.prompts = patch.prompts
+    if (patch.prompts) {
+      const problem = promptsProblem(patch.prompts)
+      if (problem) throw invalid(problem)
+      profile.prompts = tidyPrompts(patch.prompts)
+    }
     if (patch.workplace !== undefined) profile.workplace = patch.workplace?.trim() || null
     if (patch.photos) profile.photos = toPhotos(user.id, patch.photos)
     saveDb()

@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 import { ageFromDateOfBirth, MINIMUM_AGE } from '@/domain/time'
 import { languagesProblem } from '@/domain/languages'
-import { GENDER_OPTIONS, INTERESTS, PROFILE_PROMPTS } from '@/services/types/common'
+import { promptsProblem } from '@/domain/prompts'
+import { GENDER_OPTIONS, INTERESTS } from '@/services/types/common'
 
 /**
  * Validation for each onboarding step. The same rules are checked again by the
@@ -82,24 +83,13 @@ export const languagesSchema = z.array(z.object({ language: z.string(), level: z
   if (problem) context.addIssue({ code: 'custom', message: problem })
 })
 
-export const MIN_PROMPTS = 2
-export const MAX_PROMPTS = 3
-export const PROMPT_MAX_LENGTH = 160
-const promptIds = PROFILE_PROMPTS.map((prompt) => prompt.promptId)
+export { MAX_PROMPTS, MIN_PROMPTS, PROMPT_MAX_LENGTH } from '@/services/types/prompts'
 export const promptsSchema = z
-  .array(
-    z.object({
-      promptId: z.enum(promptIds),
-      question: z.string(),
-      answer: z
-        .string()
-        .trim()
-        .min(3, 'Write a few words for each prompt you chose.')
-        .max(PROMPT_MAX_LENGTH, `Keep each answer to ${PROMPT_MAX_LENGTH} characters.`),
-    }),
-  )
-  .min(MIN_PROMPTS, `Answer at least ${MIN_PROMPTS} prompts.`)
-  .max(MAX_PROMPTS)
+  .array(z.object({ promptId: z.string(), question: z.string(), answer: z.string(), statements: z.array(z.string()).optional(), lieIndex: z.number().optional() }))
+  .superRefine((prompts, context) => {
+    const problem = promptsProblem(prompts)
+    if (problem) context.addIssue({ code: 'custom', message: problem })
+  })
 
 /** An Indian mobile number: ten digits, starting with 6 to 9. */
 export const phoneSchema = z.object({

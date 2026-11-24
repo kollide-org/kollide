@@ -105,6 +105,7 @@ export const PERSONAS: Record<Exclude<Role, 'visitor'>, string> = {
   admin: 'u01',
 }
 
+/** Written prompts and the answers seed members give. */
 export const PROMPT_BANK: { promptId: string; question: string; answers: string[] }[] = [
   {
     promptId: 'perfect-sunday',
@@ -174,4 +175,141 @@ export const PROMPT_BANK: { promptId: string; question: string; answers: string[
       'The bookshops that have somehow outlasted everything.',
     ],
   },
+  {
+    promptId: 'cross-silk-board',
+    question: 'A dish I’d cross Silk Board for…',
+    answers: [
+      'The ghee roast at a tiny Mangalorean place my friend swore me to secrecy about.',
+      'Thatte idli at 7 am, before the traffic even wakes up.',
+      'My aunt’s bisi bele bath. Yes, even on a Friday evening.',
+      'Pork fry from a Coorg kitchen. Worth every signal.',
+    ],
+  },
+  {
+    promptId: 'most-bengaluru-opinion',
+    question: 'My most Bengaluru opinion is…',
+    answers: [
+      'If it’s under 22 degrees, it counts as winter and I will wear a jacket.',
+      'The best plans start with “just one coffee” and end at midnight.',
+      'Every conversation is better after someone mentions the old Bangalore.',
+      'Darshini breakfast beats any brunch with a waitlist.',
+    ],
+  },
+  {
+    promptId: 'auto-driver-advice',
+    question: 'The best advice an auto driver ever gave me…',
+    answers: [
+      '“Madam, slow is also a speed.” He was talking about traffic. I took it personally.',
+      'Never argue with the rain, just carry a second shirt.',
+      'Learn ten Kannada words and the whole city opens up.',
+    ],
+  },
+  {
+    promptId: 'darshini-order',
+    question: 'My go-to darshini order, no menu needed…',
+    answers: [
+      'Two idli, one vada, extra chutney, and a by-two coffee to share.',
+      'Kharabath and kesari together. The chow chow bath, always.',
+      'Masala dosa, crisp enough to hear across the counter.',
+      'Rava idli and a filter coffee, standing at the counter like a regular.',
+    ],
+  },
+  {
+    promptId: 'rs-500-evening',
+    question: 'Plan me a perfect ₹500 evening in this city…',
+    answers: [
+      'Bus to Lalbagh at sunset, then dosa and coffee for two on VV Puram food street.',
+      'An open mic with a cover charge, a plate of momos, and the walk home.',
+      'Second-hand books on Church Street and a long chai after.',
+    ],
+  },
+  {
+    promptId: 'tradition-from-home',
+    question: 'A tradition from home I carry to every city…',
+    answers: [
+      'Sunday phone calls with my grandmother, on speaker, while I cook her recipe badly.',
+      'Making too much food so the neighbours have to come over.',
+      'A small rangoli at the door, every festival, however tiny the flat.',
+    ],
+  },
+  {
+    promptId: 'ajji-advice',
+    question: 'Advice from my ajji / nani that I actually follow…',
+    answers: [
+      'Never visit someone empty-handed. Even a banana counts.',
+      'Eat first, then argue.',
+      'Oil your hair and keep your opinions loose.',
+    ],
+  },
+  {
+    promptId: 'old-school',
+    question: 'The old-school thing I still swear by…',
+    answers: [
+      'A paper diary. My phone forgets things, the diary doesn’t.',
+      'Writing letters to friends in other cities, with stamps.',
+      'Radio in the kitchen while cooking.',
+    ],
+  },
+  {
+    promptId: 'hill-to-defend',
+    question: 'A hill I’ll defend at every dinner table…',
+    answers: [
+      'Pineapple belongs in kesari bath, and nowhere near pizza.',
+      'Test cricket is the best format and I will not be taking questions.',
+      'The book was better. It is always the book.',
+    ],
+  },
+  {
+    promptId: 'learning-badly',
+    question: 'Something I’m learning badly, but happily…',
+    answers: [
+      'The veena. My neighbours are very patient people.',
+      'Salsa. I count out loud and I am not ashamed.',
+      'Kannada, one auto ride at a time.',
+      'Bouldering. Mostly I learn how to fall.',
+    ],
+  },
+  {
+    promptId: 'talk-for-hours',
+    question: 'I can talk for hours, unprompted, about…',
+    answers: [
+      'Why every city should have more benches.',
+      'Old Hindi film songs and who really sang them.',
+      'The history of the street I live on.',
+    ],
+  },
+  {
+    promptId: 'green-flag',
+    question: 'A green flag in a new friend…',
+    answers: [
+      'They remember the small thing you mentioned last time.',
+      'They ask the quiet person at the table what they think.',
+      'They are on time, or they text before they’re late.',
+    ],
+  },
+  {
+    promptId: 'come-along-if',
+    question: 'Come to an event with me if you also…',
+    answers: [
+      'Get to places early and like watching a room fill up.',
+      'Will try the strangest thing on the menu.',
+      'Think board games are a contact sport.',
+    ],
+  },
+]
+
+/** "This or that" prompts. The seed picks a side at random. */
+export const PICK_BANK: { promptId: string; question: string; options: readonly [string, string] }[] = [
+  { promptId: 'coffee-or-chai', question: 'Filter coffee or Cutting chai', options: ['Filter coffee', 'Cutting chai'] },
+  { promptId: 'nandi-or-brunch', question: 'Nandi Hills sunrise or Brunch till 4', options: ['Nandi Hills sunrise', 'Brunch till 4'] },
+  { promptId: 'mysore-pak-or-peda', question: 'Mysore Pak or Dharwad Peda', options: ['Mysore Pak', 'Dharwad Peda'] },
+  { promptId: 'house-party-or-open-mic', question: 'House party or Open mic', options: ['House party', 'Open mic'] },
+]
+
+/** Sets for "two truths and a lie". The lie is at `lieIndex`. */
+export const TWO_TRUTHS_BANK: { statements: [string, string, string]; lieIndex: number }[] = [
+  { statements: ['I have walked all of Cubbon Park’s paths in one morning.', 'I can name every Bengaluru metro station in order.', 'I once sang on stage at a college fest.'], lieIndex: 1 },
+  { statements: ['I learned to swim at thirty.', 'I have eaten at the same darshini every Sunday for four years.', 'I have never missed a flight.'], lieIndex: 2 },
+  { statements: ['I own more board games than plates.', 'I was an extra in a Kannada film.', 'I have run a marathon barefoot.'], lieIndex: 2 },
+  { statements: ['I can make perfect dosa batter without measuring.', 'I have been to every state in the north-east.', 'I have a pet tortoise called Rahul Dravid.'], lieIndex: 1 },
 ]

@@ -1,6 +1,6 @@
 import { mutualPairs } from '@/domain/connections'
 
-import { INDIAN_LANGUAGES, INTERESTS, POSITIVE_TAGS, WORLD_LANGUAGES, type SpokenLanguage } from '../../types'
+import { INDIAN_LANGUAGES, INTERESTS, POSITIVE_TAGS, WORLD_LANGUAGES, type ProfilePrompt, type SpokenLanguage } from '../../types'
 import type {
   Booking,
   BookingStatus,
@@ -13,8 +13,33 @@ import { DB_VERSION, type Db, type EventRecord } from '../db'
 
 import { AVATAR_VARIANTS, avatarUrl } from './assets'
 import { buildEvents, buildHubs, seedZone } from './events'
-import { PEOPLE, PROMPT_BANK, type SeedPerson } from './people'
+import { PEOPLE, PICK_BANK, PROMPT_BANK, TWO_TRUTHS_BANK, type SeedPerson } from './people'
 import { createRandom } from './random'
+
+type Random = ReturnType<typeof createRandom>
+
+/** One or two written prompts, and sometimes a "this or that" or a round of two truths and a lie. */
+function seedPrompts(random: Random): ProfilePrompt[] {
+  const written = random.sample(PROMPT_BANK, random.int(1, 2)).map((prompt) => ({
+    promptId: prompt.promptId,
+    question: prompt.question,
+    answer: random.pick(prompt.answers),
+  }))
+  const extra = random.int(0, 3)
+  if (extra === 0 && written.length < 3) {
+    const pick = random.pick(PICK_BANK)
+    written.push({ promptId: pick.promptId, question: pick.question, answer: random.pick(pick.options) })
+  } else if (extra === 1 && written.length < 3) {
+    const round = random.pick(TWO_TRUTHS_BANK)
+    written.push({ promptId: 'two-truths', question: 'Two truths and a lie', answer: '', statements: [...round.statements], lieIndex: round.lieIndex } as ProfilePrompt)
+  }
+  // Everyone shows at least two.
+  while (written.length < 2) {
+    const prompt = random.pick(PROMPT_BANK.filter((candidate) => !written.some((chosen) => chosen.promptId === candidate.promptId)))
+    written.push({ promptId: prompt.promptId, question: prompt.question, answer: random.pick(prompt.answers) })
+  }
+  return written
+}
 
 const HOUR = 3_600_000
 const DAY = 24 * HOUR
@@ -119,11 +144,7 @@ export function buildSeed(now: Date): Db {
         // Some people are learning something new.
         ...(random.int(0, 3) === 0 ? [{ language: random.sample(WORLD_LANGUAGES.slice(0, 8), 1)[0], level: 'learning' as const }] : []),
       ],
-      prompts: random.sample(PROMPT_BANK, random.int(2, 3)).map((prompt) => ({
-        promptId: prompt.promptId,
-        question: prompt.question,
-        answer: random.pick(prompt.answers),
-      })),
+      prompts: seedPrompts(random),
       photos: Array.from({ length: AVATAR_VARIANTS }, (_, index) => ({
         id: `${person.id}-photo-${index + 1}`,
         url: avatarUrl(person.id, index + 1),

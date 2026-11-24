@@ -5,6 +5,8 @@ import { ReliabilityChip } from '@/components/people/reliability-chip'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { describeLanguages } from '@/domain/languages'
+
+import { PromptBlock } from './prompt-block'
 import type { ProfileCard as ProfileCardData, SpokenLanguage } from '@/services'
 
 interface ProfileCardProps {
@@ -19,15 +21,6 @@ function Photo({ url, alt, eager = false }: { url: string; alt: string; eager?: 
     <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
       <img src={url} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" className="size-full object-cover" />
     </div>
-  )
-}
-
-function Prompt({ question, answer }: { question: string; answer: string }) {
-  return (
-    <blockquote className="rounded-2xl bg-background/70 p-5">
-      <p className="text-sm font-medium text-muted-foreground">{question}</p>
-      <p className="mt-1.5 font-display text-h4">{answer}</p>
-    </blockquote>
   )
 }
 
@@ -83,7 +76,7 @@ export function ProfileCard({ card, own = false, className }: ProfileCardProps) 
   const photos = [...morePhotos]
   while (prompts.length || photos.length) {
     const prompt = prompts.shift()
-    if (prompt) blocks.push(<Prompt key={prompt.promptId} question={prompt.question} answer={prompt.answer} />)
+    if (prompt) blocks.push(<PromptBlock key={prompt.promptId} prompt={prompt} own={own} />)
     const photo = photos.shift()
     if (photo) blocks.push(<Photo key={photo.id} url={photo.url} alt={photo.alt} />)
   }
