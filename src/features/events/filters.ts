@@ -1,5 +1,5 @@
-import { AREAS, EVENT_CATEGORIES } from '@/services/types'
-import type { Area, DateFilter, EventCategory, EventFilters, GroupSizeFilter, PriceFilter } from '@/services'
+import { EVENT_CATEGORIES, ZONES } from '@/services/types'
+import type { DateFilter, EventCategory, EventFilters, GroupSizeFilter, PriceFilter, Zone } from '@/services'
 
 /**
  * The event filters live in the page address, so a filtered view can be
@@ -21,13 +21,13 @@ function listOf<T extends string>(value: string | null, allowed: readonly T[]): 
 export function filtersFromParams(params: URLSearchParams): EventFilters {
   const filters: EventFilters = {}
   const date = oneOf(params.get('date'), DATES)
-  const areas = listOf<Area>(params.get('areas'), AREAS)
+  const zones = listOf<Zone>(params.get('zones'), ZONES)
   const categories = listOf<EventCategory>(params.get('categories'), EVENT_CATEGORIES)
   const price = oneOf(params.get('price'), PRICES)
   const groupSize = oneOf(params.get('size'), SIZES)
   const hubId = params.get('hub')
   if (date) filters.date = date
-  if (areas) filters.areas = areas
+  if (zones) filters.zones = zones
   if (categories) filters.categories = categories
   if (price) filters.price = price
   if (groupSize) filters.groupSize = groupSize
@@ -39,7 +39,7 @@ export function filtersFromParams(params: URLSearchParams): EventFilters {
 export function filtersToParams(filters: EventFilters): URLSearchParams {
   const params = new URLSearchParams()
   if (filters.date) params.set('date', filters.date)
-  if (filters.areas?.length) params.set('areas', filters.areas.join(','))
+  if (filters.zones?.length) params.set('zones', filters.zones.join(','))
   if (filters.categories?.length) params.set('categories', filters.categories.join(','))
   if (filters.price) params.set('price', filters.price)
   if (filters.groupSize) params.set('size', filters.groupSize)
@@ -48,11 +48,11 @@ export function filtersToParams(filters: EventFilters): URLSearchParams {
   return params
 }
 
-/** How many filters are switched on. Each area or category counts once. */
+/** How many filters are switched on. Each part of the city or category counts once. */
 export function countFilters(filters: EventFilters): number {
   return (
     (filters.date ? 1 : 0) +
-    (filters.areas?.length ?? 0) +
+    (filters.zones?.length ?? 0) +
     (filters.categories?.length ?? 0) +
     (filters.price ? 1 : 0) +
     (filters.groupSize ? 1 : 0) +

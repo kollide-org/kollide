@@ -29,6 +29,7 @@ const onboarding: OnboardingInput = {
   firstName: 'Isha',
   dateOfBirth: '1998-05-20',
   gender: 'woman',
+  city: 'bengaluru',
   area: 'Indiranagar',
   interests: ['Board games'],
   languages: ['English'],
@@ -102,7 +103,9 @@ describe('seed data', () => {
     expect((await eventService.listEvents({ type: 'partner' })).length).toBe(4)
     expect((await eventService.listEvents({ price: 'free' })).every((event) => ['free', 'pay_at_venue'].includes(event.pricing.mode))).toBe(true)
     expect((await eventService.listEvents({ groupSize: 'small' })).every((event) => event.capacity <= 10)).toBe(true)
-    expect((await eventService.listEvents({ areas: ['Jayanagar'] })).length).toBe(1)
+    const south = await eventService.listEvents({ zones: ['south'] })
+    expect(south.length).toBeGreaterThan(0)
+    expect(south.every((event) => event.zone === 'south')).toBe(true)
   })
 })
 
@@ -561,5 +564,33 @@ describe('featuring', () => {
     const featured = after.filter((event) => event.featured)
     expect(after.slice(0, featured.length).every((event) => event.featured)).toBe(true)
     expect(featured.map((event) => event.id)).toContain(last.id)
+  })
+})
+
+describe('areas', () => {
+  it('takes a listed area by any spelling and looks up its part of the city', async () => {
+    const session = await authService.signInWithGoogle()
+    const profile = await profileService.completeOnboarding({ ...onboarding, area: '  rr   nagar ', zone: 'north' })
+    expect(session.user.id).toBeTruthy()
+    expect(profile).toMatchObject({ city: 'bengaluru', area: 'Rajarajeshwari Nagar', zone: 'west' })
+  })
+
+  it('keeps a typed area with the part of the city the member chose', async () => {
+    await authService.signInWithGoogle()
+    expect(await rejection(profileService.completeOnboarding({ ...onboarding, area: 'Kothanur' }))).toBe('validation')
+    const profile = await profileService.completeOnboarding({ ...onboarding, area: ' Kothanur ', zone: 'north' })
+    expect(profile).toMatchObject({ area: 'Kothanur', zone: 'north' })
+  })
+
+  it('refuses a city that is not open, and an area that reads like an address', async () => {
+    await authService.signInWithGoogle()
+    expect(await rejection(profileService.completeOnboarding({ ...onboarding, city: 'mumbai' as 'bengaluru' }))).toBe('validation')
+    expect(await rejection(profileService.completeOnboarding({ ...onboarding, area: 'Flat 4B, 12th Cross, 3rd Main, near the temple', zone: 'south' }))).toBe('validation')
+  })
+
+  it('lets a member move to another area later', async () => {
+    await mockDevTools.signInAs('member')
+    const profile = await profileService.updateProfile({ area: 'Yelahanka' })
+    expect(profile).toMatchObject({ area: 'Yelahanka', zone: 'north' })
   })
 })

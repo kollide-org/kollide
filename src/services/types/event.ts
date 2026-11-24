@@ -1,5 +1,6 @@
 import type { Booking } from './booking'
-import type { Area, ID, ISODateTime } from './common'
+import type { ID, ISODateTime } from './common'
+import type { Area, CityId, Zone } from './places'
 import type { HostSummary, PersonPreview } from './user'
 
 /**
@@ -73,7 +74,10 @@ export interface Event {
   hubId: ID | null
   startsAt: ISODateTime
   endsAt: ISODateTime
+  city: CityId
+  /** A locality, shown to everyone. Never an address. */
   area: Area
+  zone: Zone
   /** A public venue name, such as a café. `null` for homes. */
   venueName: string | null
   pricing: Pricing
@@ -130,7 +134,8 @@ export type GroupSizeFilter = 'small' | 'medium' | 'large'
 
 export interface EventFilters {
   date?: DateFilter
-  areas?: Area[]
+  /** Parts of the city. With hundreds of localities, filters work by zone. */
+  zones?: Zone[]
   categories?: EventCategory[]
   price?: PriceFilter
   womenOnly?: boolean
@@ -172,6 +177,8 @@ export interface EventDraft {
   startsAt: ISODateTime
   endsAt: ISODateTime
   area: Area
+  /** Needed only for an area that is not in the list. */
+  zone?: Zone
   venueName: string | null
   exactAddress: string
   directions: string | null

@@ -2,8 +2,9 @@ import { z } from 'zod'
 
 import { HOUSE_PARTY_MAX_GUESTS } from '@/domain/bookings'
 import { DAY_MS, MINIMUM_AGE } from '@/domain/time'
-import { AREAS, EVENT_CATEGORIES } from '@/services/types'
-import type { Area, EventCategory, EventDraft } from '@/services'
+import { AREA_PROBLEMS, resolveArea } from '@/domain/places'
+import { EVENT_CATEGORIES, OPEN_CITY } from '@/services/types'
+import type { Area, CityId, EventCategory, EventDraft, Zone } from '@/services'
 
 /** What a host types while creating an event. Numbers are kept as typed until they are checked. */
 export interface EventFormDraft {
@@ -15,7 +16,10 @@ export interface EventFormDraft {
   date: string
   startTime: string
   endTime: string
+  city: CityId
   area: Area | null
+  /** Set from the list for a listed area, chosen by the host for a typed one. */
+  zone: Zone | null
   venueName: string
   exactAddress: string
   directions: string
@@ -38,7 +42,9 @@ export const EMPTY_EVENT_DRAFT: EventFormDraft = {
   date: '',
   startTime: '',
   endTime: '',
+  city: OPEN_CITY,
   area: null,
+  zone: null,
   venueName: '',
   exactAddress: '',
   directions: '',
@@ -98,7 +104,9 @@ export const placeSchema = z
     date: z.string().min(1, 'Choose a date.'),
     startTime: z.string().min(1, 'Choose a start time.'),
     endTime: z.string().min(1, 'Choose an end time.'),
-    area: z.enum(AREAS, 'Choose the area.'),
+    city: z.string(),
+    area: z.string().nullable(),
+    zone: z.string().nullable(),
     venueName: z.string().trim().max(60),
     exactAddress: z.string().trim().min(10, 'Add the full address. Guests see it only once they are approved.'),
     directions: z.string().trim().max(200),
@@ -106,6 +114,10 @@ export const placeSchema = z
   .refine((draft) => (eventTimes(draft)?.startsAt.getTime() ?? 0) > Date.now(), {
     path: ['date'],
     message: 'Choose a start time in the future.',
+  })
+  .superRefine((draft, context) => {
+    const place = resolveArea(draft.city, draft.area ?? '', draft.zone ?? undefined)
+    if (!place.ok) context.addIssue({ code: 'custom', path: ['area'], message: AREA_PROBLEMS[place.problem] })
   })
 
 export function guestsSchema(category: EventCategory | null) {
@@ -173,6 +185,7 @@ export function toEventDraft(draft: EventFormDraft): EventDraft {
     startsAt: times.startsAt.toISOString(),
     endsAt: times.endsAt.toISOString(),
     area: draft.area!,
+    zone: draft.zone ?? undefined,
     venueName: draft.venueName.trim() || null,
     exactAddress: draft.exactAddress.trim(),
     directions: draft.directions.trim() || null,

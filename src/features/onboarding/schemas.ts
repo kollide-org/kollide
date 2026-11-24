@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { ageFromDateOfBirth, MINIMUM_AGE } from '@/domain/time'
-import { AREAS, GENDER_OPTIONS, INTERESTS, LANGUAGES, PROFILE_PROMPTS } from '@/services/types/common'
+import { GENDER_OPTIONS, INTERESTS, LANGUAGES, PROFILE_PROMPTS } from '@/services/types/common'
 
 /**
  * Validation for each onboarding step. The same rules are checked again by the
@@ -64,7 +64,7 @@ export function isOldEnough(age: number | null): boolean {
 }
 
 export const genderSchema = z.enum(GENDER_OPTIONS.map((option) => option.value), 'Choose one option.')
-export const areaSchema = z.enum(AREAS, 'Choose your area.')
+export { areaChoiceSchema as areaSchema } from '@/features/places/schema'
 
 export const PHOTO_COUNT = 3
 export const photosSchema = z.array(z.string().min(1)).length(PHOTO_COUNT, 'Add three photos to continue.')

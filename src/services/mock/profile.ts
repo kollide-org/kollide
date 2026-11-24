@@ -1,3 +1,4 @@
+import { AREA_PROBLEMS, resolveArea } from '@/domain/places'
 import { activeTipCategories, TIP_MESSAGES, type FeedbackContext } from '@/domain/private-feedback'
 import { daysBetween, isAdult } from '@/domain/time'
 
@@ -55,6 +56,8 @@ export const mockProfileService: ProfileService = {
     if (input.photos.length < 3) throw invalid('Add three photos.')
     if (input.interests.length === 0) throw invalid('Pick at least one interest.')
     if (input.prompts.length < 2 || input.prompts.length > 3) throw invalid('Answer two or three prompts.')
+    const place = resolveArea(input.city, input.area, input.zone)
+    if (!place.ok) throw invalid(AREA_PROBLEMS[place.problem])
     if (!input.acceptedConduct || !input.acceptedPrivacy) {
       throw invalid('Accept the code of conduct and the privacy notice to continue.')
     }
@@ -70,7 +73,9 @@ export const mockProfileService: ProfileService = {
       userId: user.id,
       firstName: input.firstName.trim(),
       gender: input.gender,
-      area: input.area,
+      city: place.city,
+      area: place.area,
+      zone: place.zone,
       interests: input.interests,
       languages: input.languages,
       prompts: input.prompts,
@@ -89,7 +94,11 @@ export const mockProfileService: ProfileService = {
     const user = requireUser(db)
     const profile = db.profiles.find((candidate) => candidate.userId === user.id)
     if (!profile) throw invalid('Finish your profile first.')
-    if (patch.area) profile.area = patch.area
+    if (patch.area !== undefined) {
+      const place = resolveArea(profile.city, patch.area, patch.zone)
+      if (!place.ok) throw invalid(AREA_PROBLEMS[place.problem])
+      Object.assign(profile, { area: place.area, zone: place.zone })
+    }
     if (patch.interests) profile.interests = patch.interests
     if (patch.languages) profile.languages = patch.languages
     if (patch.prompts) profile.prompts = patch.prompts

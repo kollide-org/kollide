@@ -1,4 +1,5 @@
 import { bengaluruClock, fromBengaluru } from '@/domain/time'
+import { findLocality } from '@/services/types/places'
 
 import type { Area, EventCategory, EventStatus, EventType, Hub, Pricing } from '../../types'
 import type { EventRecord } from '../db'
@@ -6,6 +7,13 @@ import type { EventRecord } from '../db'
 import { coverUrl, hubArtworkUrl } from './assets'
 
 const HOUR = 3_600_000
+
+/** Every seed area is a listed locality, so its zone can be looked up. */
+export function seedZone(area: string) {
+  const locality = findLocality('bengaluru', area)
+  if (!locality) throw new Error(`The seed uses an area that is not listed: ${area}`)
+  return locality.zone
+}
 
 /** A day relative to today, at a set time in Bengaluru, wherever the demo is opened. */
 function dayAt(now: Date, days: number, hour: number, minute = 0): Date {
@@ -567,7 +575,9 @@ function toRecord(spec: EventSpec, now: Date, isArchive: boolean): EventRecord {
     hubId: spec.hubId ?? null,
     startsAt: spec.start.toISOString(),
     endsAt: new Date(spec.start.getTime() + spec.hours * HOUR).toISOString(),
+    city: 'bengaluru',
     area: spec.area,
+    zone: seedZone(spec.area),
     venueName: spec.venueName ?? null,
     pricing: spec.pricing,
     capacity: spec.capacity,

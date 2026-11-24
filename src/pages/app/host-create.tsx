@@ -7,6 +7,7 @@ import type { z } from 'zod'
 
 import { useSession } from '@/app/providers/session-context'
 import { ChoiceCard, ChoiceChips } from '@/components/forms/choice'
+import { AreaPicker } from '@/components/forms/area-picker'
 import { FieldError, StepForm } from '@/components/forms/step-form'
 import { AppLink } from '@/components/shared/app-link'
 import { Button } from '@/components/ui/button'
@@ -42,7 +43,7 @@ import { cn } from '@/lib/utils'
 import { HOUSE_PARTY_MAX_GUESTS, OVER_APPROVAL_RATIO } from '@/domain/bookings'
 import { bengaluruClock } from '@/domain/time'
 import type { Event, EventCategory } from '@/services'
-import { AREAS, EVENT_CATEGORIES } from '@/services/types'
+import { EVENT_CATEGORIES } from '@/services/types'
 
 interface StepProps {
   draft: EventFormDraft
@@ -182,8 +183,14 @@ function PlaceStep({ draft, update, onNext }: StepProps) {
         </div>
 
         <div className="grid gap-2">
-          <p className="text-sm font-semibold">Area</p>
-          <ChoiceChips legend="Area" name="area" options={AREAS} value={draft.area} describedBy={errors.area ? 'area-error' : undefined} onChange={(area) => update({ area })} />
+          <AreaPicker
+            label="Area"
+            hint="Everyone sees the area. Just the locality, never the street or the building."
+            value={{ city: draft.city, area: draft.area ?? '', zone: draft.zone }}
+            describedBy={errors.area ? 'area-error' : undefined}
+            invalid={Boolean(errors.area)}
+            onChange={(choice) => update({ city: choice.city, area: choice.area || null, zone: choice.zone })}
+          />
           <FieldError id="area-error" message={errors.area} />
         </div>
 

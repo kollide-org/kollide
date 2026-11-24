@@ -1,4 +1,5 @@
-import type { Area, ID, ISODate, ISODateTime } from './common'
+import type { ID, ISODate, ISODateTime } from './common'
+import type { Area, CityId, Zone } from './places'
 import type { HostRatingSummary, PositiveTag } from './review'
 import type { Role } from './role'
 
@@ -59,7 +60,10 @@ export interface Profile {
   /** Worked out from the date of birth. The date itself is never exposed. */
   age: number
   gender: Gender
+  city: CityId
+  /** A listed locality, or one the member typed. */
   area: Area
+  zone: Zone
   interests: string[]
   languages: string[]
   prompts: ProfilePrompt[]
@@ -139,7 +143,10 @@ export interface OnboardingInput {
   lastName?: string
   dateOfBirth: ISODate
   gender: Gender
+  city: CityId
   area: Area
+  /** Needed only for an area that is not in the list. A listed area's zone is looked up. */
+  zone?: Zone
   interests: string[]
   languages: string[]
   prompts: ProfilePrompt[]
@@ -152,6 +159,8 @@ export interface OnboardingInput {
 
 export type ProfilePatch = Partial<
   Pick<Profile, 'area' | 'interests' | 'languages' | 'prompts' | 'workplace'> & {
+    /** With `area`, for an area that is not in the list. */
+    zone: Zone
     photos: { url: string; alt: string }[]
   }
 >

@@ -1,9 +1,11 @@
 import { canSeeAddress, HOUSE_PARTY_MAX_GUESTS } from '@/domain/bookings'
+import { AREA_PROBLEMS, resolveArea } from '@/domain/places'
 import { bengaluruClock, fromBengaluru } from '@/domain/time'
 
 import { ServiceError } from '../errors'
 import type { EventService } from '../interfaces'
-import type { EventDraft, EventFilters, User } from '../types'
+import type { EventDraft, EventFilters, User, Zone } from '../types'
+import { OPEN_CITY } from '../types'
 
 import { getDb, saveDb, type Db, type EventRecord } from './db'
 import { notify, notifyAdmins } from './notify'
@@ -41,7 +43,7 @@ function matchesDate(event: EventRecord, filter: EventFilters['date'], at: Date)
 
 function matches(event: EventRecord, filters: EventFilters, at: Date): boolean {
   if (!matchesDate(event, filters.date, at)) return false
-  if (filters.areas?.length && !filters.areas.includes(event.area)) return false
+  if (filters.zones?.length && !filters.zones.includes(event.zone)) return false
   if (filters.categories?.length && !filters.categories.includes(event.category)) return false
   if (filters.womenOnly && !event.womenOnly) return false
   if (filters.hubId && event.hubId !== filters.hubId) return false
@@ -212,11 +214,16 @@ export const mockEventService: EventService = {
     const host = requireRole('host', db)
     if (host.status !== 'active') throw new ServiceError('forbidden', 'Your account cannot create events right now.')
     validateDraft(draft, true)
+    const place = resolveArea(OPEN_CITY, draft.area, draft.zone)
+    if (!place.ok) throw invalid(AREA_PROBLEMS[place.problem])
 
     const id = newId('ev')
     const { exactAddress, directions, ...rest } = draft
     const record: EventRecord = {
       ...rest,
+      city: place.city,
+      area: place.area,
+      zone: place.zone,
       id,
       slug: `${slugify(draft.title)}-${id.slice(-4)}`,
       // Kollide's own events are created by the team. Everything else is a community event.
@@ -246,7 +253,13 @@ export const mockEventService: EventService = {
     const event = findEvent(db, eventId)
     if (!canManage(event, user)) throw new ServiceError('forbidden', 'Only the host can change this event.')
     validateDraft({ category: event.category, ...patch }, false)
-    Object.assign(event, patch, {
+    let place: { area: string; zone: Zone } | null = null
+    if (patch.area !== undefined) {
+      const resolved = resolveArea(event.city, patch.area, patch.zone)
+      if (!resolved.ok) throw invalid(AREA_PROBLEMS[resolved.problem])
+      place = { area: resolved.area, zone: resolved.zone }
+    }
+    Object.assign(event, patch, place ?? {}, {
       exactAddress: patch.exactAddress?.trim() ?? event.exactAddress,
       directions: patch.directions === undefined ? event.directions : patch.directions?.trim() || null,
     })

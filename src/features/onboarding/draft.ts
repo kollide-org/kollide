@@ -1,6 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-import type { Area, Gender, ProfilePrompt } from '@/services'
+import type { Area, CityId, Gender, ProfilePrompt, Zone } from '@/services'
+import { OPEN_CITY } from '@/services/types/places'
 
 /** Everything a new member enters before their profile is created. */
 export interface OnboardingDraft {
@@ -10,7 +11,10 @@ export interface OnboardingDraft {
   birthMonth: string
   birthYear: string
   gender: Gender | null
+  city: CityId
   area: Area | null
+  /** Set from the list for a listed area, chosen by the member for a typed one. */
+  zone: Zone | null
   /** Cropped photos, as data URLs. */
   photos: string[]
   interests: string[]
@@ -29,7 +33,9 @@ export const EMPTY_DRAFT: OnboardingDraft = {
   birthMonth: '',
   birthYear: '',
   gender: null,
+  city: OPEN_CITY,
   area: null,
+  zone: null,
   photos: [],
   interests: [],
   languages: ['English'],

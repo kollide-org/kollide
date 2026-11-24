@@ -12,7 +12,7 @@ import type {
 import { DB_VERSION, type Db, type EventRecord } from '../db'
 
 import { AVATAR_VARIANTS, avatarUrl } from './assets'
-import { buildEvents, buildHubs } from './events'
+import { buildEvents, buildHubs, seedZone } from './events'
 import { PEOPLE, PROMPT_BANK, type SeedPerson } from './people'
 import { createRandom } from './random'
 
@@ -107,7 +107,9 @@ export function buildSeed(now: Date): Db {
       userId: person.id,
       firstName: person.firstName,
       gender: person.gender,
+      city: 'bengaluru',
       area: person.area,
+      zone: seedZone(person.area),
       interests: random.sample(INTERESTS, random.int(3, 5)),
       languages: ['English', ...random.sample(LANGUAGES.slice(1), random.int(1, 2))],
       prompts: random.sample(PROMPT_BANK, random.int(2, 3)).map((prompt) => ({

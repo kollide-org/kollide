@@ -183,7 +183,7 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 ## Events
 
 - **Home (`/app`):** the active seasonal hub, squads forming, then the event feed.
-- **Filters:** date, area, kind of event, cost, group size and women-only. They live in the page address (`/app?price=free&areas=Indiranagar`), so a filtered view can be shared and the back button steps through changes. "Free" means no entry cost, so it includes pay-at-venue events.
+- **Filters:** date, part of the city, kind of event, cost, group size and women-only. They live in the page address (`/app?price=free&zones=east`), so a filtered view can be shared and the back button steps through changes. "Free" means no entry cost, so it includes pay-at-venue events.
 - **Hubs:** `HubSection` takes any hub: a title, artwork, an accent colour and its events. The accent arrives as a CSS variable, so nothing is styled for one season.
 - **Event page:** `/events/:slug` is the public preview and `/app/events/:slug` is the member's page. They share one view. The exact address is fetched separately, and only once the service says the viewer may see it. Guest names appear only to people who are going.
 - **The main button** depends on the kind of event: "Request to join" for community events, "Book" for Kollide's own, and "Get tickets" (an outbound link) with "Join a squad" for partner events.
@@ -218,6 +218,12 @@ An account without a finished profile can only reach `/onboarding`. The steps, i
 - **Gentle tips:** shown only on your own profile, once several people said the same thing at more than one event. You can ask us to look again, and the tip shows "Under review".
 - **Safety reports:** on every other member’s profile, every event page and the feedback screen. A report about a person puts them on hold: they can’t send requests, and their profile says so, with a way to appeal. The emergency number is in `src/lib/safety.ts`.
 - **Connections (`/app/connections`):** people who both said yes. When three or more all said yes to each other, Kollide suggests a repeat. There are no messages, by design.
+
+## Places
+
+Kollide opens one city at a time. Members and hosts choose a city, then a locality. `src/services/types/places.ts` lists Bengaluru's localities (a first pass, about 120), each in a part of the city: Central, North, South, East or West. Anyone can type an area that isn't listed; they then choose which part of the city it is in. Filters work by part of the city. The area is always a locality, never an address, and is capped at 40 characters.
+
+Other cities show as "Coming soon". To open one, add its localities and set `open: true` in the same file.
 
 ## Time
 

@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import type { DateFilter, EventFilters, GroupSizeFilter, PriceFilter } from '@/services'
-import { AREAS, EVENT_CATEGORIES } from '@/services/types'
+import { ZONE_LABELS, ZONES, EVENT_CATEGORIES } from '@/services/types'
 
 import { countFilters, toggleInList } from '../filters'
 import { CATEGORY_LABELS, DATE_LABELS, GROUP_SIZE_LABELS } from '../labels'
@@ -116,10 +116,10 @@ export function EventFilterBar({ filters, onChange, resultCount }: EventFiltersP
               ))}
             </Group>
 
-            <Group title="Area">
-              {AREAS.map((area) => (
-                <ToggleChip key={area} pressed={Boolean(filters.areas?.includes(area))} onPress={() => set({ areas: toggleInList(filters.areas, area) })}>
-                  {area}
+            <Group title="Part of Bengaluru">
+              {ZONES.map((zone) => (
+                <ToggleChip key={zone} pressed={Boolean(filters.zones?.includes(zone))} onPress={() => set({ zones: toggleInList(filters.zones, zone) })}>
+                  {ZONE_LABELS[zone]}
                 </ToggleChip>
               ))}
             </Group>

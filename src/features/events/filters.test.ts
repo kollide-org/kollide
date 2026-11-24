@@ -6,7 +6,7 @@ describe('event filters in the address', () => {
   it('round-trips every filter', () => {
     const filters = {
       date: 'this_weekend' as const,
-      areas: ['Indiranagar' as const, 'HSR Layout' as const],
+      zones: ['east' as const, 'south' as const],
       categories: ['games' as const],
       price: 'free' as const,
       groupSize: 'small' as const,
@@ -14,14 +14,14 @@ describe('event filters in the address', () => {
       hubId: 'hub-nye',
     }
     const params = filtersToParams(filters)
-    expect(params.toString()).toBe('date=this_weekend&areas=Indiranagar%2CHSR+Layout&categories=games&price=free&size=small&women=1&hub=hub-nye')
+    expect(params.toString()).toBe('date=this_weekend&zones=east%2Csouth&categories=games&price=free&size=small&women=1&hub=hub-nye')
     expect(filtersFromParams(params)).toEqual(filters)
     expect(countFilters(filters)).toBe(8)
   })
 
   it('ignores anything it does not recognise', () => {
-    const params = new URLSearchParams('date=yesterday&areas=Mumbai,Indiranagar&price=cheap&women=yes&size=huge')
-    expect(filtersFromParams(params)).toEqual({ areas: ['Indiranagar'] })
+    const params = new URLSearchParams('date=yesterday&zones=mumbai,east&price=cheap&women=yes&size=huge')
+    expect(filtersFromParams(params)).toEqual({ zones: ['east'] })
     expect(filtersFromParams(new URLSearchParams())).toEqual({})
     expect(countFilters({})).toBe(0)
   })

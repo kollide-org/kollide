@@ -1,10 +1,8 @@
 import { useState } from 'react'
 
-import { areaSchema } from '@/features/onboarding/schemas'
-import { AREAS } from '@/services/types/common'
-
-import { ChoiceChips } from '@/components/forms/choice'
+import { AreaPicker } from '@/components/forms/area-picker'
 import { FieldError, StepForm } from '@/components/forms/step-form'
+import { areaSchema } from '@/features/onboarding/schemas'
 
 import type { StepProps } from './types'
 
@@ -12,25 +10,24 @@ export function AreaStep({ draft, update, onNext }: StepProps) {
   const [error, setError] = useState<string | null>(null)
 
   const submit = () => {
-    const result = areaSchema.safeParse(draft.area)
+    const result = areaSchema.safeParse({ city: draft.city, area: draft.area ?? '', zone: draft.zone })
     if (result.success) onNext()
     else setError(result.error.issues[0].message)
   }
 
   return (
     <StepForm
-      title="Which part of Bengaluru are you in?"
+      title="Where in the city are you?"
       description="We’ll show you what’s on nearby. Your profile shows the area, never an address."
       onSubmit={submit}
     >
-      <ChoiceChips
-        legend="Your area"
-        name="area"
-        options={AREAS}
-        value={draft.area}
+      <AreaPicker
+        label="Your area"
+        value={{ city: draft.city, area: draft.area ?? '', zone: draft.zone }}
         describedBy={error ? 'area-error' : undefined}
-        onChange={(area) => {
-          update({ area })
+        invalid={Boolean(error)}
+        onChange={(choice) => {
+          update({ city: choice.city, area: choice.area || null, zone: choice.zone })
           setError(null)
         }}
       />

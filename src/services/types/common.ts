@@ -6,24 +6,6 @@ export type ISODateTime = string
 /** A calendar date, as YYYY-MM-DD. */
 export type ISODate = string
 
-/** Version 1 covers Bengaluru only. Events show an area, never an address. */
-export const AREAS = [
-  'Indiranagar',
-  'Koramangala',
-  'HSR Layout',
-  'Jayanagar',
-  'JP Nagar',
-  'Whitefield',
-  'Malleshwaram',
-  'Church Street',
-  'MG Road',
-  'Cubbon Park',
-  'Hebbal',
-  'Bellandur',
-  'Basavanagudi',
-  'Frazer Town',
-] as const
-export type Area = (typeof AREAS)[number]
 
 export const INTERESTS = [
   'Board games',
