@@ -143,13 +143,13 @@ The first bundle holds the hero and nothing else from the landing page. The sect
 
 A page that shows data, such as an event page, starts fetching its data in the route loader, at the same moment its code is requested. For the pages people most often open from a shared link (the event page, Home and the in-app event page), `index.html` starts downloading the page's code and the services alongside the main bundle, through `scripts/vite-route-preload.ts`. The toaster is mounted once the page is idle.
 
-Lighthouse, mobile, on the production build (`npm run build`, then `npx vite preview`):
+Lighthouse, mobile, on the production build (`npm run build`, then `npx vite preview`), three runs each. Scores move a few points between runs on the same build:
 
 | Page | Performance | Accessibility | Best practices |
 |---|---|---|---|
-| Landing | 97–98 | 100 | 100 |
-| How it works | 99 | 100 | 100 |
-| Event page | 83–85 | 100 | 100 |
+| Landing | 92–97 | 100 | 100 |
+| How it works | 99–100 | 100 | 100 |
+| Event page | 81–84 (one run at 73) | 100 | 100 |
 
 The event page is below the target of 90. Its largest element is the cover image, and a page drawn in the browser cannot know which cover to show until about 375 kB of fonts, styles and code have arrived and the event has loaded. Unthrottled, the cover paints at about 0.4 s. Lighthouse's simulated slow phone puts it at 4.3 s. The mock's artificial delay is not the cause: with it set to zero the score is the same. Reaching 90 needs the event page's HTML to be rendered ahead of time, on the server or at build time, which is a change to the stack.
 
