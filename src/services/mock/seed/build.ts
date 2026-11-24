@@ -1,6 +1,6 @@
 import { mutualPairs } from '@/domain/connections'
 
-import { INTERESTS, LANGUAGES, POSITIVE_TAGS } from '../../types'
+import { INDIAN_LANGUAGES, INTERESTS, POSITIVE_TAGS, WORLD_LANGUAGES, type SpokenLanguage } from '../../types'
 import type {
   Booking,
   BookingStatus,
@@ -111,7 +111,14 @@ export function buildSeed(now: Date): Db {
       area: person.area,
       zone: seedZone(person.area),
       interests: random.sample(INTERESTS, random.int(3, 5)),
-      languages: ['English', ...random.sample(LANGUAGES.slice(1), random.int(1, 2))],
+      languages: [
+        { language: 'English', level: 'fluent' },
+        ...random.sample(INDIAN_LANGUAGES.slice(1, 12), random.int(1, 2)).map(
+          (language, index): SpokenLanguage => ({ language, level: index === 0 ? 'fluent' : 'conversational' }),
+        ),
+        // Some people are learning something new.
+        ...(random.int(0, 3) === 0 ? [{ language: random.sample(WORLD_LANGUAGES.slice(0, 8), 1)[0], level: 'learning' as const }] : []),
+      ],
       prompts: random.sample(PROMPT_BANK, random.int(2, 3)).map((prompt) => ({
         promptId: prompt.promptId,
         question: prompt.question,

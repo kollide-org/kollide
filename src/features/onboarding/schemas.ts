@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 import { ageFromDateOfBirth, MINIMUM_AGE } from '@/domain/time'
-import { GENDER_OPTIONS, INTERESTS, LANGUAGES, PROFILE_PROMPTS } from '@/services/types/common'
+import { languagesProblem } from '@/domain/languages'
+import { GENDER_OPTIONS, INTERESTS, PROFILE_PROMPTS } from '@/services/types/common'
 
 /**
  * Validation for each onboarding step. The same rules are checked again by the
@@ -76,7 +77,10 @@ export const interestsSchema = z
   .min(MIN_INTERESTS, `Pick at least ${MIN_INTERESTS}, so people have something to ask you about.`)
   .max(MAX_INTERESTS, `Pick up to ${MAX_INTERESTS}.`)
 
-export const languagesSchema = z.array(z.enum(LANGUAGES)).min(1, 'Pick at least one language.')
+export const languagesSchema = z.array(z.object({ language: z.string(), level: z.string() })).superRefine((list, context) => {
+  const problem = languagesProblem(list)
+  if (problem) context.addIssue({ code: 'custom', message: problem })
+})
 
 export const MIN_PROMPTS = 2
 export const MAX_PROMPTS = 3

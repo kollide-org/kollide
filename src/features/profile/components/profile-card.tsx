@@ -1,10 +1,11 @@
-import { BadgeCheck, CalendarCheck, Clock, Languages, MapPin } from 'lucide-react'
+import { BadgeCheck, CalendarCheck, Clock, Languages, MapPin, Sprout } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { ReliabilityChip } from '@/components/people/reliability-chip'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { ProfileCard as ProfileCardData } from '@/services'
+import { describeLanguages } from '@/domain/languages'
+import type { ProfileCard as ProfileCardData, SpokenLanguage } from '@/services'
 
 interface ProfileCardProps {
   card: ProfileCardData
@@ -36,6 +37,33 @@ function Detail({ icon, children }: { icon: ReactNode; children: ReactNode }) {
       <span className="mt-0.5 shrink-0">{icon}</span>
       <span>{children}</span>
     </p>
+  )
+}
+
+function listOf(items: string[]): string {
+  return items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+}
+
+/** "Speaks English and Kannada · gets by in Hindi", and what they are learning, which is an easy thing to ask about. */
+function LanguagesLine({ languages }: { languages: SpokenLanguage[] }) {
+  const { speaks, conversational, learning } = describeLanguages(languages)
+  const said = [speaks.length ? `Speaks ${listOf(speaks)}` : null, conversational.length ? `gets by in ${listOf(conversational)}` : null]
+    .filter(Boolean)
+    .join(' · ')
+  return (
+    <div className="grid gap-2.5">
+      {said ? <Detail icon={<Languages className="size-5" aria-hidden="true" />}>{said.charAt(0).toUpperCase() + said.slice(1)}</Detail> : null}
+      {learning.length ? (
+        <p className="flex flex-wrap items-center gap-2">
+          {learning.map((language) => (
+            <Badge key={language} variant="highlight-soft">
+              <Sprout aria-hidden="true" />
+              Learning {language}
+            </Badge>
+          ))}
+        </p>
+      ) : null}
+    </div>
   )
 }
 
@@ -126,7 +154,7 @@ export function ProfileCard({ card, own = false, className }: ProfileCardProps) 
           </ul>
         </div>
 
-        <Detail icon={<Languages className="size-5" aria-hidden="true" />}>Speaks {card.languages.join(', ')}</Detail>
+        <LanguagesLine languages={card.languages} />
 
         {card.workplace ? <p className="text-muted-foreground">{card.workplace}</p> : null}
 

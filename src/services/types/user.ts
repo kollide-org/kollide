@@ -1,4 +1,5 @@
 import type { ID, ISODate, ISODateTime } from './common'
+import type { SpokenLanguage } from './languages'
 import type { Area, CityId, Zone } from './places'
 import type { HostRatingSummary, PositiveTag } from './review'
 import type { Role } from './role'
@@ -65,7 +66,7 @@ export interface Profile {
   area: Area
   zone: Zone
   interests: string[]
-  languages: string[]
+  languages: SpokenLanguage[]
   prompts: ProfilePrompt[]
   photos: Photo[]
   verification: Verification
@@ -148,7 +149,7 @@ export interface OnboardingInput {
   /** Needed only for an area that is not in the list. A listed area's zone is looked up. */
   zone?: Zone
   interests: string[]
-  languages: string[]
+  languages: SpokenLanguage[]
   prompts: ProfilePrompt[]
   /** Local object URLs or data URLs from the cropper. */
   photos: { url: string; alt: string }[]

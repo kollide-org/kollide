@@ -32,7 +32,10 @@ const onboarding: OnboardingInput = {
   city: 'bengaluru',
   area: 'Indiranagar',
   interests: ['Board games'],
-  languages: ['English'],
+  languages: [
+    { language: 'English', level: 'fluent' },
+    { language: 'Spanish', level: 'learning' },
+  ],
   prompts: [
     { promptId: 'perfect-sunday', question: 'A perfect Sunday is…', answer: 'A long walk.' },
     { promptId: 'ask-me-about', question: 'Ask me about…', answer: 'My plants.' },
@@ -592,5 +595,32 @@ describe('areas', () => {
     await mockDevTools.signInAs('member')
     const profile = await profileService.updateProfile({ area: 'Yelahanka' })
     expect(profile).toMatchObject({ area: 'Yelahanka', zone: 'north' })
+  })
+})
+
+describe('languages', () => {
+  it('keeps each language with how well it is spoken', async () => {
+    await authService.signInWithGoogle()
+    const profile = await profileService.completeOnboarding(onboarding)
+    expect(profile.languages).toEqual([
+      { language: 'English', level: 'fluent' },
+      { language: 'Spanish', level: 'learning' },
+    ])
+  })
+
+  it('refuses unknown languages, repeats, and a list of only languages being learned', async () => {
+    await mockDevTools.signInAs('member')
+    expect(await rejection(profileService.updateProfile({ languages: [{ language: 'Klingon' as 'English', level: 'fluent' }] }))).toBe('validation')
+    expect(
+      await rejection(
+        profileService.updateProfile({
+          languages: [
+            { language: 'Hindi', level: 'fluent' },
+            { language: 'Hindi', level: 'learning' },
+          ],
+        }),
+      ),
+    ).toBe('validation')
+    expect(await rejection(profileService.updateProfile({ languages: [{ language: 'Japanese', level: 'learning' }] }))).toBe('validation')
   })
 })

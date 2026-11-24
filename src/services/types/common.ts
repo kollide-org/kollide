@@ -33,19 +33,6 @@ export const INTERESTS = [
 ] as const
 export type Interest = (typeof INTERESTS)[number]
 
-export const LANGUAGES = [
-  'English',
-  'Kannada',
-  'Hindi',
-  'Tamil',
-  'Telugu',
-  'Malayalam',
-  'Marathi',
-  'Bengali',
-  'Gujarati',
-  'Punjabi',
-] as const
-export type Language = (typeof LANGUAGES)[number]
 
 /** The prompts a member can answer on their profile. They choose two or three. */
 export const PROFILE_PROMPTS = [

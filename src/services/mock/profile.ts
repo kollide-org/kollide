@@ -1,3 +1,4 @@
+import { languagesProblem } from '@/domain/languages'
 import { AREA_PROBLEMS, resolveArea } from '@/domain/places'
 import { activeTipCategories, TIP_MESSAGES, type FeedbackContext } from '@/domain/private-feedback'
 import { daysBetween, isAdult } from '@/domain/time'
@@ -56,6 +57,8 @@ export const mockProfileService: ProfileService = {
     if (input.photos.length < 3) throw invalid('Add three photos.')
     if (input.interests.length === 0) throw invalid('Pick at least one interest.')
     if (input.prompts.length < 2 || input.prompts.length > 3) throw invalid('Answer two or three prompts.')
+    const languageProblem = languagesProblem(input.languages)
+    if (languageProblem) throw invalid(languageProblem)
     const place = resolveArea(input.city, input.area, input.zone)
     if (!place.ok) throw invalid(AREA_PROBLEMS[place.problem])
     if (!input.acceptedConduct || !input.acceptedPrivacy) {
@@ -100,7 +103,11 @@ export const mockProfileService: ProfileService = {
       Object.assign(profile, { area: place.area, zone: place.zone })
     }
     if (patch.interests) profile.interests = patch.interests
-    if (patch.languages) profile.languages = patch.languages
+    if (patch.languages) {
+      const problem = languagesProblem(patch.languages)
+      if (problem) throw invalid(problem)
+      profile.languages = patch.languages
+    }
     if (patch.prompts) profile.prompts = patch.prompts
     if (patch.workplace !== undefined) profile.workplace = patch.workplace?.trim() || null
     if (patch.photos) profile.photos = toPhotos(user.id, patch.photos)

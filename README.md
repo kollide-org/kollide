@@ -225,6 +225,10 @@ Kollide opens one city at a time. Members and hosts choose a city, then a locali
 
 Other cities show as "Coming soon". To open one, add its localities and set `open: true` in the same file.
 
+## Languages
+
+Members add any of about 80 languages, Indian ones first, then languages from around the world, including sign languages. Each one is Fluent, Conversational or Learning. The profile card reads "Speaks English and Kannada · gets by in Hindi", with "Learning Spanish" as a separate badge, which gives people something to ask about. At least one language must be one the member can already chat in. The list is in `src/services/types/languages.ts`.
+
 ## Time
 
 Kollide is in Bengaluru, so every date and time is shown in Bengaluru time (`Asia/Kolkata`) on any device, and the times a host types are read as Bengaluru times. The demo data is placed relative to the moment it is created, at ordinary local hours. The exception is the live quiz night, which starts an hour before the data is created so check-in can be tried at any time of day.

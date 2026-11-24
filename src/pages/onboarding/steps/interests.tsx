@@ -1,7 +1,9 @@
 import { useState } from 'react'
 
 import { interestsSchema, languagesSchema, MAX_INTERESTS, MIN_INTERESTS } from '@/features/onboarding/schemas'
-import { INTERESTS, LANGUAGES } from '@/services/types/common'
+import { INTERESTS } from '@/services/types/common'
+
+import { LanguagePicker } from '@/components/forms/language-picker'
 
 import { ChoiceChips } from '@/components/forms/choice'
 import { FieldError, StepForm } from '@/components/forms/step-form'
@@ -64,17 +66,14 @@ export function LanguagesStep({ draft, update, onNext }: StepProps) {
   return (
     <StepForm
       title="Which languages do you speak?"
-      description="Pick every one you’re comfortable chatting in."
+      description="Add every one you can chat in, and any you’re learning. Someone might be happy to practise with you."
       onSubmit={submit}
     >
-      <ChoiceChips
-        legend="Languages you speak"
-        name="languages"
-        options={LANGUAGES}
-        value={draft.languages as (typeof LANGUAGES)[number][]}
+      <LanguagePicker
+        value={draft.languages}
         describedBy={error ? 'languages-error' : undefined}
-        onChange={(language) => {
-          update({ languages: toggle(draft.languages, language) })
+        onChange={(languages) => {
+          update({ languages })
           setError(null)
         }}
       />

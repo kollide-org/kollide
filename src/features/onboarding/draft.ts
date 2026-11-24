@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-import type { Area, CityId, Gender, ProfilePrompt, Zone } from '@/services'
+import type { Area, CityId, Gender, ProfilePrompt, SpokenLanguage, Zone } from '@/services'
 import { OPEN_CITY } from '@/services/types/places'
 
 /** Everything a new member enters before their profile is created. */
@@ -18,7 +18,7 @@ export interface OnboardingDraft {
   /** Cropped photos, as data URLs. */
   photos: string[]
   interests: string[]
-  languages: string[]
+  languages: SpokenLanguage[]
   prompts: ProfilePrompt[]
   phone: string
   /** A selfie for the optional verified badge. `null` if skipped. */
@@ -38,7 +38,7 @@ export const EMPTY_DRAFT: OnboardingDraft = {
   zone: null,
   photos: [],
   interests: [],
-  languages: ['English'],
+  languages: [{ language: 'English', level: 'fluent' }],
   prompts: [],
   phone: '',
   selfie: null,
@@ -54,13 +54,21 @@ const drafts = new Map<string, OnboardingDraft>()
 const listeners = new Set<() => void>()
 const storageKey = (userId: string) => `kollide:onboarding:${userId}`
 
+/** Drafts saved before languages had levels kept plain names. Those become fluent. */
+function migrate(draft: OnboardingDraft): OnboardingDraft {
+  const languages = (draft.languages as unknown[]).map((entry) =>
+    typeof entry === 'string' ? ({ language: entry, level: 'fluent' } as SpokenLanguage) : (entry as SpokenLanguage),
+  )
+  return { ...draft, languages }
+}
+
 function read(userId: string): OnboardingDraft {
   const cached = drafts.get(userId)
   if (cached) return cached
   let draft = EMPTY_DRAFT
   try {
     const stored = window.localStorage.getItem(storageKey(userId))
-    if (stored) draft = { ...EMPTY_DRAFT, ...(JSON.parse(stored) as Partial<OnboardingDraft>) }
+    if (stored) draft = migrate({ ...EMPTY_DRAFT, ...(JSON.parse(stored) as Partial<OnboardingDraft>) })
   } catch {
     // Unreadable or blocked storage: start from an empty draft.
   }
