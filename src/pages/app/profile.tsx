@@ -1,8 +1,9 @@
-import { BadgeCheck, Camera, Clock, EyeOff, Lightbulb, LogOut } from 'lucide-react'
+import { BadgeCheck, Camera, Clock, EyeOff, Lightbulb, LogOut, Pencil } from 'lucide-react'
 import { useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 
 import { useSession } from '@/app/providers/session-context'
 import { ErrorState } from '@/components/shared/error-state'
+import { AppLink } from '@/components/shared/app-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -149,7 +150,19 @@ export function Component() {
   return (
     <>
       <title>Your profile · Kollide</title>
-      <PageHeader eyebrow="Profile" title="How others see you" description="This is the card hosts and squads see when you ask to join." />
+      <PageHeader
+        eyebrow="Profile"
+        title="How others see you"
+        description="This is the card hosts and squads see when you ask to join."
+        action={
+          <Button variant="outline" asChild>
+            <AppLink to="/app/profile/edit">
+              <Pencil aria-hidden="true" />
+              Edit profile
+            </AppLink>
+          </Button>
+        }
+      />
 
       {standing === 'on_hold' || standing === 'suspended' ? (
         <div className="mt-10">

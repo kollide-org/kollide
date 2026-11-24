@@ -73,6 +73,7 @@ export const router = createBrowserRouter([
               { path: 'connections', lazy: () => import('@/pages/app/connections') },
               { path: 'feedback/:eventId', lazy: () => import('@/pages/app/feedback') },
               { path: 'profile', lazy: () => import('@/pages/app/profile') },
+              { path: 'profile/edit', lazy: () => import('@/pages/app/profile-edit') },
               { path: 'people/:userId', lazy: () => import('@/pages/app/person') },
               { path: 'settings', lazy: () => import('@/pages/app/settings') },
               {

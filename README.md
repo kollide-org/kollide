@@ -239,6 +239,10 @@ A profile has two or three prompts, at least one of them written. There are thre
 
 The same rules are checked by the form and the services, in `src/domain/prompts.ts`.
 
+## Editing a profile
+
+`/app/profile/edit`, from "Edit profile" on your profile, changes your area, languages with levels, prompts, interests and work after sign-up. It uses the same pickers and the same checks as onboarding. Photos are changed during onboarding only, for now.
+
 ## Time
 
 Kollide is in Bengaluru, so every date and time is shown in Bengaluru time (`Asia/Kolkata`) on any device, and the times a host types are read as Bengaluru times. The demo data is placed relative to the moment it is created, at ordinary local hours. The exception is the live quiz night, which starts an hour before the data is created so check-in can be tried at any time of day.
